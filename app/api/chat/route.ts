@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   });
 
   const memorySection = memories
-    .map((item) => `- (${item.type}) ${item.title}: ${item.content}`)
+    .map((item: { type: string; title: string; content: string }) => `- (${item.type}) ${item.title}: ${item.content}`)
     .join("\n");
 
   const systemPrompt = `${SYSTEM_PROMPT}\n\nMEMORY:\n${memorySection || "(none)"}`;

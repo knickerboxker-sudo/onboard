@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Reminder } from "@prisma/client";
+import type { Reminder } from "@/types/reminder";
 import { CheckCircle2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
