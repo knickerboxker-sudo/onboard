@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import type { MemoryItem } from "@/types/memory";
 import { cohereChat, cohereExtractJson, generateEmbedding } from "./cohere";
 import { cosineSimilarity } from "./embeddings";
 import { getCachedMemories, setCachedMemories, clearCachedMemories } from "./memory-cache";
@@ -149,7 +150,7 @@ export async function retrieveRelevantMemories({
 
   const queryEmbedding = await generateEmbedding(query, "search_query");
   const scored = memoryItems
-    .filter((item) => Array.isArray(item.embedding))
+    .filter((item): item is MemoryItem & { embedding: number[] } => Array.isArray(item.embedding))
     .map((item) => ({
       item,
       score: cosineSimilarity(queryEmbedding, item.embedding as number[])
@@ -176,7 +177,7 @@ export async function maybeRefreshProfileSummary(userId: string) {
   });
 
   const summaryPrompt = `Summarize the user's job context, responsibilities, key tools, and current goals in 5-7 bullets. Keep it concise.\n\nMessages:\n${latestMessages
-    .map((message) => `- ${message.content}`)
+    .map((message: { content: string }) => `- ${message.content}`)
     .join("\n")}`;
 
   const summary = await cohereChat([

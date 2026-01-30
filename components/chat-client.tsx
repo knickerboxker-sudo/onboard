@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Plus, Send, Mic, Loader2 } from "lucide-react";
-import type { Message } from "@prisma/client";
+import type { Message } from "@/types/message";
 import { cn } from "@/lib/utils";
 
 const defaultPrompt = "Ask OnboardAI about your new role, tools, or people.";

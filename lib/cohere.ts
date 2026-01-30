@@ -14,7 +14,24 @@ export async function generateEmbedding(text: string, type: "search_document" | 
     inputType: type
   });
 
-  return response.embeddings[0] as number[];
+  if (Array.isArray(response.embeddings) && Array.isArray(response.embeddings[0])) {
+    return response.embeddings[0] as number[];
+  }
+
+  const byType = response.embeddings as {
+    prompt?: number[][];
+    document?: number[][];
+    search_document?: number[][];
+    search_query?: number[][];
+  };
+
+  const fromType =
+    byType?.search_document?.[0] ??
+    byType?.search_query?.[0] ??
+    byType?.prompt?.[0] ??
+    byType?.document?.[0];
+
+  return (fromType ?? []) as number[];
 }
 
 export type ChatMessage = {
@@ -33,7 +50,7 @@ export async function cohereChat(
     .map((message) => ({
       role: message.role === "assistant" ? "CHATBOT" : "USER",
       message: message.content
-    }));
+    })) as { role: "CHATBOT" | "USER"; message: string }[];
 
   const lastMessage = messages[messages.length - 1];
   const response = await cohere.chat({

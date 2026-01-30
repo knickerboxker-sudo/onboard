@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { MemoryItem } from "@prisma/client";
+import type { MemoryItem } from "@/types/memory";
 import { Search, Pin, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

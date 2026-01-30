@@ -1,4 +1,4 @@
-import type { MemoryItem } from "@prisma/client";
+import type { MemoryItem } from "@/types/memory";
 
 const CACHE_TTL_MS = 60_000;
 
