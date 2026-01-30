@@ -1,7 +1,7 @@
 import { CohereClient } from "cohere-ai";
 
 const apiKey = process.env.COHERE_API_KEY;
-let cohereClient: CohereClient | null = null;
+let cohereClient: CohereClient | undefined;
 
 function getCohereClient() {
   if (!apiKey) {
