@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { getDefaultUserId } from "@/lib/default-user";
 import ChatClient from "@/components/chat-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function ChatPage() {
   const userId = await getDefaultUserId();
 

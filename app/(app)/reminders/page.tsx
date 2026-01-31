@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { getDefaultUserId } from "@/lib/default-user";
 import RemindersClient from "@/components/reminders-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function RemindersPage() {
   const userId = await getDefaultUserId();
 
