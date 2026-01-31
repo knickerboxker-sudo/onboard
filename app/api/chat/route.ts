@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { SYSTEM_PROMPT, maybeRefreshProfileSummary, retrieveRelevantMemories, storeExtractedMemories } from "@/lib/memory";
 import { cohereChat } from "@/lib/cohere";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { prisma } from "@/lib/db";
 import { getDefaultUserId } from "@/lib/default-user";
+import { getMissingEnv } from "@/lib/env";
+import { SYSTEM_PROMPT, maybeRefreshProfileSummary, retrieveRelevantMemories, storeExtractedMemories } from "@/lib/memory";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const missingEnv = getMissingEnv(["DATABASE_URL", "COHERE_API_KEY"]);
+  if (missingEnv.length > 0) {
+    return NextResponse.json(
+      {
+        error: "Missing environment configuration.",
+        missing: missingEnv
+      },
+      { status: 500 }
+    );
+  }
+
   const userId = await getDefaultUserId();
 
   const rate = checkRateLimit(userId);
