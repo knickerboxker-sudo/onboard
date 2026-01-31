@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { storeExtractedMemories } from "@/lib/memory";
+import { getDefaultUserId } from "@/lib/default-user";
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getDefaultUserId();
 
   const body = await request.json();
   const { content, messageId } = body;
@@ -16,7 +12,7 @@ export async function POST(request: Request) {
   }
 
   const result = await storeExtractedMemories({
-    userId: session.user.id,
+    userId,
     messageId,
     content
   });

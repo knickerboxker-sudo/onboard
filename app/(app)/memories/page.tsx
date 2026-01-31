@@ -1,11 +1,9 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getDefaultUserId } from "@/lib/default-user";
 import MemoriesClient from "@/components/memories-client";
 
 export default async function MemoriesPage() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id ?? "";
+  const userId = await getDefaultUserId();
 
   const memories = await prisma.memoryItem.findMany({
     where: { userId, archived: false },

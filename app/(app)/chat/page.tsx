@@ -1,11 +1,9 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getDefaultUserId } from "@/lib/default-user";
 import ChatClient from "@/components/chat-client";
 
 export default async function ChatPage() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id ?? "";
+  const userId = await getDefaultUserId();
 
   const messages = await prisma.message.findMany({
     where: { userId },

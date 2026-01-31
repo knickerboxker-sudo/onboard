@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getDefaultUserId } from "@/lib/default-user";
 
 function buildIcs(reminders: { text: string; dueAt: Date }[]) {
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//OnboardAI//EN"];
@@ -19,16 +18,13 @@ function buildIcs(reminders: { text: string; dueAt: Date }[]) {
 }
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getDefaultUserId();
 
   const { searchParams } = new URL(request.url);
   const format = searchParams.get("format");
 
   const reminders = await prisma.reminder.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     orderBy: { dueAt: "asc" }
   });
 
@@ -46,10 +42,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getDefaultUserId();
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
@@ -58,7 +51,7 @@ export async function PATCH(request: Request) {
   }
 
   const reminder = await prisma.reminder.findUnique({ where: { id } });
-  if (!reminder || reminder.userId !== session.user.id) {
+  if (!reminder || reminder.userId !== userId) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -68,7 +61,7 @@ export async function PATCH(request: Request) {
   });
 
   const reminders = await prisma.reminder.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     orderBy: { dueAt: "asc" }
   });
 

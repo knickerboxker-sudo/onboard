@@ -1,11 +1,9 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getDefaultUserId } from "@/lib/default-user";
 import RemindersClient from "@/components/reminders-client";
 
 export default async function RemindersPage() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id ?? "";
+  const userId = await getDefaultUserId();
 
   const reminders = await prisma.reminder.findMany({
     where: { userId },

@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
+import { getDefaultUserId } from "@/lib/default-user";
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getDefaultUserId();
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
@@ -19,7 +15,7 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(await file.arrayBuffer());
   const audioDir = path.join(process.env.AUDIO_DIR ?? "/data/audio");
   await mkdir(audioDir, { recursive: true });
-  const filename = `${session.user.id}-${Date.now()}.webm`;
+  const filename = `${userId}-${Date.now()}.webm`;
   const fullPath = path.join(audioDir, filename);
   await writeFile(fullPath, buffer);
 

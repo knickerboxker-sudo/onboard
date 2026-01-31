@@ -1,17 +1,13 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getDefaultUserId } from "@/lib/default-user";
 
 export async function updatePrivateMode(formData: FormData) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return;
-  }
+  const userId = await getDefaultUserId();
   const privateMode = formData.get("privateMode") === "on";
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: userId },
     data: { privateMode }
   });
 }

@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SYSTEM_PROMPT, maybeRefreshProfileSummary, retrieveRelevantMemories, storeExtractedMemories } from "@/lib/memory";
 import { cohereChat } from "@/lib/cohere";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getDefaultUserId } from "@/lib/default-user";
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getDefaultUserId();
 
-  const rate = checkRateLimit(session.user.id);
+  const rate = checkRateLimit(userId);
   if (!rate.allowed) {
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
@@ -26,7 +22,7 @@ export async function POST(request: Request) {
 
   const userMessage = await prisma.message.create({
     data: {
-      userId: session.user.id,
+      userId,
       role: "user",
       content,
       isNote: Boolean(isNote),
@@ -35,7 +31,7 @@ export async function POST(request: Request) {
   });
 
   const memories = await retrieveRelevantMemories({
-    userId: session.user.id,
+    userId,
     query: content,
     topK: 6
   });
@@ -53,19 +49,19 @@ export async function POST(request: Request) {
 
   await prisma.message.create({
     data: {
-      userId: session.user.id,
+      userId,
       role: "assistant",
       content: assistantText
     }
   });
 
   await storeExtractedMemories({
-    userId: session.user.id,
+    userId,
     messageId: userMessage.id,
     content
   });
 
-  await maybeRefreshProfileSummary(session.user.id);
+  await maybeRefreshProfileSummary(userId);
 
   const encoder = new TextEncoder();
   const chunks = assistantText.match(/.{1,120}/g) ?? [];
@@ -87,13 +83,10 @@ export async function POST(request: Request) {
 }
 
 export async function PUT() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getDefaultUserId();
 
   const messages = await prisma.message.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     orderBy: { createdAt: "asc" },
     take: 120
   });
