@@ -1,14 +1,20 @@
 import { CohereClient } from "cohere-ai";
 
 const apiKey = process.env.COHERE_API_KEY;
-if (!apiKey) {
-  throw new Error("COHERE_API_KEY is not set");
+let cohereClient: CohereClient | undefined;
+
+function getCohereClient() {
+  if (!apiKey) {
+    throw new Error("COHERE_API_KEY is not set");
+  }
+  if (!cohereClient) {
+    cohereClient = new CohereClient({ token: apiKey });
+  }
+  return cohereClient;
 }
 
-export const cohere = new CohereClient({ token: apiKey });
-
 export async function generateEmbedding(text: string, type: "search_document" | "search_query") {
-  const response = await cohere.embed({
+  const response = await getCohereClient().embed({
     model: "embed-english-v3.0",
     texts: [text],
     inputType: type
@@ -53,7 +59,7 @@ export async function cohereChat(
     })) as { role: "CHATBOT" | "USER"; message: string }[];
 
   const lastMessage = messages[messages.length - 1];
-  const response = await cohere.chat({
+  const response = await getCohereClient().chat({
     model: "command-r",
     message: lastMessage.content,
     temperature,
@@ -65,7 +71,7 @@ export async function cohereChat(
 }
 
 export async function cohereExtractJson(prompt: string) {
-  const response = await cohere.chat({
+  const response = await getCohereClient().chat({
     model: "command-r",
     message: prompt,
     temperature: 0.1
