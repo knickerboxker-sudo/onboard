@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { getDefaultUserId } from "@/lib/default-user";
 import MemoriesClient from "@/components/memories-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function MemoriesPage() {
   const userId = await getDefaultUserId();
 

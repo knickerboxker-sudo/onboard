@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { getDefaultUserId } from "@/lib/default-user";
 import { updatePrivateMode } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const userId = await getDefaultUserId();
   const user = await prisma.user.findUnique({
