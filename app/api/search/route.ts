@@ -15,15 +15,14 @@ export async function GET(req: Request) {
     }
 
     const { workspace } = await requireMembership(user.id, workspaceSlug);
-    const query = `%${q}%`;
 
-    // Search posts (ILIKE for simple MVP search)
+    // Search posts (SQLite LIKE is case-insensitive for ASCII)
     const posts = await prisma.post.findMany({
       where: {
         workspaceId: workspace.id,
         OR: [
-          { title: { contains: q, mode: "insensitive" } },
-          { body: { contains: q, mode: "insensitive" } },
+          { title: { contains: q } },
+          { body: { contains: q } },
         ],
       },
       orderBy: { createdAt: "desc" },
@@ -34,7 +33,7 @@ export async function GET(req: Request) {
     const comments = await prisma.comment.findMany({
       where: {
         workspaceId: workspace.id,
-        body: { contains: q, mode: "insensitive" },
+        body: { contains: q },
       },
       orderBy: { createdAt: "desc" },
       include: { post: { select: { id: true, title: true } } },

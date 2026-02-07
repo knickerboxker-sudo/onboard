@@ -7,7 +7,8 @@ A calm, pull-based internal team feed and Q&A board for small businesses (5–20
 - **Framework**: Next.js 14+ (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: PostgreSQL (via Prisma ORM)
+- **Database**: SQLite (file-based, stored on Railway volume at `/data`)
+- **ORM**: Prisma
 - **Auth**: NextAuth.js (Credentials provider)
 - **Validation**: Zod
 - **Deployment**: Railway
@@ -17,7 +18,6 @@ A calm, pull-based internal team feed and Q&A board for small businesses (5–20
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL database (local or hosted)
 
 ### Setup
 
@@ -36,7 +36,7 @@ A calm, pull-based internal team feed and Q&A board for small businesses (5–20
 
    Create a `.env` file in the root:
    ```env
-   DATABASE_URL="postgresql://user:password@localhost:5432/sortir"
+   DATABASE_URL="file:./dev.db"
    AUTH_SECRET="your-secret-key-here"
    NEXTAUTH_URL="http://localhost:3000"
    BILLING_ENABLED="false"
@@ -116,16 +116,14 @@ Workspace slug: `acme-inc` · Access code: `12345`
 
 ## Deployment (Railway)
 
-1. Add a **PostgreSQL** service to your Railway project (not a volume — sortir uses Postgres, not file-based storage)
+1. Create a volume in your Railway service mounted at `/data` (this stores the SQLite database)
 2. Set environment variables:
-   - `DATABASE_URL` (auto-provided when you link the Postgres service)
+   - `DATABASE_URL` = `file:/data/sortir.db`
    - `AUTH_SECRET` (generate a random string)
    - `NEXTAUTH_URL` (your Railway app URL)
    - `BILLING_ENABLED` (`false` for now)
 3. Deploy — the `postinstall` script runs `prisma generate` automatically
-4. Run `npx prisma migrate deploy` via Railway CLI or console
-
-> **Note**: A Railway volume (e.g. mounted at `/data`) is **not needed** for this app. All data is stored in PostgreSQL. If you created a volume, you can safely remove it.
+4. Run `npx prisma migrate deploy` via Railway CLI or console to create tables
 
 ## Billing (Stub)
 
@@ -140,5 +138,5 @@ Billing is stubbed behind the `BILLING_ENABLED` environment variable. When set t
 - Moderator role
 - Stripe billing integration
 - Magic link authentication
-- Workspace-level search indexes (Postgres full-text search)
+- Workspace-level search (SQLite LIKE, case-insensitive for ASCII)
 - Mobile app / PWA

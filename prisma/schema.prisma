@@ -3,25 +3,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-enum Role {
-  OWNER
-  MEMBER
-}
-
-enum PostType {
-  UPDATE
-  QUESTION
 }
 
 model Workspace {
   id         String   @id @default(cuid())
   name       String
   slug       String   @unique
-  accessCode String   @db.VarChar(5)
+  accessCode String
   createdAt  DateTime @default(now())
 
   members WorkspaceMember[]
@@ -46,7 +36,7 @@ model WorkspaceMember {
   id          String   @id @default(cuid())
   workspaceId String
   userId      String
-  role        Role
+  role        String   @default("MEMBER")
   createdAt   DateTime @default(now())
 
   workspace Workspace @relation(fields: [workspaceId], references: [id])
@@ -76,8 +66,8 @@ model Post {
   authorDisplayName String?
   isAnonymous       Boolean  @default(false)
   title             String?
-  body              String   @db.Text
-  postType          PostType @default(UPDATE)
+  body              String
+  postType          String   @default("UPDATE")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -95,7 +85,7 @@ model Comment {
   authorId          String?
   authorDisplayName String?
   isAnonymous       Boolean  @default(false)
-  body              String   @db.Text
+  body              String
   createdAt         DateTime @default(now())
 
   post      Post      @relation(fields: [postId], references: [id])

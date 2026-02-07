@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/db";
-import type { Role } from "@prisma/client";
 
 export async function getMembership(userId: string, workspaceSlug: string) {
   const workspace = await prisma.workspace.findUnique({
@@ -21,7 +20,7 @@ export async function requireMembership(userId: string, workspaceSlug: string) {
   return result;
 }
 
-export async function requireRole(userId: string, workspaceSlug: string, role: Role) {
+export async function requireRole(userId: string, workspaceSlug: string, role: string) {
   const result = await requireMembership(userId, workspaceSlug);
   if (result.member.role !== role) throw new Error("Forbidden");
   return result;

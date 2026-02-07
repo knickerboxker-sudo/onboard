@@ -6,5 +6,11 @@
   "deploy": {
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
-  }
+  },
+  "volumes": [
+    {
+      "mountPath": "/data",
+      "name": "onboardai-data"
+    }
+  ]
 }
