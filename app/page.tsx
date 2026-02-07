@@ -25,7 +25,7 @@ export default function HomePage() {
       <main className="flex-1 flex flex-col items-center justify-center px-6">
         <div className="max-w-lg text-center space-y-6">
           <Image
-            src="/IMG_0339.png"
+            src="/sortir-logo.png"
             alt="sortir logo"
             width={180}
             height={180}

@@ -7,8 +7,11 @@ export const metadata: Metadata = {
   description: "A calm, pull-based internal team feed for small businesses.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/IMG_0339.png",
-    apple: "/IMG_0339.png",
+    icon: [
+      { url: "/sortir-logo-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/sortir-logo-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/sortir-logo.png",
   },
 };
 
