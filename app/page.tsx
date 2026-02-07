@@ -27,8 +27,8 @@ export default function HomePage() {
           <Image
             src="/IMG_0339.png"
             alt="sortir logo"
-            width={96}
-            height={96}
+            width={180}
+            height={180}
             className="mx-auto"
             priority
           />
