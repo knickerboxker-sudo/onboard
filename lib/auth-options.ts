@@ -1,7 +1,21 @@
 import type { NextAuthOptions } from "next-auth";
+import { randomUUID } from "crypto";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+
+const authSecret =
+  process.env.AUTH_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
+  (() => {
+    const generated = randomUUID();
+    if (process.env.NODE_ENV === "production") {
+      console.warn(
+        "NEXTAUTH_SECRET is not set. Falling back to a generated secret; sessions will reset on every restart."
+      );
+    }
+    return generated;
+  })();
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -41,5 +55,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
 };
