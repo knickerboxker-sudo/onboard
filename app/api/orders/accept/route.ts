@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { calculateDriverEarnings } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
         throw new Error("Maximum 3 active orders allowed");
       }
 
-      const driverEarnings = Math.floor(order.offerAmountCents * 0.85);
+      const driverEarnings = calculateDriverEarnings(order.offerAmountCents);
 
       const updated = await tx.order.update({
         where: { id: orderId },

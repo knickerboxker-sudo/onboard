@@ -38,7 +38,9 @@ export async function POST(request: NextRequest) {
     });
 
     const avgRating =
-      allRatings.reduce((sum, r) => sum + r.stars, 0) / allRatings.length;
+      allRatings.length > 0
+        ? allRatings.reduce((sum, r) => sum + r.stars, 0) / allRatings.length
+        : 0;
 
     const driverProfile = await prisma.driverProfile.findUnique({
       where: { userId: validated.toUserId },

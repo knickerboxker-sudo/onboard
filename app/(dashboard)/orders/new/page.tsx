@@ -96,8 +96,20 @@ export default function NewOrderPage() {
   const handleNext = () => {
     if (currentStep < 4) {
       if (currentStep === 3 && formData.distanceMiles === 0) {
-        const dist = Math.round((Math.random() * 5 + 1) * 10) / 10;
-        updateField("distanceMiles", dist);
+        // Calculate approximate distance using Haversine formula
+        const toRad = (deg: number) => (deg * Math.PI) / 180;
+        const R = 3959; // Earth radius in miles
+        const dLat = toRad(formData.deliveryLatitude - formData.storeLatitude);
+        const dLon = toRad(formData.deliveryLongitude - formData.storeLongitude);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(formData.storeLatitude)) *
+            Math.cos(toRad(formData.deliveryLatitude)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const dist = Math.round(R * c * 10) / 10;
+        updateField("distanceMiles", dist > 0 ? dist : 0.1);
       }
       setCurrentStep(currentStep + 1);
     }

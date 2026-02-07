@@ -37,9 +37,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const history = Array.isArray(order.priceHistory)
-      ? order.priceHistory
-      : JSON.parse(order.priceHistory as string);
+    const rawHistory = order.priceHistory;
+    const history: Array<{ amount: number; timestamp: string }> = Array.isArray(rawHistory)
+      ? (rawHistory as Array<{ amount: number; timestamp: string }>)
+      : JSON.parse(rawHistory as string);
     history.push({
       amount: validated.newAmountCents,
       timestamp: new Date().toISOString(),
