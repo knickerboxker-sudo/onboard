@@ -5,21 +5,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: "#f6f6f6",
-        card: "#ffffff",
-        ink: "#1f2937",
-        muted: "#6b7280",
-        border: "#e5e7eb",
-        accent: "#111827",
-        highlight: "#f3f4f6",
-        success: "#10b981"
+        base: "#0f0f0f",
+        card: "#1a1a1a",
+        "card-hover": "#222222",
+        ink: "#ffffff",
+        muted: "#a1a1aa",
+        border: "#2a2a2a",
+        accent: "#3b82f6",
+        "accent-hover": "#2563eb",
+        success: "#10b981",
+        warning: "#f59e0b",
+        danger: "#ef4444",
+        highlight: "#1e1e1e",
+      },
+      fontFamily: {
+        sans: ["Inter", "SF Pro", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 8px 24px rgba(15, 23, 42, 0.08)"
-      }
-    }
+        soft: "0 2px 8px rgba(0, 0, 0, 0.3)",
+        card: "0 1px 3px rgba(0, 0, 0, 0.2)",
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
 export default config;
