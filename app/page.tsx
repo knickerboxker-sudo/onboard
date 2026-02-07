@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -23,6 +24,14 @@ export default function HomePage() {
 
       <main className="flex-1 flex flex-col items-center justify-center px-6">
         <div className="max-w-lg text-center space-y-6">
+          <Image
+            src="/IMG_0339.png"
+            alt="sortir logo"
+            width={96}
+            height={96}
+            className="mx-auto"
+            priority
+          />
           <h1 className="text-3xl font-semibold tracking-tight leading-tight">
             A calm internal feed for your team
           </h1>

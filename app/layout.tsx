@@ -5,6 +5,11 @@ import { Providers } from "@/components/providers";
 export const metadata: Metadata = {
   title: "sortir",
   description: "A calm, pull-based internal team feed for small businesses.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/IMG_0339.png",
+    apple: "/IMG_0339.png",
+  },
 };
 
 export default function RootLayout({
