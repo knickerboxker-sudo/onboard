@@ -5,6 +5,14 @@ import { Providers } from "@/components/providers";
 export const metadata: Metadata = {
   title: "sortir",
   description: "A calm, pull-based internal team feed for small businesses.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/sortir-logo-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/sortir-logo-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/sortir-logo.png",
+  },
 };
 
 export default function RootLayout({
