@@ -1,6 +1,7 @@
-import { OrderStatus, UserRole, DriverStatus, BackgroundCheckStatus } from "@prisma/client";
-
-export type { OrderStatus, UserRole, DriverStatus, BackgroundCheckStatus };
+export type OrderStatus = "OPEN" | "ACCEPTED" | "PICKED_UP" | "DELIVERED" | "CANCELLED";
+export type UserRole = "CUSTOMER" | "DRIVER" | "ADMIN";
+export type DriverStatus = "PENDING" | "ACTIVE" | "SUSPENDED";
+export type BackgroundCheckStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
 
 export interface PriceChange {
   amount: number;
