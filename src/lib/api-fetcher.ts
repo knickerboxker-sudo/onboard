@@ -124,6 +124,46 @@ type SearchInput = {
 
 export type DateRangeKey = "30d" | "3m" | "6m" | "1y" | "2y" | "all";
 
+export type SourceFetcher = {
+  source: RecallSource;
+  fetch: () => Promise<RecallResult[]>;
+};
+
+export function getSourceFetchers({
+  query,
+  signal,
+  dateRange,
+}: SearchInput): SourceFetcher[] {
+  const dateRangeStart = getDateRangeStart(dateRange);
+  
+  return [
+    {
+      source: "CPSC",
+      fetch: () => fetchCpsc(dateRangeStart, signal),
+    },
+    {
+      source: "NHTSA",
+      fetch: () => fetchNhtsa(query, dateRangeStart, signal),
+    },
+    {
+      source: "FSIS",
+      fetch: () => fetchFsis(dateRangeStart, signal),
+    },
+    {
+      source: "FDA",
+      fetch: () => fetchFda(query, dateRangeStart, signal),
+    },
+    {
+      source: "EPA",
+      fetch: () => fetchEpa(query, dateRangeStart, signal),
+    },
+    {
+      source: "USCG",
+      fetch: () => fetchUscg(dateRangeStart, signal),
+    },
+  ];
+}
+
 export async function fetchRecallResults({
   query,
   signal,
@@ -439,7 +479,7 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
     .filter((item) => item.title || item.summary);
 }
 
-function filterByQuery(results: RecallResult[], query: string) {
+export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
   return results.filter((item) => {
     const title = normalizeSearchText(safeString(item.title));
@@ -691,7 +731,7 @@ function buildFdaSearchQuery(query?: string, startDate?: Date) {
   return clauses.join(" AND ");
 }
 
-function sortRecallsByDate(results: RecallResult[]) {
+export function sortRecallsByDate(results: RecallResult[]) {
   return results
     .slice()
     .sort(

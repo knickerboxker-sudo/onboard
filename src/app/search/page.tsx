@@ -4,9 +4,11 @@ import { Header } from "@/src/components/Header";
 import { Footer } from "@/src/components/Footer";
 import { SearchBar } from "@/src/components/SearchBar";
 import { RecallCard } from "@/src/components/RecallCard";
+import { StreamingSearchStatus } from "@/src/components/StreamingSearchStatus";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
 import { categoryLabel, sourceLabel } from "@/src/lib/utils";
+import { RecallSource } from "@/src/lib/api-fetcher";
 import { SlidersHorizontal, RefreshCw, SearchX, Car, ShoppingBag, UtensilsCrossed, Pill, Stethoscope, Leaf, Anchor } from "lucide-react";
 
 interface SearchResult {
@@ -85,6 +87,14 @@ function LoadingState({ query }: { query: string }) {
   );
 }
 
+type SourceStatus = {
+  source: RecallSource;
+  status: "loading" | "complete" | "error";
+  count?: number;
+  duration?: number;
+  error?: string;
+};
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -99,6 +109,11 @@ function SearchContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [streaming, setStreaming] = useState(false);
+  const [sourceStatuses, setSourceStatuses] = useState<SourceStatus[]>([]);
+  const [streamComplete, setStreamComplete] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 15 }, (_, index) =>
     String(currentYear - index)
@@ -141,33 +156,156 @@ function SearchContent() {
     router.push(`/search?${params.toString()}`);
   };
 
-  const fetchResults = (options?: { refresh?: boolean }) => {
+  const fetchResults = async () => {
+    // Abort any ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (categoryFilter) params.set("category", categoryFilter);
     if (sourceFilter) params.set("source", sourceFilter);
-    if (dateRangeFilter === "all") params.set("dateRange", "all");
-    if (options?.refresh) params.set("refresh", "1");
+    if (dateRangeFilter) params.set("dateRange", dateRangeFilter);
 
     setLoading(true);
+    setStreaming(true);
+    setStreamComplete(false);
     setError(null);
-    if (options?.refresh) setRefreshing(true);
-    fetch(`/api/search?${params.toString()}`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Search failed");
-        }
-        return res.json();
-      })
-      .then((d) => setData(d))
-      .catch(() => {
-        setData(null);
-        setError("Unable to load recall data. Please try again.");
-      })
-      .finally(() => {
-        setLoading(false);
-        if (options?.refresh) setRefreshing(false);
+    setData(null);
+    setSourceStatuses([]);
+
+    try {
+      const response = await fetch(`/api/search/stream?${params.toString()}`, {
+        signal,
       });
+
+      if (!response.ok) {
+        throw new Error("Search failed");
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error("Response body not readable");
+      }
+
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            try {
+              const event = JSON.parse(data);
+              handleStreamEvent(event);
+            } catch (err) {
+              console.error("Failed to parse event:", err);
+            }
+          }
+        }
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "AbortError") {
+        // Request was aborted, ignore
+        return;
+      }
+      setData(null);
+      setError("Unable to load recall data. Please try again.");
+    } finally {
+      setLoading(false);
+      setStreaming(false);
+    }
+  };
+
+  const handleStreamEvent = (event: {
+    type: string;
+    sources?: RecallSource[];
+    source?: RecallSource;
+    count?: number;
+    duration?: number;
+    error?: string;
+    results?: SearchResult[];
+    total?: number;
+  }) => {
+    switch (event.type) {
+      case "start":
+        if (event.sources) {
+          setSourceStatuses(
+            event.sources.map((source) => ({
+              source,
+              status: "loading",
+            }))
+          );
+        }
+        break;
+
+      case "source_start":
+        if (event.source) {
+          setSourceStatuses((prev) =>
+            prev.map((s) =>
+              s.source === event.source ? { ...s, status: "loading" } : s
+            )
+          );
+        }
+        break;
+
+      case "source_complete":
+        if (event.source) {
+          setSourceStatuses((prev) =>
+            prev.map((s) =>
+              s.source === event.source
+                ? {
+                    ...s,
+                    status: "complete",
+                    count: event.count,
+                    duration: event.duration,
+                  }
+                : s
+            )
+          );
+        }
+        break;
+
+      case "source_error":
+        if (event.source) {
+          setSourceStatuses((prev) =>
+            prev.map((s) =>
+              s.source === event.source
+                ? { ...s, status: "error", error: event.error }
+                : s
+            )
+          );
+        }
+        break;
+
+      case "results":
+        if (event.results) {
+          setData({
+            results: event.results,
+            total: event.total || event.results.length,
+            fetchedAt: Date.now(),
+          });
+        }
+        break;
+
+      case "complete":
+        setStreamComplete(true);
+        setLoading(false);
+        setStreaming(false);
+        break;
+    }
   };
 
   useEffect(() => {
@@ -388,7 +526,26 @@ function SearchContent() {
                 </div>
               </details>
             </div>
-            {loading ? (
+            {streaming || (loading && sourceStatuses.length > 0) ? (
+              <div className="space-y-6">
+                <StreamingSearchStatus
+                  sources={sourceStatuses}
+                  totalResults={data?.results.length || 0}
+                  isComplete={streamComplete}
+                />
+                {data && data.results.length > 0 && (
+                  <div className="space-y-3">
+                    {applyDateFilters(
+                      data.results,
+                      dateRangeFilter,
+                      yearFilter
+                    ).map((event) => (
+                      <RecallCard key={event.id} {...event} returnTo={returnTo} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : loading ? (
               <LoadingState query={q} />
             ) : error ? (
               <div className="text-center py-16">
@@ -397,7 +554,7 @@ function SearchContent() {
                 </div>
                 <p className="text-muted mb-4">{error}</p>
                 <button
-                  onClick={() => fetchResults({ refresh: true })}
+                  onClick={() => fetchResults()}
                   className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-hover transition-colors"
                 >
                   <RefreshCw size={14} />
@@ -430,13 +587,13 @@ function SearchContent() {
                       </span>
                     ) : null}
                     <button
-                      onClick={() => fetchResults({ refresh: true })}
+                      onClick={() => fetchResults()}
                       className="inline-flex items-center gap-1.5 text-accent hover:text-accent-hover font-medium transition-colors"
-                      disabled={refreshing}
-                      aria-label={refreshing ? "Refreshing data" : "Refresh data"}
+                      disabled={streaming}
+                      aria-label={streaming ? "Refreshing data" : "Refresh data"}
                     >
-                      <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
-                      {refreshing ? "Refreshing..." : "Refresh"}
+                      <RefreshCw size={12} className={streaming ? "animate-spin" : ""} aria-hidden="true" />
+                      {streaming ? "Refreshing..." : "Refresh"}
                     </button>
                   </div>
                 </div>
