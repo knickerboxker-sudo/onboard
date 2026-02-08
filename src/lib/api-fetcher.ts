@@ -124,6 +124,46 @@ type SearchInput = {
 
 export type DateRangeKey = "30d" | "3m" | "6m" | "1y" | "2y" | "all";
 
+export type SourceFetcher = {
+  source: RecallSource;
+  fetch: () => Promise<RecallResult[]>;
+};
+
+export function getSourceFetchers({
+  query,
+  signal,
+  dateRange,
+}: SearchInput): SourceFetcher[] {
+  const dateRangeStart = getDateRangeStart(dateRange);
+  
+  return [
+    {
+      source: "CPSC",
+      fetch: () => fetchCpsc(dateRangeStart, signal),
+    },
+    {
+      source: "NHTSA",
+      fetch: () => fetchNhtsa(query, dateRangeStart, signal),
+    },
+    {
+      source: "FSIS",
+      fetch: () => fetchFsis(dateRangeStart, signal),
+    },
+    {
+      source: "FDA",
+      fetch: () => fetchFda(query, dateRangeStart, signal),
+    },
+    {
+      source: "EPA",
+      fetch: () => fetchEpa(query, dateRangeStart, signal),
+    },
+    {
+      source: "USCG",
+      fetch: () => fetchUscg(dateRangeStart, signal),
+    },
+  ];
+}
+
 export async function fetchRecallResults({
   query,
   signal,
@@ -139,13 +179,24 @@ export async function fetchRecallResults({
   }
 
   const dateRangeStart = getDateRangeStart(dateRange);
+  
+  /**
+   * Helper to log fetch errors with source name and timestamp
+   */
+  const logFetchError = (source: RecallSource, error: unknown) => {
+    const timestamp = new Date().toISOString();
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[${timestamp}] ${source} fetch failed:`, errorMessage);
+    return [];
+  };
+  
   const tasks = [
-    fetchCpsc(dateRangeStart, signal).catch(() => []),
-    fetchNhtsa(query, dateRangeStart, signal).catch(() => []),
-    fetchFsis(dateRangeStart, signal).catch(() => []),
-    fetchFda(query, dateRangeStart, signal).catch(() => []),
-    fetchEpa(query, dateRangeStart, signal).catch(() => []),
-    fetchUscg(dateRangeStart, signal).catch(() => []),
+    fetchCpsc(dateRangeStart, signal).catch((err) => logFetchError("CPSC", err)),
+    fetchNhtsa(query, dateRangeStart, signal).catch((err) => logFetchError("NHTSA", err)),
+    fetchFsis(dateRangeStart, signal).catch((err) => logFetchError("FSIS", err)),
+    fetchFda(query, dateRangeStart, signal).catch((err) => logFetchError("FDA", err)),
+    fetchEpa(query, dateRangeStart, signal).catch((err) => logFetchError("EPA", err)),
+    fetchUscg(dateRangeStart, signal).catch((err) => logFetchError("USCG", err)),
   ];
 
   const results = (await Promise.all(tasks)).flat();
@@ -439,7 +490,7 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
     .filter((item) => item.title || item.summary);
 }
 
-function filterByQuery(results: RecallResult[], query: string) {
+export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
   return results.filter((item) => {
     const title = normalizeSearchText(safeString(item.title));
@@ -691,7 +742,7 @@ function buildFdaSearchQuery(query?: string, startDate?: Date) {
   return clauses.join(" AND ");
 }
 
-function sortRecallsByDate(results: RecallResult[]) {
+export function sortRecallsByDate(results: RecallResult[]) {
   return results
     .slice()
     .sort(

@@ -22,15 +22,47 @@ export function Footer() {
             >
               About
             </Link>
+            <Link
+              href="/feedback"
+              className="text-muted hover:text-ink transition-colors"
+            >
+              Feedback
+            </Link>
           </nav>
         </div>
-        <div className="text-center text-xs text-muted/70 space-y-1">
-          <p>
-            sortir aggregates publicly available recall data from NHTSA, CPSC,
-            USDA FSIS, FDA, EPA, and USCG. This site is not affiliated with any
-            government agency.
-          </p>
-          <p>Data is provided for informational purposes only.</p>
+        <div className="text-center space-y-3">
+          <div className="text-xs text-muted/70 space-y-1">
+            <p>
+              sortir aggregates publicly available recall data from NHTSA, CPSC,
+              USDA FSIS, FDA, EPA, and USCG. This site is not affiliated with any
+              government agency.
+            </p>
+            <p>
+              Data is provided for informational purposes only.{" "}
+              <Link
+                href="/legal/terms"
+                className="underline hover:text-ink transition-colors"
+              >
+                See our terms
+              </Link>
+              {" "}for details.
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-4 text-xs">
+            <Link
+              href="/legal/privacy"
+              className="text-muted hover:text-ink transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <span className="text-border">·</span>
+            <Link
+              href="/legal/terms"
+              className="text-muted hover:text-ink transition-colors"
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

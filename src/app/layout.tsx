@@ -10,6 +10,14 @@ export const metadata: Metadata = {
     { rel: "icon", url: "/sortir-logo.png" },
     { rel: "apple-touch-icon", url: "/sortir-logo-192.png" },
   ],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://sortir.app"),
+  openGraph: {
+    type: "website",
+    siteName: "sortir",
+    title: "sortir - Unified Recall Search",
+    description:
+      "Search across vehicle, consumer product, food, drug, medical device, environmental, and marine recalls from multiple U.S. government agencies.",
+  },
 };
 
 export default function RootLayout({

@@ -1,12 +1,58 @@
 import { Header } from "@/src/components/Header";
 import { Footer } from "@/src/components/Footer";
+import { ShareButton } from "@/src/components/ShareButton";
 import { notFound } from "next/navigation";
 import { formatDate, categoryLabel, categoryColor, sourceLabel } from "@/src/lib/utils";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Calendar, Building2, Tag, Shield } from "lucide-react";
 import { decodeRecallId } from "@/src/lib/api-fetcher";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Generates dynamic metadata for recall detail pages
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  try {
+    const event = decodeRecallId(params.id);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://sortir.app";
+    const url = `${baseUrl}/event/${params.id}`;
+    
+    // Create truncated summary for meta description (120-160 chars)
+    const summary = event.summary.length > 155
+      ? event.summary.substring(0, 152) + "..."
+      : event.summary;
+    
+    const title = `${event.title} - ${categoryLabel(event.category)} Recall`;
+    const description = `${summary} ${event.companyName ? `Issued by ${event.companyName}. ` : ""}Category: ${categoryLabel(event.category)}. Source: ${sourceLabel(event.source)}.`;
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: url,
+      },
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "article",
+        publishedTime: event.publishedAt,
+        siteName: "sortir",
+      },
+    };
+  } catch {
+    return {
+      title: "Recall Not Found - sortir",
+      description: "The requested recall could not be found.",
+    };
+  }
+}
 
 export default async function EventPage({
   params,
@@ -24,8 +70,44 @@ export default async function EventPage({
   const returnTo = typeof searchParams?.from === "string" ? searchParams.from : "";
   const backHref = returnTo ? `/search?${decodeURIComponent(returnTo)}` : "/search";
 
+  // Generate canonical URL
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://sortir.app";
+  const canonicalUrl = `${baseUrl}/event/${params.id}`;
+
+  // Generate JSON-LD structured data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: event.title,
+    description: event.summary,
+    category: categoryLabel(event.category),
+    manufacturer: event.companyName
+      ? {
+          "@type": "Organization",
+          name: event.companyName,
+        }
+      : undefined,
+    url: canonicalUrl,
+    recalls: {
+      "@type": "ProductRecall",
+      datePublished: event.publishedAt,
+      description: event.summary,
+      url: event.url,
+      recallSource: {
+        "@type": "Organization",
+        name: sourceLabel(event.source),
+      },
+    },
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-base">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
       <Header />
       <main className="flex-1 max-w-5xl mx-auto px-6 py-8 w-full">
         <Link
@@ -62,9 +144,9 @@ export default async function EventPage({
                 <p className="text-muted leading-relaxed">{event.summary}</p>
               </div>
 
-              {/* Source link */}
-              {event.url && (
-                <div>
+              {/* Source link and Share */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {event.url && (
                   <a
                     href={event.url}
                     target="_blank"
@@ -74,8 +156,9 @@ export default async function EventPage({
                     <ExternalLink size={14} />
                     View original source
                   </a>
-                </div>
-              )}
+                )}
+                <ShareButton url={canonicalUrl} title={event.title} />
+              </div>
             </div>
           </div>
 
