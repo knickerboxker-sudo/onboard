@@ -32,6 +32,25 @@ const COMPANY_ALIASES: Record<string, string[]> = {
   tyson: ["hillshire brands", "jimmy dean", "state fair"],
 };
 
+const CORPORATE_SUFFIXES = new Set([
+  "inc",
+  "incorporated",
+  "corp",
+  "corporation",
+  "co",
+  "company",
+  "ltd",
+  "limited",
+  "llc",
+  "plc",
+  "lp",
+  "llp",
+  "holdings",
+  "group",
+  "intl",
+  "international",
+]);
+
 const SEARCH_FIELDS = ["title", "summary", "companyName"] as const satisfies ReadonlyArray<
   keyof RecallResult
 >;
@@ -362,31 +381,59 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 
 function filterByQuery(results: RecallResult[], query: string) {
   const normalized = normalizeSearchText(query);
-  const compactNormalized = normalized.replace(/\s+/g, "");
+  const compactNormalized = compactSearchText(normalized);
+  const stripped = stripCorporateSuffixes(normalized);
+  const compactStripped = compactSearchText(stripped);
   const aliases =
     COMPANY_ALIASES[normalized] ||
     COMPANY_ALIASES[compactNormalized] ||
+    COMPANY_ALIASES[stripped] ||
+    COMPANY_ALIASES[compactStripped] ||
     [];
   const normalizedAliases = aliases.map((alias) => normalizeSearchText(alias));
+  const queryVariants = [normalized, stripped].filter(Boolean);
+  const compactQueryVariants = [compactNormalized, compactStripped].filter(Boolean);
   return results.filter((item) => {
     const combined = SEARCH_FIELDS.map((field) => safeString(item[field])).join(
       " "
     );
     const normalizedCombined = normalizeSearchText(combined);
-    const compactCombined = normalizedCombined.replace(/\s+/g, "");
-    const tokens = normalized.split(" ").filter(Boolean);
+    const strippedCombined = stripCorporateSuffixes(normalizedCombined);
+    const compactCombined = compactSearchText(normalizedCombined);
+    const compactStrippedCombined = compactSearchText(strippedCombined);
+    const tokens = queryVariants
+      .flatMap((variant) => variant.split(" "))
+      .filter(Boolean);
     const matchesDirect =
-      compactNormalized.length > 0
-        ? compactCombined.includes(compactNormalized)
+      compactQueryVariants.length > 0
+        ? compactQueryVariants.some((variant) =>
+            compactCombined.includes(variant) ||
+            compactStrippedCombined.includes(variant)
+          )
         : false;
     const matchesTokens =
       tokens.length > 0 &&
-      tokens.every((token) => normalizedCombined.includes(token));
-    const matchesText = matchesDirect || matchesTokens;
+      tokens.every(
+        (token) =>
+          normalizedCombined.includes(token) ||
+          strippedCombined.includes(token)
+      );
+    const matchesPrefix =
+      tokens.length > 0 &&
+      tokens.every((token) =>
+        normalizedCombined
+          .split(" ")
+          .some((word) => word.startsWith(token)) ||
+        strippedCombined
+          .split(" ")
+          .some((word) => word.startsWith(token))
+      );
+    const matchesText = matchesDirect || matchesTokens || matchesPrefix;
     if (matchesText) return true;
     if (normalizedAliases.length > 0) {
       return normalizedAliases.some((alias) =>
-        normalizedCombined.includes(alias)
+        normalizedCombined.includes(alias) ||
+        strippedCombined.includes(stripCorporateSuffixes(alias))
       );
     }
     return matchesText;
@@ -405,6 +452,18 @@ function normalizeSearchText(value: string) {
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
     .replace(/\s+/g, " ");
+}
+
+function compactSearchText(value: string) {
+  return value.replace(/\s+/g, "");
+}
+
+function stripCorporateSuffixes(value: string) {
+  if (!value) return "";
+  return value
+    .split(" ")
+    .filter((token) => token && !CORPORATE_SUFFIXES.has(token))
+    .join(" ");
 }
 
 function normalizeDate(value?: string) {
