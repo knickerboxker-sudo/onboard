@@ -7,35 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum UserRole {
-  CUSTOMER
-  DRIVER
-  BOTH
-}
-
-enum DriverStatus {
-  PENDING
-  APPROVED
-  SUSPENDED
-  REJECTED
-}
-
-enum OrderStatus {
-  OPEN
-  ACCEPTED
-  PICKED_UP
-  DELIVERED
-  CANCELLED
-  EXPIRED
-}
-
-enum BackgroundCheckStatus {
-  NOT_STARTED
-  PENDING
-  PASSED
-  FAILED
-}
-
 model User {
   id                  String    @id @default(cuid())
   clerkId             String    @unique
@@ -43,7 +14,7 @@ model User {
   name                String
   phone               String?
   phoneVerified       Boolean   @default(false)
-  role                UserRole  @default(CUSTOMER)
+  role                String    @default("CUSTOMER")
   avatarUrl           String?
   stripeCustomerId    String?
   createdAt           DateTime  @default(now())
@@ -61,7 +32,7 @@ model DriverProfile {
   id                    String               @id @default(cuid())
   userId                String               @unique
   user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status                DriverStatus         @default(PENDING)
+  status                String               @default("PENDING")
   licenseNumber         String?
   licenseState          String?
   licenseExpiry         DateTime?
@@ -70,7 +41,7 @@ model DriverProfile {
   vehicleYear           Int?
   vehicleColor          String?
   vehiclePlate          String?
-  backgroundCheckStatus BackgroundCheckStatus @default(NOT_STARTED)
+  backgroundCheckStatus String               @default("NOT_STARTED")
   backgroundCheckId     String?
   stripeConnectId       String?
   totalDeliveries       Int                  @default(0)
@@ -116,10 +87,10 @@ model Order {
 
   distanceMiles       Float
   offerAmountCents    Int
-  priceHistory        Json         @default("[]")
+  priceHistory        String       @default("[]")
   driverEarningsCents Int?
 
-  status              OrderStatus  @default(OPEN)
+  status              String       @default("OPEN")
   stripePaymentIntentId String?
 
   createdAt           DateTime     @default(now())
@@ -147,7 +118,7 @@ model Rating {
   toUser      User     @relation("RatingsReceived", fields: [toUserId], references: [id])
   stars       Int
   comment     String?
-  tags        Json     @default("[]")
+  tags        String   @default("[]")
   createdAt   DateTime @default(now())
 
   @@unique([orderId, fromUserId])
