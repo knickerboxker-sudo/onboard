@@ -13,6 +13,18 @@ type FeedbackEntry = {
   createdAt: string;
 };
 
+const prohibitedPatterns: RegExp[] = [
+  /\b(?:kill|murder|assassinate|bomb|terrorist|terrorism)\b/i,
+  /\b(?:cocaine|heroin|meth|fentanyl|opioids|weed|marijuana|ecstasy)\b/i,
+  /\b(?:child\s?porn|sexual\s?assault|sex\s?trafficking)\b/i,
+  /\b(?:hate\s?speech|racial\s?slur)\b/i,
+  /\b(?:rape|molest|abuse)\b/i,
+];
+
+function containsProhibitedContent(message: string) {
+  return prohibitedPatterns.some((pattern) => pattern.test(message));
+}
+
 async function readFeedbackEntries(): Promise<FeedbackEntry[]> {
   await fs.mkdir(path.dirname(feedbackFilePath), { recursive: true });
   try {
@@ -44,6 +56,16 @@ export async function POST(request: Request) {
   if (!payload?.message || payload.message.trim().length === 0) {
     return NextResponse.json(
       { error: "Message is required." },
+      { status: 400 },
+    );
+  }
+
+  if (containsProhibitedContent(payload.message)) {
+    return NextResponse.json(
+      {
+        error:
+          "Feedback contains inappropriate or illegal language. Please revise and try again.",
+      },
       { status: 400 },
     );
   }
