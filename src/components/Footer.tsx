@@ -22,6 +22,12 @@ export function Footer() {
             >
               About
             </Link>
+            <Link
+              href="/feedback"
+              className="text-muted hover:text-ink transition-colors"
+            >
+              Feedback
+            </Link>
           </nav>
         </div>
         <div className="text-center text-xs text-muted/70 space-y-1">
