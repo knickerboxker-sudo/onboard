@@ -27,8 +27,8 @@ export function Footer() {
         <div className="text-center text-xs text-muted/70 space-y-1">
           <p>
             sortir aggregates publicly available recall data from NHTSA, CPSC,
-            USDA FSIS, and FDA. This site is not affiliated with any government
-            agency.
+            USDA FSIS, FDA, EPA, and USCG. This site is not affiliated with any
+            government agency.
           </p>
           <p>Data is provided for informational purposes only.</p>
         </div>

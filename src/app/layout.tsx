@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "sortir - Unified Recall Search",
   description:
-    "Search across vehicle, consumer product, food, drug, and medical device recalls from NHTSA, CPSC, USDA FSIS, and FDA.",
+    "Search across vehicle, consumer product, food, drug, medical device, environmental, and marine recalls from NHTSA, CPSC, USDA FSIS, FDA, EPA, and USCG.",
   manifest: "/manifest.json",
   icons: [
     { rel: "icon", url: "/sortir-logo.png" },

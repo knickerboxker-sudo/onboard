@@ -7,7 +7,7 @@ import { RecallCard } from "@/src/components/RecallCard";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { categoryLabel, sourceLabel } from "@/src/lib/utils";
-import { SlidersHorizontal, RefreshCw, SearchX, Car, ShoppingBag, UtensilsCrossed, Pill, Stethoscope } from "lucide-react";
+import { SlidersHorizontal, RefreshCw, SearchX, Car, ShoppingBag, UtensilsCrossed, Pill, Stethoscope, Leaf, Anchor } from "lucide-react";
 
 interface SearchResult {
   id: string;
@@ -26,8 +26,8 @@ interface SearchResponse {
   fetchedAt: number;
 }
 
-const CATEGORIES = ["vehicle", "consumer", "food", "drug", "device"];
-const SOURCES = ["CPSC", "NHTSA", "FSIS", "FDA"];
+const CATEGORIES = ["vehicle", "consumer", "food", "drug", "device", "environmental", "marine"];
+const SOURCES = ["CPSC", "NHTSA", "FSIS", "FDA", "EPA", "USCG"];
 const DATE_RANGE_OPTIONS = [
   { value: "30d", label: "Last 30 days" },
   { value: "3m", label: "Last 3 months" },
@@ -43,6 +43,8 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   food: <UtensilsCrossed size={13} />,
   drug: <Pill size={13} />,
   device: <Stethoscope size={13} />,
+  environmental: <Leaf size={13} />,
+  marine: <Anchor size={13} />,
 };
 
 function SkeletonCard() {

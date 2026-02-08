@@ -29,6 +29,8 @@ export function categoryLabel(cat: string): string {
     food: "Food",
     drug: "Drug",
     device: "Medical Device",
+    environmental: "Environmental",
+    marine: "Marine",
   };
   return labels[cat] || cat;
 }
@@ -39,6 +41,8 @@ export function sourceLabel(src: string): string {
     NHTSA: "NHTSA",
     FSIS: "USDA FSIS",
     FDA: "FDA",
+    EPA: "EPA",
+    USCG: "USCG",
   };
   return labels[src] || src;
 }
@@ -50,6 +54,8 @@ export function categoryColor(cat: string): string {
     food: "bg-emerald-50 text-emerald-700 border-emerald-200",
     drug: "bg-amber-50 text-amber-700 border-amber-200",
     device: "bg-rose-50 text-rose-700 border-rose-200",
+    environmental: "bg-teal-50 text-teal-700 border-teal-200",
+    marine: "bg-cyan-50 text-cyan-700 border-cyan-200",
   };
   return colors[cat] || "bg-gray-50 text-gray-700 border-gray-200";
 }

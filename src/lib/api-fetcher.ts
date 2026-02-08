@@ -1,5 +1,5 @@
-export type RecallSource = "CPSC" | "NHTSA" | "FSIS" | "FDA";
-export type RecallCategory = "consumer" | "vehicle" | "food" | "drug" | "device";
+export type RecallSource = "CPSC" | "NHTSA" | "FSIS" | "FDA" | "EPA" | "USCG";
+export type RecallCategory = "consumer" | "vehicle" | "food" | "drug" | "device" | "environmental" | "marine";
 
 export interface RecallResult {
   id: string;
@@ -19,6 +19,11 @@ const CPSC_URL = "https://www.saferproducts.gov/RestWebServices/Recall?format=js
 const NHTSA_URL = "https://api.nhtsa.gov/recalls/recallsByVehicle?make=";
 const FSIS_URL = "https://www.fsis.usda.gov/sites/default/files/media_file/recall-data.json";
 const FDA_URL = "https://api.fda.gov/drug/enforcement.json";
+// EPA ECHO enforcement case search API – returns enforcement actions including recalls.
+const EPA_URL = "https://echodata.epa.gov/echo/case_rest_services.get_cases";
+// USCG does not expose a JSON API; we use the CPSC feed filtered for boating/marine products
+// as a proxy, since CPSC covers many marine consumer products.
+const USCG_CPSC_URL = "https://www.saferproducts.gov/RestWebServices/Recall?format=json";
 
 const DEFAULT_DATE_RANGE_YEARS = 2;
 const DEFAULT_NHTSA_MAKES = ["Ford", "Toyota", "Honda", "Chevrolet", "Nissan"];
@@ -56,6 +61,8 @@ export async function fetchRecallResults({
     fetchNhtsa(query, dateRangeStart, signal).catch(() => []),
     fetchFsis(dateRangeStart, signal).catch(() => []),
     fetchFda(query, dateRangeStart, signal).catch(() => []),
+    fetchEpa(query, dateRangeStart, signal).catch(() => []),
+    fetchUscg(dateRangeStart, signal).catch(() => []),
   ];
 
   const results = (await Promise.all(tasks)).flat();
@@ -234,6 +241,104 @@ async function fetchFda(
       isWithinDateRange(item.publishedAt, dateRangeStart)
     )
     .filter((item: RecallResult) => item.title || item.summary);
+}
+
+async function fetchEpa(
+  query?: string,
+  dateRangeStart?: Date,
+  signal?: AbortSignal
+) {
+  // EPA ECHO enforcement case search returns enforcement actions and recall-related cases.
+  // The API returns JSON when output=JSON and supports keyword search via p_case_summary.
+  const params = new URLSearchParams({
+    output: "JSON",
+    responseset: "100",
+  });
+  if (query) {
+    params.set("p_case_summary", query);
+  }
+  if (dateRangeStart) {
+    params.set("p_activity_date", `>=${formatCpscDate(dateRangeStart)}`);
+  }
+  const url = `${EPA_URL}?${params.toString()}`;
+  const data = await fetchJson(url, signal);
+  const rows: Record<string, string>[] =
+    Array.isArray(data?.Results?.CaseResults) ? data.Results.CaseResults : [];
+
+  return rows
+    .map((item) => {
+      const caseName = safeString(item?.CaseName || item?.case_name);
+      const summary = safeString(
+        item?.ActivityDescription || item?.activity_description || caseName
+      );
+      const publishedAt = normalizeDate(
+        item?.SettlementDate ||
+          item?.settlement_date ||
+          item?.ActivityDate ||
+          item?.activity_date
+      );
+      const caseNumber = safeString(item?.CaseNumber || item?.case_number);
+      const url = caseNumber
+        ? `https://echo.epa.gov/enforcement-compliance-history/enforcement-case-report?case_id=${encodeURIComponent(caseNumber)}`
+        : "https://www.epa.gov/recalls";
+      const recall: RecallResult = {
+        id: caseNumber || cryptoRandomId("epa"),
+        title: caseName || summary,
+        summary,
+        source: "EPA",
+        category: "environmental",
+        publishedAt,
+        url,
+        companyName: safeString(item?.FacilityName || item?.facility_name) || undefined,
+      };
+      return { ...recall, id: encodeRecallId(recall) };
+    })
+    .filter((item: RecallResult) =>
+      isWithinDateRange(item.publishedAt, dateRangeStart)
+    )
+    .filter((item: RecallResult) => item.title || item.summary);
+}
+
+async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
+  // USCG does not provide a public JSON API for boat recalls.
+  // As a practical approach, we query the CPSC API for boat/marine-related products
+  // and re-label them as USCG/marine recalls. This captures many marine product recalls
+  // that overlap between CPSC and USCG jurisdiction.
+  const boatKeywords = ["boat", "kayak", "canoe", "marine", "watercraft", "life jacket", "personal flotation"];
+  let url = USCG_CPSC_URL;
+  if (dateRangeStart) {
+    url += `&RecallDateStart=${encodeURIComponent(formatCpscDate(dateRangeStart))}`;
+    url += `&RecallDateEnd=${encodeURIComponent(formatCpscDate(new Date()))}`;
+  }
+  const data = await fetchJson(url, signal);
+  if (!Array.isArray(data)) return [];
+
+  return data
+    .filter((item) => {
+      const title = safeString(item?.Title).toLowerCase();
+      const desc = safeString(item?.Description).toLowerCase();
+      const product = safeString(item?.ProductName).toLowerCase();
+      const combined = `${title} ${desc} ${product}`;
+      return boatKeywords.some((kw) => combined.includes(kw));
+    })
+    .map((item) => {
+      const recallDate = normalizeDate(item?.RecallDate);
+      const recall: RecallResult = {
+        id: String(item?.RecallID || cryptoRandomId("uscg")),
+        title: safeString(item?.Title),
+        summary: safeString(item?.Description),
+        source: "USCG",
+        category: "marine",
+        publishedAt: recallDate,
+        url: safeString(item?.URL) || "https://uscgboating.org/content/recalls.php",
+        companyName: safeString(item?.CompanyName) || undefined,
+      };
+      return { ...recall, id: encodeRecallId(recall) };
+    })
+    .filter((item: RecallResult) =>
+      isWithinDateRange(item.publishedAt, dateRangeStart)
+    )
+    .filter((item) => item.title || item.summary);
 }
 
 function filterByQuery(results: RecallResult[], query: string) {

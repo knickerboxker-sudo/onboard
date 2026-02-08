@@ -33,14 +33,23 @@ export default function AboutPage() {
               <strong className="text-ink">FDA</strong> - Food and Drug
               Administration: drug, medical device, and food recalls
             </li>
+            <li>
+              <strong className="text-ink">EPA</strong> - Environmental
+              Protection Agency: environmental enforcement actions, pesticide
+              recalls, and emission control device violations
+            </li>
+            <li>
+              <strong className="text-ink">USCG</strong> - United States Coast
+              Guard: boat and marine equipment recalls and safety defects
+            </li>
           </ul>
 
           <h2 className="text-xl font-semibold text-ink">How It Works</h2>
           <p>
             sortir automatically ingests recall data from official
-            government APIs and datasets. Each recall is normalized into a
-            unified format, enabling cross-agency search by brand, company,
-            product, or keyword.
+            government APIs and datasets across six federal agencies. Each
+            recall is normalized into a unified format, enabling cross-agency
+            search by brand, company, product, or keyword.
           </p>
           <p>
             Company and brand names are normalized to improve search results.

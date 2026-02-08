@@ -16,7 +16,8 @@ export default async function HomePage() {
             </h1>
             <p className="text-muted text-lg leading-relaxed max-w-xl mx-auto">
               Unified search across vehicles, consumer products, food, drugs,
-              and medical devices from federal agencies.
+              medical devices, environmental hazards, and marine equipment from
+              six federal agencies.
             </p>
           </div>
           <SearchBar large />
@@ -34,12 +35,14 @@ export default async function HomePage() {
         </section>
 
         <section className="max-w-3xl mx-auto px-6 pb-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
             {[
               { label: "NHTSA", desc: "Vehicle Recalls" },
               { label: "CPSC", desc: "Consumer Products" },
               { label: "FSIS", desc: "Food Safety" },
               { label: "FDA", desc: "Drugs & Devices" },
+              { label: "EPA", desc: "Environmental" },
+              { label: "USCG", desc: "Marine & Boating" },
             ].map((source) => (
               <div
                 key={source.label}
