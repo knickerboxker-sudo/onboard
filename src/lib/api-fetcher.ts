@@ -81,11 +81,11 @@ export function decodeRecallId(id: string) {
 }
 
 async function fetchCpsc(dateRangeStart?: Date, signal?: AbortSignal) {
-  const url = dateRangeStart
-    ? `${CPSC_URL}&RecallDateStart=${encodeURIComponent(
-        formatCpscDate(dateRangeStart)
-      )}`
-    : CPSC_URL;
+  let url = CPSC_URL;
+  if (dateRangeStart) {
+    url += `&RecallDateStart=${encodeURIComponent(formatCpscDate(dateRangeStart))}`;
+    url += `&RecallDateEnd=${encodeURIComponent(formatCpscDate(new Date()))}`;
+  }
   // CPSC does not document a reliable sort parameter, so we sort client-side.
   const data = await fetchJson(url, signal);
   if (!Array.isArray(data)) return [];
@@ -330,9 +330,9 @@ function buildFdaSearchQuery(query?: string, startDate?: Date) {
   if (effectiveStartDate) {
     const start = formatFdaDate(effectiveStartDate);
     const end = formatFdaDate(new Date());
-    clauses.push(`report_date:[${start}+TO+${end}]`);
+    clauses.push(`report_date:[${start} TO ${end}]`);
   }
-  return clauses.join("+AND+");
+  return clauses.join(" AND ");
 }
 
 function sortRecallsByDate(results: RecallResult[]) {
