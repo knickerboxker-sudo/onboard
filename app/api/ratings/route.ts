@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         toUserId: validated.toUserId,
         stars: validated.stars,
         comment: validated.comment,
-        tags: validated.tags || [],
+        tags: JSON.stringify(validated.tags ?? []),
       },
     });
 
