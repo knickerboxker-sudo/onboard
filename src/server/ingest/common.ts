@@ -143,7 +143,7 @@ export async function upsertRawAndEvent(
   }
 }
 
-async function fetchWithRetry(
+export async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
   retries = 3,
@@ -168,5 +168,3 @@ async function fetchWithRetry(
   }
   throw new Error(`Failed to fetch ${url} after ${retries} retries`);
 }
-
-export { fetchWithRetry };
