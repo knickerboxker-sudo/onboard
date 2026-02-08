@@ -416,8 +416,9 @@ function SearchContent() {
                       onClick={() => fetchResults({ refresh: true })}
                       className="inline-flex items-center gap-1.5 text-accent hover:text-accent-hover font-medium transition-colors"
                       disabled={refreshing}
+                      aria-label={refreshing ? "Refreshing data" : "Refresh data"}
                     >
-                      <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} />
+                      <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
                       {refreshing ? "Refreshing..." : "Refresh"}
                     </button>
                   </div>
