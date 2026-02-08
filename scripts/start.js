@@ -1,40 +1,51 @@
 const { execSync } = require("child_process");
 
-// Run prisma migrate on startup (for Railway deployments)
-try {
-  console.log("Running database migrations...");
-  execSync("npx prisma migrate deploy", { stdio: "inherit" });
-  console.log("Migrations complete.");
-} catch (err) {
-  console.warn("Migration warning:", err.message);
-}
+const databaseUrl = process.env.DATABASE_URL;
+const hasValidDatabaseUrl =
+  typeof databaseUrl === "string" &&
+  /^(postgresql|postgres):\/\//.test(databaseUrl);
 
-// Add searchVector column if not exists (for tsvector support)
-try {
-  const { PrismaClient } = require("@prisma/client");
-  const prisma = new PrismaClient();
-  prisma
-    .$executeRawUnsafe(
-      `DO $$ BEGIN
-        IF NOT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'recall_events' AND column_name = 'searchVector'
-        ) THEN
-          ALTER TABLE recall_events ADD COLUMN "searchVector" tsvector;
-          CREATE INDEX IF NOT EXISTS recall_events_search_vector_idx ON recall_events USING GIN ("searchVector");
-        END IF;
-      END $$;`
-    )
-    .then(() => {
-      console.log("Search vector column verified.");
-      prisma.$disconnect();
-    })
-    .catch((err) => {
-      console.warn("Search vector setup warning:", err.message);
-      prisma.$disconnect();
-    });
-} catch (err) {
-  console.warn("Prisma setup warning:", err.message);
+// Run prisma migrate on startup (for Railway deployments)
+if (hasValidDatabaseUrl) {
+  try {
+    console.log("Running database migrations...");
+    execSync("npx prisma migrate deploy", { stdio: "inherit" });
+    console.log("Migrations complete.");
+  } catch (err) {
+    console.warn("Migration warning:", err.message);
+  }
+
+  // Add searchVector column if not exists (for tsvector support)
+  try {
+    const { PrismaClient } = require("@prisma/client");
+    const prisma = new PrismaClient();
+    prisma
+      .$executeRawUnsafe(
+        `DO $$ BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'recall_events' AND column_name = 'searchVector'
+          ) THEN
+            ALTER TABLE recall_events ADD COLUMN "searchVector" tsvector;
+            CREATE INDEX IF NOT EXISTS recall_events_search_vector_idx ON recall_events USING GIN ("searchVector");
+          END IF;
+        END $$;`
+      )
+      .then(() => {
+        console.log("Search vector column verified.");
+        prisma.$disconnect();
+      })
+      .catch((err) => {
+        console.warn("Search vector setup warning:", err.message);
+        prisma.$disconnect();
+      });
+  } catch (err) {
+    console.warn("Prisma setup warning:", err.message);
+  }
+} else {
+  console.warn(
+    "Skipping database migrations and search vector setup: no valid DATABASE_URL configured."
+  );
 }
 
 // Start the Next.js server
