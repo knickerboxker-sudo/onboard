@@ -5,7 +5,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: "#f8fafc",
+        base: "#ffffff",
         card: "#ffffff",
         "card-hover": "#f1f5f9",
         ink: "#0f172a",
