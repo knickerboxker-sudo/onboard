@@ -179,13 +179,24 @@ export async function fetchRecallResults({
   }
 
   const dateRangeStart = getDateRangeStart(dateRange);
+  
+  /**
+   * Helper to log fetch errors with source name and timestamp
+   */
+  const logFetchError = (source: RecallSource, error: unknown) => {
+    const timestamp = new Date().toISOString();
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[${timestamp}] ${source} fetch failed:`, errorMessage);
+    return [];
+  };
+  
   const tasks = [
-    fetchCpsc(dateRangeStart, signal).catch(() => []),
-    fetchNhtsa(query, dateRangeStart, signal).catch(() => []),
-    fetchFsis(dateRangeStart, signal).catch(() => []),
-    fetchFda(query, dateRangeStart, signal).catch(() => []),
-    fetchEpa(query, dateRangeStart, signal).catch(() => []),
-    fetchUscg(dateRangeStart, signal).catch(() => []),
+    fetchCpsc(dateRangeStart, signal).catch((err) => logFetchError("CPSC", err)),
+    fetchNhtsa(query, dateRangeStart, signal).catch((err) => logFetchError("NHTSA", err)),
+    fetchFsis(dateRangeStart, signal).catch((err) => logFetchError("FSIS", err)),
+    fetchFda(query, dateRangeStart, signal).catch((err) => logFetchError("FDA", err)),
+    fetchEpa(query, dateRangeStart, signal).catch((err) => logFetchError("EPA", err)),
+    fetchUscg(dateRangeStart, signal).catch((err) => logFetchError("USCG", err)),
   ];
 
   const results = (await Promise.all(tasks)).flat();

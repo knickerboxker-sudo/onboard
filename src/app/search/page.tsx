@@ -310,6 +310,7 @@ function SearchContent() {
 
   useEffect(() => {
     fetchResults();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, categoryFilter, sourceFilter, yearFilter, dateRangeFilter]);
 
   const filteredResults = applyDateFilters(
