@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatDate, categoryColor, categoryLabel, truncate } from "@/src/lib/utils";
-import { Calendar, Building2, ChevronRight } from "lucide-react";
+import { Calendar, Building2, ChevronRight, Link2 } from "lucide-react";
 
 interface RecallCardProps {
   id: string;
@@ -11,6 +11,7 @@ interface RecallCardProps {
   publishedAt: Date | string;
   companyName?: string | null;
   companyNormalized?: string | null;
+  matchReason?: string | null;
   returnTo?: string;
 }
 
@@ -23,6 +24,7 @@ export function RecallCard({
   publishedAt,
   companyName,
   companyNormalized,
+  matchReason,
   returnTo,
 }: RecallCardProps) {
   const detailsHref = returnTo
@@ -69,6 +71,12 @@ export function RecallCard({
       <p className="text-sm text-muted/80 leading-relaxed mb-3">
         {truncate(summary, 180)}
       </p>
+      {matchReason && (
+        <p className="text-xs text-accent/80 bg-accent-light px-2.5 py-1.5 rounded-md mb-3 flex items-center gap-1.5">
+          <Link2 size={12} className="flex-shrink-0" />
+          {matchReason}
+        </p>
+      )}
       <Link
         href={detailsHref}
         className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
