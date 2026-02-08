@@ -91,6 +91,19 @@ npm run dev
 - **USDA FSIS**: Food safety recalls via FSIS data feed
 - **FDA**: Drug, device, and food enforcement via openFDA API
 
+### API Notes
+
+- **Default freshness window**: API fetchers request (or filter to) the most recent 2 years by default to prioritize current safety information. Use `dateRange=all` when you need a full historical pull.
+- **CPSC**: Supports `RecallDateStart` for date filtering but does not document a reliable server-side sort, so results are sorted client-side.
+- **NHTSA**: `recallsByVehicle` does not expose date filtering or sorting. We fetch a default set of popular makes when there is no query and filter client-side.
+- **USDA FSIS**: Published as a static JSON feed without date parameters; filtering and sorting are done client-side.
+- **FDA**: openFDA enforcement supports `report_date` range queries and sorting (e.g., `sort=report_date:desc`).
+
+### Cache & Refresh
+
+- Search responses are cached for 30 minutes because recall data changes relatively slowly.
+- Use `GET /api/search?refresh=1` to bypass the cache and force a fresh pull.
+
 ## Ingestion
 
 Ingestion is modular. Each source implements:

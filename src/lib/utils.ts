@@ -7,6 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
+  if (Number.isNaN(d.getTime())) {
+    return "Unknown date";
+  }
   return d.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
