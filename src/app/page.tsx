@@ -11,7 +11,7 @@ export default async function HomePage() {
       <main className="flex-1">
         <section className="py-24 px-6">
           <div className="max-w-3xl mx-auto text-center mb-10">
-            <h1 className="text-5xl font-bold mb-4 tracking-tight text-ink">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4 tracking-tight text-ink whitespace-nowrap">
               Search Recall Data
             </h1>
             <p className="text-muted text-lg leading-relaxed max-w-xl mx-auto">

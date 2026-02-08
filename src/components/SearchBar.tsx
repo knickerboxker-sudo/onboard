@@ -34,7 +34,6 @@ export function SearchBar({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Search products, brands, or companies"
             className={`w-full bg-white border border-border rounded-xl text-ink placeholder:text-muted/70 placeholder:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent/25 focus:border-accent transition-all shadow-card ${
               large ? "pl-12 pr-4 py-4 text-lg leading-6" : "pl-11 pr-4 py-3 text-base leading-6"
             }`}

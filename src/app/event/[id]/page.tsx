@@ -10,8 +10,10 @@ export const dynamic = "force-dynamic";
 
 export default async function EventPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams?: { from?: string };
 }) {
   let event;
   try {
@@ -19,13 +21,15 @@ export default async function EventPage({
   } catch {
     notFound();
   }
+  const returnTo = typeof searchParams?.from === "string" ? searchParams.from : "";
+  const backHref = returnTo ? `/search?${decodeURIComponent(returnTo)}` : "/search";
 
   return (
     <div className="min-h-screen flex flex-col bg-base">
       <Header />
       <main className="flex-1 max-w-5xl mx-auto px-6 py-8 w-full">
         <Link
-          href="/search"
+          href={backHref}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink transition-colors mb-6"
         >
           <ArrowLeft size={15} />

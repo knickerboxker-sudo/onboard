@@ -66,24 +66,14 @@ function LoadingState({ query }: { query: string }) {
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border bg-white p-5 shadow-card">
-        <div className="flex items-center gap-4">
-          <div className="loading-orb" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-ink">
-              Searching across six federal recall databases
-            </p>
-            <p className="text-xs text-muted mt-1">
-              {query
-                ? `Looking for matches to “${query}”.`
-                : "Indexing the latest recalls."}
-            </p>
-            <div className="loading-sweep mt-3" aria-hidden="true" />
-          </div>
-          <div className="loading-dots text-accent" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-ink">Searching</p>
+          <p className="text-xs text-muted mt-1">
+            {query
+              ? `Looking for matches to “${query}”.`
+              : "Indexing the latest recalls."}
+          </p>
+          <div className="loading-sweep mt-3" aria-hidden="true" />
         </div>
       </div>
       <div className="space-y-3">
@@ -103,6 +93,7 @@ function SearchContent() {
   const sourceFilter = searchParams.get("source") || "";
   const yearFilter = searchParams.get("year") || "";
   const dateRangeFilter = searchParams.get("dateRange") || "all";
+  const returnTo = searchParams.toString();
 
   const [data, setData] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -451,7 +442,7 @@ function SearchContent() {
                 </div>
                 <div className="space-y-3">
                   {filteredResults.map((event) => (
-                    <RecallCard key={event.id} {...event} />
+                    <RecallCard key={event.id} {...event} returnTo={returnTo} />
                   ))}
                 </div>
               </>
