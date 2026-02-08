@@ -381,54 +381,52 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 
 function filterByQuery(results: RecallResult[], query: string) {
   const normalized = normalizeSearchText(query);
-  const compactNormalized = compactSearchText(normalized);
   const stripped = stripCorporateSuffixes(normalized);
-  const compactStripped = compactSearchText(stripped);
   const aliases =
     COMPANY_ALIASES[normalized] ||
-    COMPANY_ALIASES[compactNormalized] ||
     COMPANY_ALIASES[stripped] ||
-    COMPANY_ALIASES[compactStripped] ||
     [];
   const normalizedAliases = aliases.map((alias) => normalizeSearchText(alias));
   const queryVariants = [normalized, stripped].filter(Boolean);
-  const compactQueryVariants = [compactNormalized, compactStripped].filter(Boolean);
+  const compactQueryVariants = [compactSearchText(normalized), compactSearchText(stripped)].filter(Boolean);
+  const tokens = queryVariants
+    .flatMap((variant) => variant.split(" "))
+    .filter(Boolean);
   return results.filter((item) => {
     const combined = SEARCH_FIELDS.map((field) => safeString(item[field])).join(
       " "
     );
     const normalizedCombined = normalizeSearchText(combined);
     const strippedCombined = stripCorporateSuffixes(normalizedCombined);
-    const compactCombined = compactSearchText(normalizedCombined);
-    const compactStrippedCombined = compactSearchText(strippedCombined);
-    const tokens = queryVariants
-      .flatMap((variant) => variant.split(" "))
-      .filter(Boolean);
+    const words = normalizedCombined.split(" ").filter(Boolean);
+    const strippedWords = strippedCombined.split(" ").filter(Boolean);
     const matchesDirect =
-      compactQueryVariants.length > 0
-        ? compactQueryVariants.some((variant) =>
-            compactCombined.includes(variant) ||
-            compactStrippedCombined.includes(variant)
+      queryVariants.length > 0
+        ? queryVariants.some(
+            (variant) =>
+              normalizedCombined.includes(variant) ||
+              strippedCombined.includes(variant)
           )
         : false;
     const matchesTokens =
       tokens.length > 0 &&
       tokens.every(
         (token) =>
-          normalizedCombined.includes(token) ||
-          strippedCombined.includes(token)
+          words.some((word) => word === token || word.startsWith(token)) ||
+          strippedWords.some((word) => word === token || word.startsWith(token))
       );
-    const matchesPrefix =
-      tokens.length > 0 &&
-      tokens.every((token) =>
-        normalizedCombined
-          .split(" ")
-          .some((word) => word.startsWith(token)) ||
-        strippedCombined
-          .split(" ")
-          .some((word) => word.startsWith(token))
-      );
-    const matchesText = matchesDirect || matchesTokens || matchesPrefix;
+    const matchesAdjacent =
+      compactQueryVariants.length > 0 &&
+      compactQueryVariants.some((variant) => {
+        if (!variant) return false;
+        const checkAdjacent = (list: string[]) =>
+          list.some(
+            (word, index) =>
+              index < list.length - 1 && `${word}${list[index + 1]}` === variant
+          );
+        return checkAdjacent(words) || checkAdjacent(strippedWords);
+      });
+    const matchesText = matchesDirect || matchesTokens || matchesAdjacent;
     if (matchesText) return true;
     if (normalizedAliases.length > 0) {
       return normalizedAliases.some((alias) =>
