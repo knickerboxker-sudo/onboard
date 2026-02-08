@@ -11,6 +11,7 @@ interface RecallCardProps {
   publishedAt: Date | string;
   companyName?: string | null;
   companyNormalized?: string | null;
+  returnTo?: string;
 }
 
 export function RecallCard({
@@ -22,7 +23,11 @@ export function RecallCard({
   publishedAt,
   companyName,
   companyNormalized,
+  returnTo,
 }: RecallCardProps) {
+  const detailsHref = returnTo
+    ? `/event/${id}?from=${encodeURIComponent(returnTo)}`
+    : `/event/${id}`;
   return (
     <div className="bg-white border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover hover:border-accent/40 transition-all group">
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -41,7 +46,7 @@ export function RecallCard({
           {formatDate(publishedAt)}
         </div>
       </div>
-      <Link href={`/event/${id}`} className="block">
+      <Link href={detailsHref} className="block">
         <h3 className="font-semibold text-ink group-hover:text-accent transition-colors mb-1.5 leading-snug">
           {truncate(title, 120)}
         </h3>
@@ -65,7 +70,7 @@ export function RecallCard({
         {truncate(summary, 180)}
       </p>
       <Link
-        href={`/event/${id}`}
+        href={detailsHref}
         className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
       >
         View details
