@@ -29,7 +29,67 @@ const DEFAULT_DATE_RANGE_YEARS = 2;
 const DEFAULT_NHTSA_MAKES = ["Ford", "Toyota", "Honda", "Chevrolet", "Nissan"];
 
 const COMPANY_ALIASES: Record<string, string[]> = {
-  tyson: ["hillshire brands", "jimmy dean", "state fair"],
+  tyson: [
+    "tyson foods",
+    "tyson foodservice",
+    "hillshire farm",
+    "hillshire brands",
+    "jimmy dean",
+    "state fair",
+    "ball park",
+    "aidells",
+    "ibp",
+  ],
+};
+
+const BRAND_FAMILIES: Record<
+  string,
+  { brands: string[]; strictRetailer?: boolean }
+> = {
+  walmart: {
+    brands: [
+      "great value",
+      "equate",
+      "sam's choice",
+      "parents choice",
+      "mainstays",
+      "george",
+      "no boundaries",
+      "onn",
+    ],
+    strictRetailer: true,
+  },
+  costco: {
+    brands: ["kirkland", "kirkland signature"],
+    strictRetailer: true,
+  },
+  target: {
+    brands: [
+      "up & up",
+      "good & gather",
+      "threshold",
+      "cat & jack",
+      "room essentials",
+      "heyday",
+    ],
+    strictRetailer: true,
+  },
+  ikea: {
+    brands: ["ikea"],
+    strictRetailer: true,
+  },
+  tyson: {
+    brands: [
+      "tyson foods",
+      "tyson",
+      "hillshire farm",
+      "jimmy dean",
+      "state fair",
+      "ball park",
+      "aidells",
+      "ibp",
+    ],
+  },
 };
 
 const CORPORATE_SUFFIXES = new Set([
@@ -380,61 +440,146 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 }
 
 function filterByQuery(results: RecallResult[], query: string) {
+  const context = buildQueryContext(query);
+  return results.filter((item) => {
+    const title = normalizeSearchText(safeString(item.title));
+    const summary = normalizeSearchText(safeString(item.summary));
+    const company = normalizeSearchText(safeString(item.companyName));
+    const combined = [title, summary, company].filter(Boolean).join(" ").trim();
+    const strippedCombined = stripCorporateSuffixes(combined);
+    const words = combined.split(" ").filter(Boolean);
+    const strippedWords = strippedCombined.split(" ").filter(Boolean);
+    const matchesText = matchesQueryContext(
+      context,
+      combined,
+      strippedCombined,
+      words,
+      strippedWords
+    );
+    const matchesAlias = matchesAliases(
+      context,
+      combined,
+      strippedCombined
+    );
+
+    if (!context.strictRetailer) {
+      return matchesText || matchesAlias;
+    }
+
+    const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
+    const strippedPrimary = stripCorporateSuffixes(primaryCombined);
+    const primaryWords = primaryCombined.split(" ").filter(Boolean);
+    const strippedPrimaryWords = strippedPrimary.split(" ").filter(Boolean);
+    const matchesPrimary = matchesQueryContext(
+      context,
+      primaryCombined,
+      strippedPrimary,
+      primaryWords,
+      strippedPrimaryWords
+    );
+    const matchesPrimaryAlias = matchesAliases(
+      context,
+      primaryCombined,
+      strippedPrimary
+    );
+
+    return matchesPrimary || matchesPrimaryAlias || matchesAlias;
+  });
+}
+
+type QueryContext = {
+  queryVariants: string[];
+  compactQueryVariants: string[];
+  tokens: string[];
+  aliases: string[];
+  strictRetailer: boolean;
+};
+
+function buildQueryContext(query: string): QueryContext {
   const normalized = normalizeSearchText(query);
   const stripped = stripCorporateSuffixes(normalized);
-  const aliases =
-    COMPANY_ALIASES[normalized] ||
-    COMPANY_ALIASES[stripped] ||
-    [];
-  const normalizedAliases = aliases.map((alias) => normalizeSearchText(alias));
-  const queryVariants = [normalized, stripped].filter(Boolean);
-  const compactQueryVariants = [compactSearchText(normalized), compactSearchText(stripped)].filter(Boolean);
-  const tokens = queryVariants
-    .flatMap((variant) => variant.split(" "))
-    .filter(Boolean);
-  return results.filter((item) => {
-    const combined = SEARCH_FIELDS.map((field) => safeString(item[field])).join(
-      " "
+  const tokens = Array.from(
+    new Set(
+      [normalized, stripped]
+        .filter(Boolean)
+        .flatMap((variant) => variant.split(" "))
+        .filter(Boolean)
+    )
+  );
+  const family =
+    BRAND_FAMILIES[normalized] ||
+    BRAND_FAMILIES[stripped] ||
+    BRAND_FAMILIES[tokens[0] || ""];
+  const aliases = [
+    ...(COMPANY_ALIASES[normalized] || []),
+    ...(COMPANY_ALIASES[stripped] || []),
+    ...(family?.brands || []),
+  ];
+  const normalizedAliases = Array.from(
+    new Set(aliases.map((alias) => normalizeSearchText(alias)).filter(Boolean))
+  );
+
+  return {
+    queryVariants: [normalized, stripped].filter(Boolean),
+    compactQueryVariants: [
+      compactSearchText(normalized),
+      compactSearchText(stripped),
+    ].filter(Boolean),
+    tokens,
+    aliases: normalizedAliases,
+    strictRetailer: Boolean(family?.strictRetailer),
+  };
+}
+
+function matchesQueryContext(
+  context: QueryContext,
+  normalizedCombined: string,
+  strippedCombined: string,
+  words: string[],
+  strippedWords: string[]
+) {
+  const matchesDirect =
+    context.queryVariants.length > 0
+      ? context.queryVariants.some(
+          (variant) =>
+            normalizedCombined.includes(variant) ||
+            strippedCombined.includes(variant)
+        )
+      : false;
+  const matchesTokens =
+    context.tokens.length > 0 &&
+    context.tokens.every(
+      (token) =>
+        words.some((word) => word === token || word.startsWith(token)) ||
+        strippedWords.some((word) => word === token || word.startsWith(token))
     );
-    const normalizedCombined = normalizeSearchText(combined);
-    const strippedCombined = stripCorporateSuffixes(normalizedCombined);
-    const words = normalizedCombined.split(" ").filter(Boolean);
-    const strippedWords = strippedCombined.split(" ").filter(Boolean);
-    const matchesDirect =
-      queryVariants.length > 0
-        ? queryVariants.some(
-            (variant) =>
-              normalizedCombined.includes(variant) ||
-              strippedCombined.includes(variant)
-          )
-        : false;
-    const matchesTokens =
-      tokens.length > 0 &&
-      tokens.every(
-        (token) =>
-          words.some((word) => word === token || word.startsWith(token)) ||
-          strippedWords.some((word) => word === token || word.startsWith(token))
-      );
-    const matchesAdjacent =
-      compactQueryVariants.length > 0 &&
-      compactQueryVariants.some((variant) => {
-        if (!variant) return false;
-        const checkAdjacent = (list: string[]) =>
-          list.some(
-            (word, index) =>
-              index < list.length - 1 && `${word}${list[index + 1]}` === variant
-          );
-        return checkAdjacent(words) || checkAdjacent(strippedWords);
-      });
-    const matchesText = matchesDirect || matchesTokens || matchesAdjacent;
-    if (matchesText) return true;
-    if (normalizedAliases.length > 0) {
-      return normalizedAliases.some((alias) =>
-        normalizedCombined.includes(alias) ||
-        strippedCombined.includes(stripCorporateSuffixes(alias))
-      );
-    }
-    return matchesText;
+  const matchesAdjacent =
+    context.compactQueryVariants.length > 0 &&
+    context.compactQueryVariants.some((variant) => {
+      if (!variant) return false;
+      const checkAdjacent = (list: string[]) =>
+        list.some(
+          (word, index) =>
+            index < list.length - 1 && `${word}${list[index + 1]}` === variant
+        );
+      return checkAdjacent(words) || checkAdjacent(strippedWords);
+    });
+
+  return matchesDirect || matchesTokens || matchesAdjacent;
+}
+
+function matchesAliases(
+  context: QueryContext,
+  normalizedCombined: string,
+  strippedCombined: string
+) {
+  if (context.aliases.length === 0) return false;
+  return context.aliases.some((alias) => {
+    const strippedAlias = stripCorporateSuffixes(alias);
+    return (
+      normalizedCombined.includes(alias) ||
+      strippedCombined.includes(strippedAlias)
+    );
   });
 }
 
