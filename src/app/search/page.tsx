@@ -62,6 +62,39 @@ function SkeletonCard() {
   );
 }
 
+function LoadingState({ query }: { query: string }) {
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border bg-white p-5 shadow-card">
+        <div className="flex items-center gap-4">
+          <div className="loading-orb" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-ink">
+              Searching across six federal recall databases
+            </p>
+            <p className="text-xs text-muted mt-1">
+              {query
+                ? `Looking for matches to “${query}”.`
+                : "Indexing the latest recalls."}
+            </p>
+            <div className="loading-sweep mt-3" aria-hidden="true" />
+          </div>
+          <div className="loading-dots text-accent" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -69,7 +102,7 @@ function SearchContent() {
   const categoryFilter = searchParams.get("category") || "";
   const sourceFilter = searchParams.get("source") || "";
   const yearFilter = searchParams.get("year") || "";
-  const dateRangeFilter = searchParams.get("dateRange") || "2y";
+  const dateRangeFilter = searchParams.get("dateRange") || "all";
 
   const [data, setData] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -365,14 +398,7 @@ function SearchContent() {
               </details>
             </div>
             {loading ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="skeleton h-4 w-32" />
-                </div>
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <SkeletonCard key={i} />
-                ))}
-              </div>
+              <LoadingState query={q} />
             ) : error ? (
               <div className="text-center py-16">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-danger/10 mb-4">
