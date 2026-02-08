@@ -37,6 +37,15 @@ export interface SearchResponse {
 export async function searchEvents(
   params: SearchParams
 ): Promise<SearchResponse> {
+  if (!prisma) {
+    return {
+      results: [],
+      total: 0,
+      page: 1,
+      pageSize: Math.min(50, Math.max(1, params.pageSize || 20)),
+      totalPages: 0,
+    };
+  }
   const page = Math.max(1, params.page || 1);
   const pageSize = Math.min(50, Math.max(1, params.pageSize || 20));
   const offset = (page - 1) * pageSize;

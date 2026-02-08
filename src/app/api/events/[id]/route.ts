@@ -6,6 +6,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
+    }
     const event = await prisma.recallEvent.findUnique({
       where: { id: params.id },
       include: { rawRecord: true },

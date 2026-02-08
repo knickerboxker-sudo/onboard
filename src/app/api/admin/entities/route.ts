@@ -4,6 +4,12 @@ import { normalizeName } from "@/src/server/normalize/utils";
 
 export async function GET() {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
+    }
     const aliases = await prisma.entityAlias.findMany({
       orderBy: { canonical: "asc" },
     });
@@ -20,6 +26,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
+    }
     const { type, canonical, alias } = await req.json();
 
     if (!type || !canonical || !alias) {

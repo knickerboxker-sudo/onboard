@@ -3,6 +3,12 @@ import { prisma } from "@/src/server/db/prisma";
 
 export async function GET(req: NextRequest) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
+    }
     const url = new URL(req.url);
     const source = url.searchParams.get("source") || undefined;
     const take = parseInt(url.searchParams.get("take") || "50");

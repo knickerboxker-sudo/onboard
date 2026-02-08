@@ -17,6 +17,9 @@ export default async function CompanyPage({
 
   let events;
   try {
+    if (!prisma) {
+      notFound();
+    }
     events = await prisma.recallEvent.findMany({
       where: { companyNormalized: slug },
       orderBy: { publishedAt: "desc" },

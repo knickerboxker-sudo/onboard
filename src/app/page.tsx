@@ -18,23 +18,25 @@ export default async function HomePage() {
     companyNormalized: string | null;
   }> = [];
 
-  try {
-    latestEvents = await prisma.recallEvent.findMany({
-      orderBy: { publishedAt: "desc" },
-      take: 20,
-      select: {
-        id: true,
-        title: true,
-        summary: true,
-        category: true,
-        source: true,
-        publishedAt: true,
-        companyName: true,
-        companyNormalized: true,
-      },
-    });
-  } catch {
-    // Database may not be available yet
+  if (prisma) {
+    try {
+      latestEvents = await prisma.recallEvent.findMany({
+        orderBy: { publishedAt: "desc" },
+        take: 20,
+        select: {
+          id: true,
+          title: true,
+          summary: true,
+          category: true,
+          source: true,
+          publishedAt: true,
+          companyName: true,
+          companyNormalized: true,
+        },
+      });
+    } catch {
+      // Database may not be available yet
+    }
   }
 
   return (
