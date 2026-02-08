@@ -79,6 +79,59 @@ const BRAND_FAMILIES: Record<
     brands: ["ikea"],
     strictRetailer: true,
   },
+  amazon: {
+    brands: [
+      "amazon basics",
+      "kindle",
+      "ring",
+      "blink",
+      "eero",
+      "whole foods 365",
+      "happy belly",
+      "solimo",
+      "presto",
+      "amazon essentials",
+      "amazonfresh",
+    ],
+    strictRetailer: true,
+  },
+  "home depot": {
+    brands: [
+      "hdx",
+      "husky",
+      "vigoro",
+      "glacier bay",
+      "home decorators collection",
+      "lifeproof",
+    ],
+    strictRetailer: true,
+  },
+  autozone: {
+    brands: ["duralast", "valucraft", "surestart"],
+    strictRetailer: true,
+  },
+  "lowe s": {
+    brands: [
+      "kobalt",
+      "allen roth",
+      "project source",
+      "portfolio",
+      "utilitech",
+    ],
+    strictRetailer: true,
+  },
+  cvs: {
+    brands: ["cvs health", "cvs pharmacy", "gold emblem"],
+    strictRetailer: true,
+  },
+  walgreens: {
+    brands: ["walgreens", "nice", "wal phed"],
+    strictRetailer: true,
+  },
+  kroger: {
+    brands: ["kroger", "simple truth", "private selection", "home chef"],
+    strictRetailer: true,
+  },
   tyson: {
     brands: [
       "tyson foods",
@@ -519,6 +572,8 @@ export function filterByQuery(results: RecallResult[], query: string) {
         return matchesText || matchesAlias;
       }
 
+      // For strict retailers, only match on title + companyName (not summary)
+      // to avoid false positives from "sold at [Retailer]" mentions.
       const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
       const strippedPrimary = stripCorporateSuffixes(primaryCombined);
       const primaryWords = primaryCombined.split(" ").filter(Boolean);
@@ -536,7 +591,7 @@ export function filterByQuery(results: RecallResult[], query: string) {
         strippedPrimary
       );
 
-      return matchesPrimary || matchesPrimaryAlias || matchesAlias;
+      return matchesPrimary || matchesPrimaryAlias;
     })
     .map((item) => ({
       ...item,
