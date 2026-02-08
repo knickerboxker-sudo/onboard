@@ -199,10 +199,12 @@ async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
       const summary = safeString(item?.field_recall_reason || item?.field_product_description);
       const recallNumber = safeString(item?.field_recall_number);
       const pressRelease = safeString(item?.field_press_release);
-      const itemUrl = pressRelease
-        || (recallNumber
-          ? `https://www.fsis.usda.gov/recalls-alerts/${encodeURIComponent(recallNumber)}`
-          : "https://www.fsis.usda.gov/recalls");
+      let itemUrl = "https://www.fsis.usda.gov/recalls";
+      if (pressRelease) {
+        itemUrl = pressRelease;
+      } else if (recallNumber) {
+        itemUrl = `https://www.fsis.usda.gov/recalls-alerts/${encodeURIComponent(recallNumber)}`;
+      }
       const recall: RecallResult = {
         id: recallNumber || cryptoRandomId("fsis"),
         title,
