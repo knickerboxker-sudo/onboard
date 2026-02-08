@@ -193,7 +193,9 @@ async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
 
       return { ...recall, id: encodeRecallId(recall) };
     })
-    .filter((item) => isWithinDateRange(item.publishedAt, dateRangeStart))
+    .filter((item: RecallResult) =>
+      isWithinDateRange(item.publishedAt, dateRangeStart)
+    )
     .filter((item) => item.title || item.summary);
 }
 
@@ -228,7 +230,9 @@ async function fetchFda(
       };
       return { ...recall, id: encodeRecallId(recall) };
     })
-    .filter((item) => isWithinDateRange(item.publishedAt, dateRangeStart))
+    .filter((item: RecallResult) =>
+      isWithinDateRange(item.publishedAt, dateRangeStart)
+    )
     .filter((item: RecallResult) => item.title || item.summary);
 }
 
