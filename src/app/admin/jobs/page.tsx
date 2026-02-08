@@ -22,9 +22,7 @@ export default function AdminJobsPage() {
 
   const loadRuns = async () => {
     try {
-      const res = await fetch("/api/jobs/status", {
-        headers: { "x-admin-key": document.cookie.split("admin_key=")[1]?.split(";")[0] || "" },
-      });
+      const res = await fetch("/api/jobs/status");
       if (res.ok) {
         const data = await res.json();
         setRuns(data.runs || []);
@@ -42,8 +40,7 @@ export default function AdminJobsPage() {
     setRunning(true);
     setMessage("");
     try {
-      const adminKey = document.cookie.split("admin_key=")[1]?.split(";")[0] || "";
-      let url = `/api/jobs/run?key=${adminKey}`;
+      let url = `/api/jobs/run?trigger=manual`;
       if (sources) url += `&sources=${sources}`;
 
       const res = await fetch(url);

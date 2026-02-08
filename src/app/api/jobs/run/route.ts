@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkJobsAuth, unauthorizedResponse } from "@/src/lib/auth";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/src/server/db/prisma";
 import { ingestCpsc } from "@/src/server/ingest/cpsc";
 import { ingestNhtsa } from "@/src/server/ingest/nhtsa";
@@ -10,10 +10,6 @@ import { IngestStats } from "@/src/server/ingest/common";
 export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
-  if (!checkJobsAuth(req)) {
-    return unauthorizedResponse();
-  }
-
   const url = new URL(req.url);
   const triggeredBy =
     url.searchParams.get("trigger") === "cron" ? "CRON" : "MANUAL";
@@ -78,7 +74,7 @@ export async function GET(req: NextRequest) {
       data: {
         status: "SUCCESS",
         finishedAt: new Date(),
-        stats: allStats,
+        stats: allStats as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -95,7 +91,7 @@ export async function GET(req: NextRequest) {
       data: {
         status: "FAILED",
         finishedAt: new Date(),
-        stats: allStats,
+        stats: allStats as unknown as Prisma.InputJsonValue,
         error: errorMsg,
       },
     });

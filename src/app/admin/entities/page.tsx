@@ -27,12 +27,7 @@ export default function AdminEntitiesPage() {
   const loadAliases = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/entities", {
-        headers: {
-          "x-admin-key":
-            document.cookie.split("admin_key=")[1]?.split(";")[0] || "",
-        },
-      });
+      const res = await fetch("/api/admin/entities");
       if (res.ok) {
         const data = await res.json();
         setAliases(data.aliases || []);
@@ -56,8 +51,6 @@ export default function AdminEntitiesPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key":
-            document.cookie.split("admin_key=")[1]?.split(";")[0] || "",
         },
         body: JSON.stringify(formData),
       });

@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkJobsAuth, unauthorizedResponse } from "@/src/lib/auth";
 import { prisma } from "@/src/server/db/prisma";
 
-export async function GET(req: NextRequest) {
-  if (!checkJobsAuth(req)) {
-    return unauthorizedResponse();
-  }
-
+export async function GET() {
   try {
     const runs = await prisma.sourceJobRun.findMany({
       orderBy: { startedAt: "desc" },

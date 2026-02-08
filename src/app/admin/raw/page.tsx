@@ -27,12 +27,7 @@ export default function AdminRawPage() {
         const params = new URLSearchParams();
         if (source) params.set("source", source);
         params.set("take", "50");
-        const res = await fetch(`/api/admin/raw?${params.toString()}`, {
-          headers: {
-            "x-admin-key":
-              document.cookie.split("admin_key=")[1]?.split(";")[0] || "",
-          },
-        });
+        const res = await fetch(`/api/admin/raw?${params.toString()}`);
         if (res.ok) {
           const data = await res.json();
           setRecords(data.records || []);
@@ -52,12 +47,7 @@ export default function AdminRawPage() {
       return;
     }
     try {
-      const res = await fetch(`/api/admin/raw/${id}`, {
-        headers: {
-          "x-admin-key":
-            document.cookie.split("admin_key=")[1]?.split(";")[0] || "",
-        },
-      });
+      const res = await fetch(`/api/admin/raw/${id}`);
       if (res.ok) {
         const data = await res.json();
         setExpandedRaw(data.raw);
