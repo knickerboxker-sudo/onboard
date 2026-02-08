@@ -105,7 +105,9 @@ async function fetchCpsc(dateRangeStart?: Date, signal?: AbortSignal) {
       };
       return { ...recall, id: encodeRecallId(recall) };
     })
-    .filter((item) => isWithinDateRange(item.publishedAt, dateRangeStart))
+    .filter((item: RecallResult) =>
+      isWithinDateRange(item.publishedAt, dateRangeStart)
+    )
     .filter((item) => item.title || item.summary);
 }
 
