@@ -34,19 +34,20 @@ export function SearchBar({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Search recalls by product, brand, company..."
-            className={`w-full bg-white border border-border rounded-xl text-ink placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all shadow-card ${
-              large ? "pl-12 pr-4 py-4 text-lg" : "pl-11 pr-4 py-3 text-base"
+            placeholder="Search products, brands, or companies"
+            className={`w-full bg-white border border-border rounded-xl text-ink placeholder:text-muted/70 placeholder:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent/25 focus:border-accent transition-all shadow-card ${
+              large ? "pl-12 pr-4 py-4 text-lg leading-6" : "pl-11 pr-4 py-3 text-base leading-6"
             }`}
           />
         </div>
         <button
           onClick={() => handleSearch()}
-          className={`flex-shrink-0 bg-accent hover:bg-accent-hover text-white font-medium rounded-xl transition-all shadow-card hover:shadow-card-hover active:scale-[0.98] ${
-            large ? "px-6 py-4 text-base" : "px-5 py-3 text-sm"
+          aria-label="Search"
+          className={`flex-shrink-0 bg-accent hover:bg-accent-hover text-white rounded-xl transition-all shadow-card hover:shadow-card-hover active:scale-[0.98] flex items-center justify-center ${
+            large ? "h-12 w-12" : "h-10 w-10"
           }`}
         >
-          Search
+          <Search className="text-white" size={large ? 20 : 18} />
         </button>
       </div>
     </div>

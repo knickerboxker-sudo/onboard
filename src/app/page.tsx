@@ -21,17 +21,6 @@ export default async function HomePage() {
             </p>
           </div>
           <SearchBar large />
-          <div className="flex justify-center gap-3 mt-6 flex-wrap">
-            {["Costco", "Ford", "Samsung", "Tyson"].map((suggestion) => (
-              <a
-                key={suggestion}
-                href={`/search?q=${encodeURIComponent(suggestion)}`}
-                className="text-xs font-medium text-muted bg-white border border-border px-3 py-1.5 rounded-lg hover:border-accent hover:text-accent transition-all shadow-card"
-              >
-                {suggestion}
-              </a>
-            ))}
-          </div>
         </section>
 
         <section className="max-w-3xl mx-auto px-6 pb-20">
