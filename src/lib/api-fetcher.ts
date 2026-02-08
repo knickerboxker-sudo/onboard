@@ -568,14 +568,19 @@ function getMatchReason(
   // Check if the query appears directly in the title or company name
   const title = normalizeSearchText(safeString(item.title));
   const company = normalizeSearchText(safeString(item.companyName));
+  const summary = normalizeSearchText(safeString(item.summary));
 
   if (title.includes(normalizedQuery) || company.includes(normalizedQuery)) {
     return undefined; // Direct match – no explanation needed
   }
 
+  if (normalizedQuery && summary.includes(normalizedQuery)) {
+    return `Mentions "${query}" in recall details`;
+  }
+
   // Check alias / brand-family match
   if (context.aliases.length > 0) {
-    const combined = [title, normalizeSearchText(safeString(item.summary)), company]
+    const combined = [title, summary, company]
       .filter(Boolean)
       .join(" ");
     for (const alias of context.aliases) {
@@ -585,9 +590,17 @@ function getMatchReason(
     }
   }
 
+  if (context.tokens.length > 0) {
+    const tokenMatch = context.tokens.find(
+      (token) => title.includes(token) || company.includes(token)
+    );
+    if (tokenMatch) {
+      return `Matches keyword "${tokenMatch}" in the company or title`;
+    }
+  }
+
   // Check token match (partial / keyword match)
   if (context.tokens.length > 0) {
-    const summary = normalizeSearchText(safeString(item.summary));
     for (const token of context.tokens) {
       if (summary.includes(token) && !title.includes(token) && !company.includes(token)) {
         return `Mentions "${token}" in recall details`;
