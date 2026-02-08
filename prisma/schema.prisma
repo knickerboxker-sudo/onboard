@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SourceJobRun {
+  id          String   @id @default(cuid())
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime?
+  status      String   @default("RUNNING") // RUNNING | SUCCESS | FAILED
+  triggeredBy String   @default("MANUAL")  // MANUAL | CRON
+  sourcesRun  String[]
+  stats       Json?
+  error       String?
+
+  @@map("source_job_runs")
+}
+
+model RawRecallRecord {
+  id             String   @id @default(cuid())
+  source         String   // CPSC | NHTSA | FSIS | FDA
+  sourceRecordId String
+  fetchedAt      DateTime @default(now())
+  publishedAt    DateTime?
+  title          String?
+  raw            Json
+  hash           String
+
+  events RecallEvent[]
+
+  @@unique([source, sourceRecordId])
+  @@map("raw_recall_records")
+}
+
+model RecallEvent {
+  id                String   @id @default(cuid())
+  source            String
+  sourceUrl         String?
+  category          String   // vehicle | consumer | food | drug | device
+  title             String
+  summary           String
+  hazard            String?
+  recallClass       String?
+  publishedAt       DateTime
+  companyName       String?
+  companyNormalized String?
+  brandNames        String[]
+  productKeywords   String[]
+  identifiers       Json?
+  locations         String[]
+  rawRecordId       String
+  searchText        String   @default("")
+
+  rawRecord RawRecallRecord @relation(fields: [rawRecordId], references: [id])
+
+  @@index([publishedAt])
+  @@index([category])
+  @@index([companyNormalized])
+  @@map("recall_events")
+}
+
+model EntityAlias {
+  id              String @id @default(cuid())
+  type            String // company | brand | product
+  canonical       String
+  alias           String
+  normalizedAlias String
+  source          String @default("auto") // manual | auto
+  confidence      Int    @default(50)
+
+  @@unique([type, normalizedAlias])
+  @@map("entity_aliases")
+}
+
+model CompanyProfile {
+  id                String   @id @default(cuid())
+  companyNormalized String   @unique
+  displayName       String
+  stats             Json?
+  updatedAt         DateTime @updatedAt
+
+  @@map("company_profiles")
+}
