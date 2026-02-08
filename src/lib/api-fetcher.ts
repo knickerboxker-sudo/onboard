@@ -20,7 +20,9 @@ const NHTSA_URL = "https://api.nhtsa.gov/recalls/recallsByVehicle?make=";
 const FSIS_URL = "https://www.fsis.usda.gov/sites/default/files/media_file/recall-data.json";
 const FDA_URL = "https://api.fda.gov/drug/enforcement.json?search=";
 
-const SEARCH_FIELDS = ["title", "summary", "companyName"] as const;
+const SEARCH_FIELDS = ["title", "summary", "companyName"] as const satisfies ReadonlyArray<
+  keyof RecallResult
+>;
 
 type SearchInput = {
   query?: string;
@@ -178,9 +180,7 @@ function filterByQuery(results: RecallResult[], query: string) {
   const normalized = query.toLowerCase();
   return results.filter((item) =>
     SEARCH_FIELDS.some((field) =>
-      safeString(
-        (item as Record<string, string | undefined>)[field] || ""
-      )
+      safeString(item[field])
         .toLowerCase()
         .includes(normalized)
     )
