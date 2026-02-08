@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchRecallResults, RecallResult } from "@/src/lib/api-fetcher";
+import {
+  DateRangeKey,
+  fetchRecallResults,
+  RecallResult,
+} from "@/src/lib/api-fetcher";
 
 export async function GET(req: NextRequest) {
   try {
@@ -7,14 +11,21 @@ export async function GET(req: NextRequest) {
     const query = url.searchParams.get("q") || undefined;
     const category = url.searchParams.get("category") || undefined;
     const source = url.searchParams.get("source") || undefined;
-    const yearParam = url.searchParams.get("year") || undefined;
-    const rangeParam = url.searchParams.get("range") || undefined;
+    const refresh = url.searchParams.get("refresh") === "1";
+    const dateRange = (url.searchParams.get("dateRange") ||
+      undefined) as DateRangeKey | undefined;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
-      let results = await fetchRecallResults({ query, signal: controller.signal });
+      const { results: fetchedResults, fetchedAt } = await fetchRecallResults({
+        query,
+        signal: controller.signal,
+        refresh,
+        dateRange: dateRange === "all" ? "all" : undefined,
+      });
+      let results = fetchedResults;
 
       if (category) {
         results = results.filter((item) => item.category === category);
@@ -22,20 +33,6 @@ export async function GET(req: NextRequest) {
       if (source) {
         results = results.filter((item) => item.source === source);
       }
-      if (yearParam) {
-        const startYear = Number(yearParam);
-        const rangeYears = Math.max(1, Number(rangeParam) || 1);
-        if (!Number.isNaN(startYear)) {
-          const start = Date.UTC(startYear, 0, 1, 0, 0, 0, 0);
-          const endYear = startYear + rangeYears - 1;
-          const end = Date.UTC(endYear, 11, 31, 23, 59, 59, 999);
-          results = results.filter((item) => {
-            const publishedTime = new Date(item.publishedAt).getTime();
-            return publishedTime >= start && publishedTime <= end;
-          });
-        }
-      }
-
       results = results.sort(
         (a: RecallResult, b: RecallResult) =>
           new Date(b.publishedAt).getTime() -
@@ -45,6 +42,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         results,
         total: results.length,
+        fetchedAt,
       });
     } finally {
       clearTimeout(timeout);
