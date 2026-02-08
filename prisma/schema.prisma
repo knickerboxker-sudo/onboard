@@ -9,7 +9,7 @@ generator client {
 
 model User {
   id                  String    @id @default(cuid())
-  clerkId             String    @unique
+  clerkId             String?   @unique
   email               String    @unique
   name                String
   phone               String?
@@ -18,7 +18,7 @@ model User {
   avatarUrl           String?
   stripeCustomerId    String?
   createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  updatedAt           DateTime  @default(now()) @updatedAt
 
   driverProfile       DriverProfile?
   ordersAsCustomer    Order[]         @relation("CustomerOrders")
