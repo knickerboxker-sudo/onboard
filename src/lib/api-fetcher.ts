@@ -361,23 +361,35 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 }
 
 function filterByQuery(results: RecallResult[], query: string) {
-  const normalized = query.toLowerCase();
-  const aliases = COMPANY_ALIASES[normalized] || [];
+  const normalized = normalizeSearchText(query);
+  const compactNormalized = normalized.replace(/\s+/g, "");
+  const aliases =
+    COMPANY_ALIASES[normalized] ||
+    COMPANY_ALIASES[compactNormalized] ||
+    [];
+  const normalizedAliases = aliases.map((alias) => normalizeSearchText(alias));
   return results.filter((item) => {
-    const matchesDirect = SEARCH_FIELDS.some((field) =>
-      safeString(item[field])
-        .toLowerCase()
-        .includes(normalized)
+    const combined = SEARCH_FIELDS.map((field) => safeString(item[field])).join(
+      " "
     );
-    if (matchesDirect) return true;
-    if (aliases.length > 0) {
-      const companyLower = safeString(item.companyName).toLowerCase();
-      const titleLower = safeString(item.title).toLowerCase();
-      const summaryLower = safeString(item.summary).toLowerCase();
-      const combined = `${companyLower} ${titleLower} ${summaryLower}`;
-      return aliases.some((alias) => combined.includes(alias));
+    const normalizedCombined = normalizeSearchText(combined);
+    const compactCombined = normalizedCombined.replace(/\s+/g, "");
+    const tokens = normalized.split(" ").filter(Boolean);
+    const matchesDirect =
+      compactNormalized.length > 0
+        ? compactCombined.includes(compactNormalized)
+        : false;
+    const matchesTokens =
+      tokens.length > 0 &&
+      tokens.every((token) => normalizedCombined.includes(token));
+    const matchesText = matchesDirect || matchesTokens;
+    if (matchesText) return true;
+    if (normalizedAliases.length > 0) {
+      return normalizedAliases.some((alias) =>
+        normalizedCombined.includes(alias)
+      );
     }
-    return false;
+    return matchesText;
   });
 }
 
@@ -385,6 +397,14 @@ function safeString(value: unknown) {
   if (typeof value === "string") return value.trim();
   if (value === null || value === undefined) return "";
   return String(value).trim();
+}
+
+function normalizeSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
 }
 
 function normalizeDate(value?: string) {
