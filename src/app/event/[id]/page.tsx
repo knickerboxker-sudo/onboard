@@ -15,6 +15,9 @@ export default async function EventPage({
 }) {
   let event;
   try {
+    if (!prisma) {
+      notFound();
+    }
     event = await prisma.recallEvent.findUnique({
       where: { id: params.id },
       include: { rawRecord: true },

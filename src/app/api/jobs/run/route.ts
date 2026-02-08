@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "@/src/server/db/prisma";
 import { ingestCpsc } from "@/src/server/ingest/cpsc";
 import { ingestNhtsa } from "@/src/server/ingest/nhtsa";
@@ -10,6 +10,12 @@ import { IngestStats } from "@/src/server/ingest/common";
 export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
+  if (!prisma) {
+    return NextResponse.json(
+      { error: "Database unavailable" },
+      { status: 503 }
+    );
+  }
   const url = new URL(req.url);
   const triggeredBy =
     url.searchParams.get("trigger") === "cron" ? "CRON" : "MANUAL";
@@ -31,7 +37,7 @@ export async function GET(req: NextRequest) {
   try {
     const ingesters: Record<
       string,
-      (ctx: { prisma: typeof prisma; runId: string }) => Promise<IngestStats>
+      (ctx: { prisma: PrismaClient; runId: string }) => Promise<IngestStats>
     > = {
       CPSC: ingestCpsc,
       NHTSA: ingestNhtsa,

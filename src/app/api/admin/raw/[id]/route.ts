@@ -6,6 +6,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
+    }
     const record = await prisma.rawRecallRecord.findUnique({
       where: { id: params.id },
     });

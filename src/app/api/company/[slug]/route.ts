@@ -6,6 +6,12 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
+    }
     const slug = params.slug;
 
     // Find events by normalized company name

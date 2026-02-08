@@ -16,6 +16,9 @@ export default async function BrandPage({
 
   let events;
   try {
+    if (!prisma) {
+      notFound();
+    }
     events = await prisma.recallEvent.findMany({
       where: {
         brandNames: {
