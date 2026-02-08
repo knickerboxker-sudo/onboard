@@ -4,7 +4,7 @@ import { Header } from "@/src/components/Header";
 import { Footer } from "@/src/components/Footer";
 import { SearchBar } from "@/src/components/SearchBar";
 import { RecallCard } from "@/src/components/RecallCard";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { categoryLabel, sourceLabel } from "@/src/lib/utils";
 import { Filter } from "lucide-react";
@@ -27,21 +27,78 @@ interface SearchResponse {
 
 const CATEGORIES = ["vehicle", "consumer", "food", "drug", "device"];
 const SOURCES = ["CPSC", "NHTSA", "FSIS", "FDA"];
+const YEAR_RANGE_OPTIONS = [
+  { value: "1", label: "1 year" },
+  { value: "2", label: "2 years" },
+  { value: "3", label: "3 years" },
+  { value: "5", label: "5 years" },
+];
 
 function SearchContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const q = searchParams.get("q") || "";
   const categoryFilter = searchParams.get("category") || "";
   const sourceFilter = searchParams.get("source") || "";
+  const yearFilter = searchParams.get("year") || "";
+  const rangeFilter = searchParams.get("range") || "";
 
   const [data, setData] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 15 }, (_, index) =>
+    String(currentYear - index)
+  );
+
+  const buildSearchHref = (overrides: {
+    category?: string;
+    source?: string;
+    year?: string;
+    range?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    const nextCategory = overrides.category ?? categoryFilter;
+    const nextSource = overrides.source ?? sourceFilter;
+    const nextYear = overrides.year ?? yearFilter;
+    const nextRange = overrides.range ?? rangeFilter;
+
+    if (nextCategory) params.set("category", nextCategory);
+    if (nextSource) params.set("source", nextSource);
+    if (nextYear) params.set("year", nextYear);
+    if (nextRange && nextYear) params.set("range", nextRange);
+
+    return `/search?${params.toString()}`;
+  };
+
+  const updateFilters = (updates: { year?: string; range?: string }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const nextYear = updates.year ?? yearFilter;
+    const nextRange = updates.range ?? rangeFilter;
+
+    if (nextYear) {
+      params.set("year", nextYear);
+    } else {
+      params.delete("year");
+      params.delete("range");
+    }
+
+    if (nextRange && nextYear) {
+      params.set("range", nextRange);
+    } else {
+      params.delete("range");
+    }
+
+    router.push(`/search?${params.toString()}`);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (categoryFilter) params.set("category", categoryFilter);
     if (sourceFilter) params.set("source", sourceFilter);
+    if (yearFilter) params.set("year", yearFilter);
+    if (rangeFilter && yearFilter) params.set("range", rangeFilter);
 
     setLoading(true);
     fetch(`/api/search?${params.toString()}`)
@@ -54,7 +111,7 @@ function SearchContent() {
       .then((d) => setData(d))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, [q, categoryFilter, sourceFilter]);
+  }, [q, categoryFilter, sourceFilter, yearFilter, rangeFilter]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -79,7 +136,7 @@ function SearchContent() {
                 </h4>
                 <div className="space-y-1">
                   <a
-                    href={`/search?q=${encodeURIComponent(q)}&source=${sourceFilter}`}
+                    href={buildSearchHref({ category: "" })}
                     className={`block text-sm px-2 py-1 rounded transition-colors ${
                       !categoryFilter
                         ? "bg-accent/20 text-accent"
@@ -91,7 +148,7 @@ function SearchContent() {
                   {CATEGORIES.map((cat) => (
                     <a
                       key={cat}
-                      href={`/search?q=${encodeURIComponent(q)}&category=${cat}&source=${sourceFilter}`}
+                      href={buildSearchHref({ category: cat })}
                       className={`block text-sm px-2 py-1 rounded transition-colors ${
                         categoryFilter === cat
                           ? "bg-accent/20 text-accent"
@@ -110,7 +167,7 @@ function SearchContent() {
                 </h4>
                 <div className="space-y-1">
                   <a
-                    href={`/search?q=${encodeURIComponent(q)}&category=${categoryFilter}`}
+                    href={buildSearchHref({ source: "" })}
                     className={`block text-sm px-2 py-1 rounded transition-colors ${
                       !sourceFilter
                         ? "bg-accent/20 text-accent"
@@ -122,7 +179,7 @@ function SearchContent() {
                   {SOURCES.map((src) => (
                     <a
                       key={src}
-                      href={`/search?q=${encodeURIComponent(q)}&category=${categoryFilter}&source=${src}`}
+                      href={buildSearchHref({ source: src })}
                       className={`block text-sm px-2 py-1 rounded transition-colors ${
                         sourceFilter === src
                           ? "bg-accent/20 text-accent"
@@ -132,6 +189,46 @@ function SearchContent() {
                       {sourceLabel(src)}
                     </a>
                   ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="text-xs font-medium text-muted mb-2 uppercase tracking-wider">
+                  Year
+                </h4>
+                <div className="space-y-2">
+                  <select
+                    value={yearFilter}
+                    onChange={(event) => {
+                      const nextYear = event.target.value;
+                      updateFilters({
+                        year: nextYear,
+                        range: nextYear ? rangeFilter || "1" : "",
+                      });
+                    }}
+                    className="w-full text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                  >
+                    <option value="">All years</option>
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={rangeFilter || "1"}
+                    onChange={(event) =>
+                      updateFilters({ range: event.target.value })
+                    }
+                    disabled={!yearFilter}
+                    className="w-full text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent disabled:opacity-50"
+                  >
+                    {YEAR_RANGE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

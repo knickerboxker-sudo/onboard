@@ -4,15 +4,6 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const EXAMPLE_CHIPS = [
-  "Tylenol",
-  "ibuprofen",
-  "Walmart",
-  "Ford",
-  "air fryer",
-  "salmonella",
-];
-
 export function SearchBar({
   defaultValue = "",
   large = false,
@@ -48,22 +39,6 @@ export function SearchBar({
           }`}
         />
       </div>
-      {large && (
-        <div className="flex flex-wrap gap-2 mt-4 justify-center">
-          {EXAMPLE_CHIPS.map((chip) => (
-            <button
-              key={chip}
-              onClick={() => {
-                setQuery(chip);
-                handleSearch(chip);
-              }}
-              className="px-3 py-1.5 text-sm bg-card border border-border rounded-full text-muted hover:text-ink hover:border-accent transition-colors"
-            >
-              {chip}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
