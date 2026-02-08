@@ -8,7 +8,7 @@ interface RecallCardProps {
   category: string;
   source: string;
   publishedAt: Date | string;
-  companyName: string | null;
+  companyName?: string | null;
   companyNormalized?: string | null;
 }
 
