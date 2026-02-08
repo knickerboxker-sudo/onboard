@@ -17,7 +17,7 @@ const cache = new Map<string, { timestamp: number; data: RecallResult[] }>();
 
 const CPSC_URL = "https://www.saferproducts.gov/RestWebServices/Recall?format=json";
 const NHTSA_URL = "https://api.nhtsa.gov/recalls/recallsByVehicle?make=";
-const FSIS_URL = "https://www.fsis.usda.gov/sites/default/files/media_file/recall-data.json";
+const FSIS_URL = "https://www.fsis.usda.gov/fsis/api/recall/v/1";
 const FDA_URL = "https://api.fda.gov/drug/enforcement.json";
 // EPA ECHO enforcement case search API – returns enforcement actions including recalls.
 const EPA_URL = "https://echodata.epa.gov/echo/case_rest_services.get_cases";
@@ -27,6 +27,10 @@ const USCG_CPSC_URL = "https://www.saferproducts.gov/RestWebServices/Recall?form
 
 const DEFAULT_DATE_RANGE_YEARS = 2;
 const DEFAULT_NHTSA_MAKES = ["Ford", "Toyota", "Honda", "Chevrolet", "Nissan"];
+
+const COMPANY_ALIASES: Record<string, string[]> = {
+  tyson: ["hillshire brands", "jimmy dean", "state fair"],
+};
 
 const SEARCH_FIELDS = ["title", "summary", "companyName"] as const satisfies ReadonlyArray<
   keyof RecallResult
@@ -175,27 +179,40 @@ async function fetchNhtsa(
 }
 
 async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
-  // FSIS provides a static JSON feed without date parameters.
-  const data = await fetchJson(FSIS_URL, signal);
-  if (!Array.isArray(data)) return [];
+  // FSIS API v1 supports server-side date filtering and sorting.
+  let url = FSIS_URL;
+  const params = new URLSearchParams();
+  params.set("sort", "-field_recall_date");
+  if (dateRangeStart) {
+    params.set("filter[field_recall_date][operator]", ">=");
+    params.set("filter[field_recall_date][value]", formatCpscDate(dateRangeStart));
+  }
+  url += `?${params.toString()}`;
 
-  return data
+  const data = await fetchJson(url, signal);
+  const items = Array.isArray(data) ? data : [];
+
+  return items
     .map((item) => {
-      const publishedAt = normalizeDate(item?.Recall_Date || item?.RecallDate);
-      const title = safeString(item?.Product || item?.Recall_Title);
-      const summary = safeString(item?.Recall_Reason || item?.Summary);
-      const url = safeString(item?.Recall_URL || item?.RecallUrl || "https://www.fsis.usda.gov/recalls");
+      const publishedAt = normalizeDate(item?.field_recall_date);
+      const title = safeString(item?.field_title);
+      const summary = safeString(item?.field_recall_reason || item?.field_product_description);
+      const recallNumber = safeString(item?.field_recall_number);
+      const pressRelease = safeString(item?.field_press_release);
+      const itemUrl = pressRelease
+        || (recallNumber
+          ? `https://www.fsis.usda.gov/recalls-alerts/${encodeURIComponent(recallNumber)}`
+          : "https://www.fsis.usda.gov/recalls");
       const recall: RecallResult = {
-        id:
-          safeString(item?.Recall_Number || item?.RecallNumber) ||
-          cryptoRandomId("fsis"),
+        id: recallNumber || cryptoRandomId("fsis"),
         title,
         summary,
         source: "FSIS",
         category: "food",
         publishedAt,
-        url,
-        companyName: safeString(item?.Establishment) || undefined,
+        url: itemUrl,
+        companyName:
+          safeString(item?.field_recalling_firm || item?.field_company_name) || undefined,
       };
 
       return { ...recall, id: encodeRecallId(recall) };
@@ -343,13 +360,23 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 
 function filterByQuery(results: RecallResult[], query: string) {
   const normalized = query.toLowerCase();
-  return results.filter((item) =>
-    SEARCH_FIELDS.some((field) =>
+  const aliases = COMPANY_ALIASES[normalized] || [];
+  return results.filter((item) => {
+    const matchesDirect = SEARCH_FIELDS.some((field) =>
       safeString(item[field])
         .toLowerCase()
         .includes(normalized)
-    )
-  );
+    );
+    if (matchesDirect) return true;
+    if (aliases.length > 0) {
+      const companyLower = safeString(item.companyName).toLowerCase();
+      const titleLower = safeString(item.title).toLowerCase();
+      const summaryLower = safeString(item.summary).toLowerCase();
+      const combined = `${companyLower} ${titleLower} ${summaryLower}`;
+      return aliases.some((alias) => combined.includes(alias));
+    }
+    return false;
+  });
 }
 
 function safeString(value: unknown) {
