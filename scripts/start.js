@@ -9,5 +9,5 @@ if (!process.env.DATABASE_URL) {
   console.log(`DATABASE_URL was not set. Falling back to ${defaultDatabaseUrl}.`);
 }
 
-execSync("npx prisma db push", { stdio: "inherit" });
+execSync("npx prisma db push --accept-data-loss", { stdio: "inherit" });
 execSync("next start", { stdio: "inherit" });
