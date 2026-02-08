@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         query,
         signal: controller.signal,
         refresh,
-        dateRange: dateRange === "all" ? "all" : undefined,
+        dateRange: dateRange || undefined,
       });
       let results = fetchedResults;
 

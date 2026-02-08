@@ -7,7 +7,7 @@ import { RecallCard } from "@/src/components/RecallCard";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { categoryLabel, sourceLabel } from "@/src/lib/utils";
-import { Filter } from "lucide-react";
+import { SlidersHorizontal, RefreshCw, SearchX, Car, ShoppingBag, UtensilsCrossed, Pill, Stethoscope, Leaf, Anchor } from "lucide-react";
 
 interface SearchResult {
   id: string;
@@ -26,8 +26,8 @@ interface SearchResponse {
   fetchedAt: number;
 }
 
-const CATEGORIES = ["vehicle", "consumer", "food", "drug", "device"];
-const SOURCES = ["CPSC", "NHTSA", "FSIS", "FDA"];
+const CATEGORIES = ["vehicle", "consumer", "food", "drug", "device", "environmental", "marine"];
+const SOURCES = ["CPSC", "NHTSA", "FSIS", "FDA", "EPA", "USCG"];
 const DATE_RANGE_OPTIONS = [
   { value: "30d", label: "Last 30 days" },
   { value: "3m", label: "Last 3 months" },
@@ -36,6 +36,31 @@ const DATE_RANGE_OPTIONS = [
   { value: "2y", label: "Last 2 years" },
   { value: "all", label: "All time" },
 ];
+
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  vehicle: <Car size={13} />,
+  consumer: <ShoppingBag size={13} />,
+  food: <UtensilsCrossed size={13} />,
+  drug: <Pill size={13} />,
+  device: <Stethoscope size={13} />,
+  environmental: <Leaf size={13} />,
+  marine: <Anchor size={13} />,
+};
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white border border-border rounded-xl p-5 shadow-card">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="skeleton h-5 w-24" />
+        <div className="skeleton h-5 w-12" />
+      </div>
+      <div className="skeleton h-5 w-3/4 mb-2" />
+      <div className="skeleton h-4 w-1/3 mb-2" />
+      <div className="skeleton h-4 w-full mb-1" />
+      <div className="skeleton h-4 w-2/3" />
+    </div>
+  );
+}
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -132,33 +157,33 @@ function SearchContent() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-base">
       <Header />
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
-        <div className="mb-6">
+      <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
+        <div className="mb-8">
           <SearchBar defaultValue={q} />
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex gap-8">
           {/* Filters sidebar */}
           <aside className="hidden md:block w-56 flex-shrink-0">
             <div className="sticky top-20">
-              <div className="flex items-center gap-2 mb-3">
-                <Filter size={16} className="text-muted" />
-                <span className="text-sm font-medium text-muted">Filters</span>
+              <div className="flex items-center gap-2 mb-4">
+                <SlidersHorizontal size={15} className="text-muted" />
+                <span className="text-sm font-semibold text-ink">Filters</span>
               </div>
 
-              <div className="mb-4">
-                <h4 className="text-xs font-medium text-muted mb-2 uppercase tracking-wider">
+              <div className="mb-5">
+                <h4 className="text-xs font-semibold text-muted mb-2.5 uppercase tracking-wider">
                   Category
                 </h4>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <a
                     href={buildSearchHref({ category: "" })}
-                    className={`block text-sm px-2 py-1 rounded transition-colors ${
+                    className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg transition-all ${
                       !categoryFilter
-                        ? "bg-accent/20 text-accent"
-                        : "text-muted hover:text-ink"
+                        ? "bg-accent-light text-accent font-medium"
+                        : "text-muted hover:text-ink hover:bg-highlight"
                     }`}
                   >
                     All Categories
@@ -167,29 +192,30 @@ function SearchContent() {
                     <a
                       key={cat}
                       href={buildSearchHref({ category: cat })}
-                      className={`block text-sm px-2 py-1 rounded transition-colors ${
+                      className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg transition-all ${
                         categoryFilter === cat
-                          ? "bg-accent/20 text-accent"
-                          : "text-muted hover:text-ink"
+                          ? "bg-accent-light text-accent font-medium"
+                          : "text-muted hover:text-ink hover:bg-highlight"
                       }`}
                     >
+                      {CATEGORY_ICONS[cat]}
                       {categoryLabel(cat)}
                     </a>
                   ))}
                 </div>
               </div>
 
-              <div>
-                <h4 className="text-xs font-medium text-muted mb-2 uppercase tracking-wider">
+              <div className="mb-5">
+                <h4 className="text-xs font-semibold text-muted mb-2.5 uppercase tracking-wider">
                   Source
                 </h4>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <a
                     href={buildSearchHref({ source: "" })}
-                    className={`block text-sm px-2 py-1 rounded transition-colors ${
+                    className={`block text-sm px-3 py-2 rounded-lg transition-all ${
                       !sourceFilter
-                        ? "bg-accent/20 text-accent"
-                        : "text-muted hover:text-ink"
+                        ? "bg-accent-light text-accent font-medium"
+                        : "text-muted hover:text-ink hover:bg-highlight"
                     }`}
                   >
                     All Sources
@@ -198,10 +224,10 @@ function SearchContent() {
                     <a
                       key={src}
                       href={buildSearchHref({ source: src })}
-                      className={`block text-sm px-2 py-1 rounded transition-colors ${
+                      className={`block text-sm px-3 py-2 rounded-lg transition-all ${
                         sourceFilter === src
-                          ? "bg-accent/20 text-accent"
-                          : "text-muted hover:text-ink"
+                          ? "bg-accent-light text-accent font-medium"
+                          : "text-muted hover:text-ink hover:bg-highlight"
                       }`}
                     >
                       {sourceLabel(src)}
@@ -210,8 +236,8 @@ function SearchContent() {
                 </div>
               </div>
 
-              <div className="mt-4">
-                <h4 className="text-xs font-medium text-muted mb-2 uppercase tracking-wider">
+              <div>
+                <h4 className="text-xs font-semibold text-muted mb-2.5 uppercase tracking-wider">
                   Date range
                 </h4>
                 <div className="space-y-2">
@@ -220,7 +246,7 @@ function SearchContent() {
                     onChange={(event) =>
                       updateFilters({ dateRange: event.target.value })
                     }
-                    className="w-full text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                    className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                   >
                     {DATE_RANGE_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -233,7 +259,7 @@ function SearchContent() {
                     onChange={(event) =>
                       updateFilters({ year: event.target.value })
                     }
-                    className="w-full text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                    className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                   >
                     <option value="">All years</option>
                     {years.map((year) => (
@@ -242,10 +268,6 @@ function SearchContent() {
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-muted">
-                    Filters apply in your browser today. Server-side filtering
-                    would reduce payload size for large result sets.
-                  </p>
                 </div>
               </div>
             </div>
@@ -254,13 +276,14 @@ function SearchContent() {
           {/* Results */}
           <div className="flex-1 min-w-0">
             <div className="md:hidden mb-4">
-              <details className="rounded-lg border border-border bg-card p-3">
-                <summary className="cursor-pointer text-sm font-medium text-ink">
+              <details className="rounded-xl border border-border bg-white p-4 shadow-card">
+                <summary className="cursor-pointer text-sm font-semibold text-ink flex items-center gap-2">
+                  <SlidersHorizontal size={14} />
                   Filters
                 </summary>
-                <div className="mt-3 space-y-3">
+                <div className="mt-4 space-y-3">
                   <div>
-                    <label className="text-xs font-medium text-muted uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-muted uppercase tracking-wider">
                       Category
                     </label>
                     <select
@@ -270,7 +293,7 @@ function SearchContent() {
                           buildSearchHref({ category: event.target.value })
                         )
                       }
-                      className="w-full mt-1 text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                      className="w-full mt-1.5 text-sm px-3 py-2.5 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                     >
                       <option value="">All categories</option>
                       {CATEGORIES.map((cat) => (
@@ -281,7 +304,7 @@ function SearchContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-muted uppercase tracking-wider">
                       Source
                     </label>
                     <select
@@ -291,7 +314,7 @@ function SearchContent() {
                           buildSearchHref({ source: event.target.value })
                         )
                       }
-                      className="w-full mt-1 text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                      className="w-full mt-1.5 text-sm px-3 py-2.5 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                     >
                       <option value="">All sources</option>
                       {SOURCES.map((src) => (
@@ -302,7 +325,7 @@ function SearchContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-muted uppercase tracking-wider">
                       Date range
                     </label>
                     <select
@@ -310,7 +333,7 @@ function SearchContent() {
                       onChange={(event) =>
                         updateFilters({ dateRange: event.target.value })
                       }
-                      className="w-full mt-1 text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                      className="w-full mt-1.5 text-sm px-3 py-2.5 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                     >
                       {DATE_RANGE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -320,7 +343,7 @@ function SearchContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-muted uppercase tracking-wider">
                       Year
                     </label>
                     <select
@@ -328,7 +351,7 @@ function SearchContent() {
                       onChange={(event) =>
                         updateFilters({ year: event.target.value })
                       }
-                      className="w-full mt-1 text-sm px-2 py-2 rounded border border-border bg-card text-ink focus:outline-none focus:border-accent"
+                      className="w-full mt-1.5 text-sm px-3 py-2.5 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                     >
                       <option value="">All years</option>
                       {years.map((year) => (
@@ -342,48 +365,63 @@ function SearchContent() {
               </details>
             </div>
             {loading ? (
-              <div className="text-center py-12 text-muted">
-                Fetching live recall data...
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="skeleton h-4 w-32" />
+                </div>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
               </div>
             ) : error ? (
-              <div className="text-center py-12 text-muted">
-                {error}
-                <div className="mt-3">
-                  <button
-                    onClick={() => fetchResults({ refresh: true })}
-                    className="text-xs text-accent hover:text-accent-hover transition-colors"
-                  >
-                    Try again
-                  </button>
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-danger/10 mb-4">
+                  <SearchX size={24} className="text-danger" />
                 </div>
+                <p className="text-muted mb-4">{error}</p>
+                <button
+                  onClick={() => fetchResults({ refresh: true })}
+                  className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+                >
+                  <RefreshCw size={14} />
+                  Try again
+                </button>
               </div>
             ) : data && filteredResults.length > 0 ? (
               <>
-                <p className="text-sm text-muted mb-4">
-                  {filteredResults.length} result
-                  {filteredResults.length !== 1 ? "s" : ""} found
-                  {q ? ` for "${q}"` : ""}
-                  {filteredResults.length !== data.total
-                    ? ` (filtered from ${data.total})`
-                    : ""}
-                </p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted mb-4">
-                  {data?.fetchedAt ? (
-                    <span>
-                      Last updated{" "}
-                      {new Date(data.fetchedAt).toLocaleString("en-US", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </span>
-                  ) : null}
-                  <button
-                    onClick={() => fetchResults({ refresh: true })}
-                    className="text-accent hover:text-accent-hover transition-colors"
-                    disabled={refreshing}
-                  >
-                    {refreshing ? "Refreshing..." : "Refresh data"}
-                  </button>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                  <p className="text-sm font-medium text-ink">
+                    {filteredResults.length} result
+                    {filteredResults.length !== 1 ? "s" : ""}
+                    {q ? (
+                      <span className="text-muted font-normal"> for &ldquo;{q}&rdquo;</span>
+                    ) : null}
+                    {filteredResults.length !== data.total ? (
+                      <span className="text-muted font-normal">
+                        {" "}(filtered from {data.total})
+                      </span>
+                    ) : null}
+                  </p>
+                  <div className="flex items-center gap-3 text-xs text-muted">
+                    {data?.fetchedAt ? (
+                      <span>
+                        Updated{" "}
+                        {new Date(data.fetchedAt).toLocaleString("en-US", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+                      </span>
+                    ) : null}
+                    <button
+                      onClick={() => fetchResults({ refresh: true })}
+                      className="inline-flex items-center gap-1.5 text-accent hover:text-accent-hover font-medium transition-colors"
+                      disabled={refreshing}
+                      aria-label={refreshing ? "Refreshing data" : "Refresh data"}
+                    >
+                      <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
+                      {refreshing ? "Refreshing..." : "Refresh"}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   {filteredResults.map((event) => (
@@ -392,10 +430,18 @@ function SearchContent() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-12 text-muted">
-                {q
-                  ? `No recent recalls found for "${q}" in the selected date range.`
-                  : "No recent recalls found for the selected filters."}
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-highlight mb-4">
+                  <SearchX size={24} className="text-muted" />
+                </div>
+                <p className="text-muted">
+                  {q
+                    ? `No recent recalls found for "${q}" in the selected date range.`
+                    : "No recent recalls found for the selected filters."}
+                </p>
+                <p className="text-xs text-muted/60 mt-2">
+                  Try broadening your search or changing the date range.
+                </p>
               </div>
             )}
           </div>

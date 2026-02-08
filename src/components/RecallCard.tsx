@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate, categoryColor, categoryLabel, truncate } from "@/src/lib/utils";
+import { Calendar, Building2, ChevronRight } from "lucide-react";
 
 interface RecallCardProps {
   id: string;
@@ -23,27 +24,31 @@ export function RecallCard({
   companyNormalized,
 }: RecallCardProps) {
   return (
-    <div className="bg-card border border-border rounded-lg p-4 hover:border-accent/50 transition-colors">
-      <div className="flex items-start justify-between gap-3 mb-2">
+    <div className="bg-white border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover hover:border-accent/40 transition-all group">
+      <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span
-            className={`text-xs px-2 py-0.5 rounded border ${categoryColor(category)}`}
+            className={`text-xs font-medium px-2.5 py-1 rounded-lg border ${categoryColor(category)}`}
           >
             {categoryLabel(category)}
           </span>
-          <span className="text-xs text-muted">{source}</span>
+          <span className="text-xs font-medium text-muted bg-highlight px-2 py-1 rounded-md">
+            {source}
+          </span>
         </div>
-        <span className="text-xs text-muted whitespace-nowrap">
+        <div className="flex items-center gap-1.5 text-xs text-muted whitespace-nowrap">
+          <Calendar size={12} />
           {formatDate(publishedAt)}
-        </span>
+        </div>
       </div>
-      <Link href={`/event/${id}`} className="block group">
-        <h3 className="font-medium text-ink group-hover:text-accent transition-colors mb-1 leading-snug">
+      <Link href={`/event/${id}`} className="block">
+        <h3 className="font-semibold text-ink group-hover:text-accent transition-colors mb-1.5 leading-snug">
           {truncate(title, 120)}
         </h3>
       </Link>
       {companyName && (
-        <p className="text-sm text-muted mb-1">
+        <p className="text-sm text-muted mb-1.5 flex items-center gap-1.5">
+          <Building2 size={13} className="text-muted/60 flex-shrink-0" />
           {companyNormalized ? (
             <Link
               href={`/company/${companyNormalized}`}
@@ -56,14 +61,15 @@ export function RecallCard({
           )}
         </p>
       )}
-      <p className="text-sm text-muted/80 leading-relaxed">
+      <p className="text-sm text-muted/80 leading-relaxed mb-3">
         {truncate(summary, 180)}
       </p>
       <Link
         href={`/event/${id}`}
-        className="inline-block mt-2 text-xs text-accent hover:text-accent-hover transition-colors"
+        className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
       >
         View details
+        <ChevronRight size={14} />
       </Link>
     </div>
   );

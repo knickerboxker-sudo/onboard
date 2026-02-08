@@ -2,12 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 body {
-  color: #0f172a;
-  background: #ffffff;
+  color: #1a1a2e;
+  background: #fafafa;
 }
 
 ::selection {
-  background: #3b82f6;
+  background: #3ECF8E;
   color: #ffffff;
+}
+
+@layer utilities {
+  .skeleton {
+    @apply bg-gray-200 rounded-lg animate-skeleton-pulse;
+  }
 }
