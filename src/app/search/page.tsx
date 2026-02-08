@@ -4,7 +4,6 @@ import { Header } from "@/src/components/Header";
 import { Footer } from "@/src/components/Footer";
 import { SearchBar } from "@/src/components/SearchBar";
 import { RecallCard } from "@/src/components/RecallCard";
-import { Pagination } from "@/src/components/Pagination";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { categoryLabel, sourceLabel } from "@/src/lib/utils";
@@ -17,17 +16,13 @@ interface SearchResult {
   category: string;
   source: string;
   publishedAt: string;
-  companyName: string | null;
-  companyNormalized: string | null;
-  sourceUrl: string | null;
+  companyName?: string;
+  url: string;
 }
 
 interface SearchResponse {
   results: SearchResult[];
   total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
 }
 
 const CATEGORIES = ["vehicle", "consumer", "food", "drug", "device"];
@@ -38,7 +33,6 @@ function SearchContent() {
   const q = searchParams.get("q") || "";
   const categoryFilter = searchParams.get("category") || "";
   const sourceFilter = searchParams.get("source") || "";
-  const page = parseInt(searchParams.get("page") || "1");
 
   const [data, setData] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,16 +42,19 @@ function SearchContent() {
     if (q) params.set("q", q);
     if (categoryFilter) params.set("category", categoryFilter);
     if (sourceFilter) params.set("source", sourceFilter);
-    params.set("page", String(page));
-    params.set("pageSize", "20");
 
     setLoading(true);
     fetch(`/api/search?${params.toString()}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Search failed");
+        }
+        return res.json();
+      })
       .then((d) => setData(d))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, [q, categoryFilter, sourceFilter, page]);
+  }, [q, categoryFilter, sourceFilter]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -144,7 +141,7 @@ function SearchContent() {
           <div className="flex-1 min-w-0">
             {loading ? (
               <div className="text-center py-12 text-muted">
-                Searching...
+                Fetching live recall data...
               </div>
             ) : data && data.results.length > 0 ? (
               <>
@@ -157,17 +154,12 @@ function SearchContent() {
                     <RecallCard key={event.id} {...event} />
                   ))}
                 </div>
-                <Pagination
-                  page={data.page}
-                  totalPages={data.totalPages}
-                  baseUrl="/search"
-                />
               </>
             ) : (
               <div className="text-center py-12 text-muted">
                 {q
                   ? `No results found for "${q}". Try a different search term.`
-                  : "No recall events found. Run an ingestion job to populate data."}
+                  : "No recall events found yet. Try a search to fetch live data."}
               </div>
             )}
           </div>

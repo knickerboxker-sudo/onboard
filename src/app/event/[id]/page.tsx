@@ -1,10 +1,10 @@
 import { Header } from "@/src/components/Header";
 import { Footer } from "@/src/components/Footer";
-import { prisma } from "@/src/server/db/prisma";
 import { notFound } from "next/navigation";
 import { formatDate, categoryLabel, categoryColor, sourceLabel } from "@/src/lib/utils";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import { decodeRecallId } from "@/src/lib/api-fetcher";
 
 export const dynamic = "force-dynamic";
 
@@ -15,18 +15,8 @@ export default async function EventPage({
 }) {
   let event;
   try {
-    if (!prisma) {
-      notFound();
-    }
-    event = await prisma.recallEvent.findUnique({
-      where: { id: params.id },
-      include: { rawRecord: true },
-    });
+    event = decodeRecallId(params.id);
   } catch {
-    notFound();
-  }
-
-  if (!event) {
     notFound();
   }
 
@@ -67,16 +57,7 @@ export default async function EventPage({
           {event.companyName && (
             <div className="mb-6">
               <h2 className="text-sm font-medium text-muted mb-1">Company</h2>
-              {event.companyNormalized ? (
-                <Link
-                  href={`/company/${event.companyNormalized}`}
-                  className="text-accent hover:text-accent-hover transition-colors"
-                >
-                  {event.companyName}
-                </Link>
-              ) : (
-                <p>{event.companyName}</p>
-              )}
+              <p>{event.companyName}</p>
             </div>
           )}
 
@@ -88,68 +69,11 @@ export default async function EventPage({
             <p className="leading-relaxed">{event.summary}</p>
           </div>
 
-          {/* Hazard */}
-          {event.hazard && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-muted mb-1">Hazard</h2>
-              <p className="leading-relaxed">{event.hazard}</p>
-            </div>
-          )}
-
-          {/* Classification */}
-          {event.recallClass && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-muted mb-1">
-                Classification
-              </h2>
-              <p>{event.recallClass}</p>
-            </div>
-          )}
-
-          {/* Brand Names */}
-          {event.brandNames.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-muted mb-1">Brands</h2>
-              <div className="flex flex-wrap gap-2">
-                {event.brandNames.map((brand, i) => (
-                  <span
-                    key={i}
-                    className="text-sm px-2 py-0.5 bg-highlight border border-border rounded"
-                  >
-                    {brand}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Identifiers */}
-          {event.identifiers && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-muted mb-1">
-                Identifiers
-              </h2>
-              <pre className="text-sm bg-highlight border border-border rounded p-3 overflow-x-auto">
-                {JSON.stringify(event.identifiers, null, 2)}
-              </pre>
-            </div>
-          )}
-
-          {/* Locations */}
-          {event.locations.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-muted mb-1">
-                Distribution
-              </h2>
-              <p className="text-sm">{event.locations.join(", ")}</p>
-            </div>
-          )}
-
           {/* Source link */}
-          {event.sourceUrl && (
+          {event.url && (
             <div className="mb-6">
               <a
-                href={event.sourceUrl}
+                href={event.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-hover transition-colors"
