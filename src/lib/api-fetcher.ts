@@ -110,16 +110,6 @@ const BRAND_FAMILIES: Record<
     brands: ["duralast", "valucraft", "surestart"],
     strictRetailer: true,
   },
-  "lowe s": {
-    brands: [
-      "kobalt",
-      "allen roth",
-      "project source",
-      "portfolio",
-      "utilitech",
-    ],
-    strictRetailer: true,
-  },
   cvs: {
     brands: ["cvs health", "cvs pharmacy", "gold emblem"],
     strictRetailer: true,
@@ -688,7 +678,11 @@ function buildQueryContext(query: string): QueryContext {
   const family =
     BRAND_FAMILIES[normalized] ||
     BRAND_FAMILIES[stripped] ||
-    BRAND_FAMILIES[tokens[0] || ""];
+    BRAND_FAMILIES[tokens[0] || ""] ||
+    fuzzyMatchFamily(normalized);
+  const familyKey = family
+    ? Object.keys(BRAND_FAMILIES).find((k) => BRAND_FAMILIES[k] === family)
+    : undefined;
   const aliases = [
     ...(COMPANY_ALIASES[normalized] || []),
     ...(COMPANY_ALIASES[stripped] || []),
@@ -698,16 +692,98 @@ function buildQueryContext(query: string): QueryContext {
     new Set(aliases.map((alias) => normalizeSearchText(alias)).filter(Boolean))
   );
 
+  // When a fuzzy match resolves to a known family, include the canonical
+  // family key as an additional query variant so record text is matched
+  // against the corrected name (e.g. "depit" → "home depot").
+  const extraVariants: string[] = [];
+  if (familyKey && familyKey !== normalized && familyKey !== stripped) {
+    extraVariants.push(familyKey);
+  }
+
   return {
-    queryVariants: [normalized, stripped].filter(Boolean),
+    queryVariants: [...new Set([normalized, stripped, ...extraVariants].filter(Boolean))],
     compactQueryVariants: [
       compactSearchText(normalized),
       compactSearchText(stripped),
+      ...extraVariants.map(compactSearchText),
     ].filter(Boolean),
     tokens,
     aliases: normalizedAliases,
     strictRetailer: Boolean(family?.strictRetailer),
   };
+}
+
+/**
+ * Compute the Levenshtein edit-distance between two strings.
+ */
+function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () =>
+    Array.from({ length: n + 1 }, () => 0)
+  );
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+/**
+ * Try to match a normalized query against BRAND_FAMILIES keys using fuzzy
+ * matching.  Returns the family entry if a close-enough match is found.
+ *
+ * The approach checks each token of the query against each token of every
+ * family key so that a misspelling of one word in a multi-word key (e.g.
+ * "home depit" vs "home depot") is caught.  For single-token queries the
+ * whole query is compared against each key as well.
+ */
+function fuzzyMatchFamily(
+  query: string
+): (typeof BRAND_FAMILIES)[string] | undefined {
+  if (!query || query.length < 3) return undefined;
+
+  const queryTokens = query.split(" ").filter(Boolean);
+  let bestKey: string | undefined;
+  let bestDist = Infinity;
+
+  for (const key of Object.keys(BRAND_FAMILIES)) {
+    // Full-string comparison
+    const dist = levenshtein(query, key);
+    const maxLen = Math.max(query.length, key.length);
+    if (maxLen > 0 && dist / maxLen <= 0.35 && dist < bestDist) {
+      bestDist = dist;
+      bestKey = key;
+    }
+
+    // Per-token comparison for multi-word keys – allow one token to be
+    // misspelled while the others match exactly.
+    const keyTokens = key.split(" ").filter(Boolean);
+    if (keyTokens.length > 1 && queryTokens.length === keyTokens.length) {
+      let totalDist = 0;
+      for (let i = 0; i < keyTokens.length; i++) {
+        totalDist += levenshtein(queryTokens[i], keyTokens[i]);
+      }
+      const totalLen = Math.max(
+        queryTokens.join("").length,
+        keyTokens.join("").length
+      );
+      if (totalLen > 0 && totalDist / totalLen <= 0.35 && totalDist < bestDist) {
+        bestDist = totalDist;
+        bestKey = key;
+      }
+    }
+  }
+
+  return bestKey ? BRAND_FAMILIES[bestKey] : undefined;
 }
 
 function matchesQueryContext(
