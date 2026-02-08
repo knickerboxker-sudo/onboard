@@ -19,6 +19,7 @@ interface SearchResult {
   source: string;
   publishedAt: string;
   companyName?: string;
+  matchReason?: string;
   url: string;
 }
 

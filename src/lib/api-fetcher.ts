@@ -10,6 +10,7 @@ export interface RecallResult {
   publishedAt: string;
   url: string;
   companyName?: string;
+  matchReason?: string;
 }
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
@@ -492,50 +493,109 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 
 export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
-  return results.filter((item) => {
-    const title = normalizeSearchText(safeString(item.title));
-    const summary = normalizeSearchText(safeString(item.summary));
-    const company = normalizeSearchText(safeString(item.companyName));
-    const combined = [title, summary, company].filter(Boolean).join(" ").trim();
-    const strippedCombined = stripCorporateSuffixes(combined);
-    const words = combined.split(" ").filter(Boolean);
-    const strippedWords = strippedCombined.split(" ").filter(Boolean);
-    const matchesText = matchesQueryContext(
-      context,
-      combined,
-      strippedCombined,
-      words,
-      strippedWords
-    );
-    const matchesAlias = matchesAliases(
-      context,
-      combined,
-      strippedCombined
-    );
+  return results
+    .filter((item) => {
+      const title = normalizeSearchText(safeString(item.title));
+      const summary = normalizeSearchText(safeString(item.summary));
+      const company = normalizeSearchText(safeString(item.companyName));
+      const combined = [title, summary, company].filter(Boolean).join(" ").trim();
+      const strippedCombined = stripCorporateSuffixes(combined);
+      const words = combined.split(" ").filter(Boolean);
+      const strippedWords = strippedCombined.split(" ").filter(Boolean);
+      const matchesText = matchesQueryContext(
+        context,
+        combined,
+        strippedCombined,
+        words,
+        strippedWords
+      );
+      const matchesAlias = matchesAliases(
+        context,
+        combined,
+        strippedCombined
+      );
 
-    if (!context.strictRetailer) {
-      return matchesText || matchesAlias;
+      if (!context.strictRetailer) {
+        return matchesText || matchesAlias;
+      }
+
+      const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
+      const strippedPrimary = stripCorporateSuffixes(primaryCombined);
+      const primaryWords = primaryCombined.split(" ").filter(Boolean);
+      const strippedPrimaryWords = strippedPrimary.split(" ").filter(Boolean);
+      const matchesPrimary = matchesQueryContext(
+        context,
+        primaryCombined,
+        strippedPrimary,
+        primaryWords,
+        strippedPrimaryWords
+      );
+      const matchesPrimaryAlias = matchesAliases(
+        context,
+        primaryCombined,
+        strippedPrimary
+      );
+
+      return matchesPrimary || matchesPrimaryAlias || matchesAlias;
+    })
+    .map((item) => ({
+      ...item,
+      matchReason: getMatchReason(item, query, context),
+    }));
+}
+
+/**
+ * A mapping from each source to the types of products it covers.
+ * Used to explain why a source returned no results (i.e. it is not
+ * applicable to the search) instead of labelling it as "Failed".
+ */
+export const SOURCE_SCOPE: Record<RecallSource, string> = {
+  CPSC: "Consumer products",
+  NHTSA: "Vehicles & auto parts",
+  FSIS: "Meat, poultry & egg products",
+  FDA: "Drugs, medical devices & food",
+  EPA: "Environmental enforcement",
+  USCG: "Boats & marine equipment",
+};
+
+function getMatchReason(
+  item: RecallResult,
+  query: string,
+  context: QueryContext
+): string | undefined {
+  const normalizedQuery = normalizeSearchText(query);
+
+  // Check if the query appears directly in the title or company name
+  const title = normalizeSearchText(safeString(item.title));
+  const company = normalizeSearchText(safeString(item.companyName));
+
+  if (title.includes(normalizedQuery) || company.includes(normalizedQuery)) {
+    return undefined; // Direct match – no explanation needed
+  }
+
+  // Check alias / brand-family match
+  if (context.aliases.length > 0) {
+    const combined = [title, normalizeSearchText(safeString(item.summary)), company]
+      .filter(Boolean)
+      .join(" ");
+    for (const alias of context.aliases) {
+      if (combined.includes(alias)) {
+        return `Related to "${query}" — matches known brand "${alias}"`;
+      }
     }
+  }
 
-    const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
-    const strippedPrimary = stripCorporateSuffixes(primaryCombined);
-    const primaryWords = primaryCombined.split(" ").filter(Boolean);
-    const strippedPrimaryWords = strippedPrimary.split(" ").filter(Boolean);
-    const matchesPrimary = matchesQueryContext(
-      context,
-      primaryCombined,
-      strippedPrimary,
-      primaryWords,
-      strippedPrimaryWords
-    );
-    const matchesPrimaryAlias = matchesAliases(
-      context,
-      primaryCombined,
-      strippedPrimary
-    );
+  // Check token match (partial / keyword match)
+  if (context.tokens.length > 0) {
+    const summary = normalizeSearchText(safeString(item.summary));
+    for (const token of context.tokens) {
+      if (summary.includes(token) && !title.includes(token) && !company.includes(token)) {
+        return `Mentions "${token}" in recall details`;
+      }
+    }
+  }
 
-    return matchesPrimary || matchesPrimaryAlias || matchesAlias;
-  });
+  return undefined;
 }
 
 type QueryContext = {
