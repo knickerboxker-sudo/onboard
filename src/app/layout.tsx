@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="theme-color" content="#f8fafc" />
+        <meta name="theme-color" content="#fafafa" />
       </head>
       <body className="bg-base text-ink min-h-screen font-sans antialiased">
         {children}
