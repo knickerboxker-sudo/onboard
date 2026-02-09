@@ -618,6 +618,9 @@ export function filterByQuery(results: RecallResult[], query: string) {
       const strippedCombined = stripCorporateSuffixes(combined);
       const words = combined.split(" ").filter(Boolean);
       const strippedWords = strippedCombined.split(" ").filter(Boolean);
+      const retailerMention = mentionsRetailer(context, summary, title);
+      const companyMatches = matchesCompanyQuery(context, company);
+      const brandMatches = matchesBrandQuery(context, brand);
       const matchesText = matchesQueryContext(
         context,
         combined,
@@ -656,9 +659,10 @@ export function filterByQuery(results: RecallResult[], query: string) {
       if (context.strictRetailer) {
         const retailerResponsible = isRetailerResponsibleMatch({
           context,
-          company,
-          brand,
+          companyMatches,
+          brandMatches,
           matchesPrimaryAlias,
+          retailerMention,
         });
         // For strict retailers or company-focused queries, only match on title + companyName
         // to avoid false positives from "sold at [Retailer]" mentions.
@@ -666,6 +670,14 @@ export function filterByQuery(results: RecallResult[], query: string) {
       }
 
       if (context.companyIntent) {
+        if (
+          retailerMention &&
+          !companyMatches &&
+          !brandMatches &&
+          !matchesPrimaryAlias
+        ) {
+          return false;
+        }
         // For company-focused queries, only match on title + companyName
         // to avoid false positives from "sold at [Retailer]" mentions.
         return matchesPrimary || matchesPrimaryAlias;
@@ -685,26 +697,21 @@ export function filterByQuery(results: RecallResult[], query: string) {
 
 function isRetailerResponsibleMatch({
   context,
-  company,
-  brand,
+  companyMatches,
+  brandMatches,
   matchesPrimaryAlias,
+  retailerMention,
 }: {
   context: QueryContext;
-  company: string;
-  brand: string;
+  companyMatches: boolean;
+  brandMatches: boolean;
   matchesPrimaryAlias: boolean;
+  retailerMention: boolean;
 }) {
   if (!context.strictRetailer) return true;
-  const strippedCompany = stripCorporateSuffixes(company);
-  const companyMatches = context.queryVariants.some(
-    (variant) =>
-      variant &&
-      (company.includes(variant) || strippedCompany.includes(variant))
-  );
-  const brandMatches =
-    brand &&
-    context.aliases.some((alias) => alias && brand.includes(alias));
-  return companyMatches || matchesPrimaryAlias || brandMatches;
+  if (brandMatches || matchesPrimaryAlias) return true;
+  if (!companyMatches) return false;
+  return !retailerMention;
 }
 
 function isRetailerContext(summary: string) {
@@ -713,6 +720,34 @@ function isRetailerContext(summary: string) {
     /\b(sold|available|purchased|retail(?:ed)?|exclusive(?:ly)?)\b/.test(summary) &&
     /\b(at|by|from|through)\b/.test(summary)
   );
+}
+
+function mentionsRetailer(
+  context: QueryContext,
+  summary: string,
+  title: string
+) {
+  const combined = `${summary} ${title}`.trim();
+  if (!combined) return false;
+  if (!isRetailerContext(combined)) return false;
+  return context.queryVariants.some(
+    (variant) => variant && combined.includes(variant)
+  );
+}
+
+function matchesCompanyQuery(context: QueryContext, company: string) {
+  if (!company) return false;
+  const strippedCompany = stripCorporateSuffixes(company);
+  return context.queryVariants.some(
+    (variant) =>
+      variant &&
+      (company.includes(variant) || strippedCompany.includes(variant))
+  );
+}
+
+function matchesBrandQuery(context: QueryContext, brand: string) {
+  if (!brand) return false;
+  return context.aliases.some((alias) => alias && brand.includes(alias));
 }
 
 /**
