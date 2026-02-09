@@ -52,6 +52,10 @@ const DEFAULT_NHTSA_MAKES = [
   "Harley-Davidson", "Indian", "Polaris", "Kawasaki", "Yamaha",
 ];
 
+const VEHICLE_MAKE_NORMALIZED_MAP = new Map(
+  DEFAULT_NHTSA_MAKES.map((make) => [normalizeSearchText(make), make])
+);
+
 const VEHICLE_MAKE_LOOKUP = new Set(
   DEFAULT_NHTSA_MAKES.map((make) => normalizeSearchText(make))
 );
@@ -334,7 +338,10 @@ async function fetchNhtsa(
   dateRangeStart?: Date,
   signal?: AbortSignal
 ) {
-  const makes = query ? [query] : DEFAULT_NHTSA_MAKES;
+  const makes = resolveNhtsaMakes(query);
+  if (query && makes.length === 0) {
+    throw new Error("Not applicable: query is not a vehicle make");
+  }
   if (makes.length === 0) return [];
 
   const tasks = makes.map(async (make) => {
@@ -386,6 +393,19 @@ async function fetchNhtsa(
   return Array.from(unique.values()).filter((item) =>
     isWithinDateRange(item.publishedAt, dateRangeStart)
   );
+}
+
+function resolveNhtsaMakes(query?: string) {
+  if (!query) return DEFAULT_NHTSA_MAKES;
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return [];
+  const directMatch = VEHICLE_MAKE_NORMALIZED_MAP.get(normalizedQuery);
+  if (directMatch) return [directMatch];
+  for (const [normalizedMake, make] of VEHICLE_MAKE_NORMALIZED_MAP.entries()) {
+    const pattern = new RegExp(`(^| )${escapeRegExp(normalizedMake)}( |$)`);
+    if (pattern.test(normalizedQuery)) return [make];
+  }
+  return [];
 }
 
 async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
@@ -985,6 +1005,10 @@ function normalizeSearchText(value: string) {
 
 function compactSearchText(value: string) {
   return value.replace(/\s+/g, "");
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function stemToken(value: string) {
