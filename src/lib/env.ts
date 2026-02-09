@@ -1,17 +1,26 @@
 import { z } from "zod";
 
+const optionalEnv = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess(
+    (value) =>
+      typeof value === "string" && value.trim() === "" ? undefined : value,
+    schema.optional()
+  );
+
 const envSchema = z.object({
-  // Required Email Configuration
-  FEEDBACK_EMAIL: z.string().email("FEEDBACK_EMAIL must be a valid email"),
-  SMTP_HOST: z.string().min(1, "SMTP_HOST is required"),
-  SMTP_PORT: z.string().regex(/^\d+$/, "SMTP_PORT must be a number").transform(Number),
-  SMTP_USER: z.string().min(1, "SMTP_USER is required"),
-  SMTP_PASS: z.string().min(1, "SMTP_PASS is required"),
-  SMTP_FROM: z.string().email("SMTP_FROM must be a valid email"),
+  // Optional Email Configuration
+  FEEDBACK_EMAIL: optionalEnv(z.string().email("FEEDBACK_EMAIL must be a valid email")),
+  SMTP_HOST: optionalEnv(z.string().min(1, "SMTP_HOST is required")),
+  SMTP_PORT: optionalEnv(
+    z.string().regex(/^\d+$/, "SMTP_PORT must be a number").transform(Number)
+  ),
+  SMTP_USER: optionalEnv(z.string().min(1, "SMTP_USER is required")),
+  SMTP_PASS: optionalEnv(z.string().min(1, "SMTP_PASS is required")),
+  SMTP_FROM: optionalEnv(z.string().email("SMTP_FROM must be a valid email")),
   
   // Optional Configuration
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_DSN: optionalEnv(z.string().url()),
 });
 
 export type Env = z.infer<typeof envSchema>;

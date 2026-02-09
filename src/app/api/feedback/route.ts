@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { z } from "zod";
-import { getEnv } from "@/src/lib/env";
+import { getEnv, type Env } from "@/src/lib/env";
 
 // Rate limiting store (in-memory)
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
@@ -71,13 +71,39 @@ function getClientIp(request: Request): string {
 /**
  * Creates and sends feedback email.
  */
-async function sendFeedbackEmail(data: {
-  name?: string;
-  email?: string;
-  message: string;
-}): Promise<void> {
-  const env = getEnv();
-  
+type EmailConfig = Required<
+  Pick<
+    Env,
+    "FEEDBACK_EMAIL" | "SMTP_HOST" | "SMTP_PORT" | "SMTP_USER" | "SMTP_PASS" | "SMTP_FROM"
+  >
+>;
+
+function getEmailConfig(env: Env): { valid: true; config: EmailConfig } | { valid: false } {
+  const config = {
+    FEEDBACK_EMAIL: env.FEEDBACK_EMAIL,
+    SMTP_HOST: env.SMTP_HOST,
+    SMTP_PORT: env.SMTP_PORT,
+    SMTP_USER: env.SMTP_USER,
+    SMTP_PASS: env.SMTP_PASS,
+    SMTP_FROM: env.SMTP_FROM,
+  };
+
+  const missing = Object.values(config).some((value) => value === undefined);
+  if (missing) {
+    return { valid: false };
+  }
+
+  return { valid: true, config: config as EmailConfig };
+}
+
+async function sendFeedbackEmail(
+  data: {
+    name?: string;
+    email?: string;
+    message: string;
+  },
+  env: EmailConfig
+): Promise<void> {
   const transporter = nodemailer.createTransport({
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
@@ -212,7 +238,16 @@ export async function POST(request: Request) {
     }
 
     // Send email
-    await sendFeedbackEmail(data);
+    const env = getEnv();
+    const emailConfig = getEmailConfig(env);
+    if (!emailConfig.valid) {
+      return NextResponse.json(
+        { error: "Feedback email is not configured." },
+        { status: 503 }
+      );
+    }
+
+    await sendFeedbackEmail(data, emailConfig.config);
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -225,4 +260,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
