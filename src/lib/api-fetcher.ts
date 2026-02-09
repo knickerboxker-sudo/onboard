@@ -52,6 +52,10 @@ const DEFAULT_NHTSA_MAKES = [
   "Harley-Davidson", "Indian", "Polaris", "Kawasaki", "Yamaha",
 ];
 
+const VEHICLE_MAKE_LOOKUP = new Set(
+  DEFAULT_NHTSA_MAKES.map((make) => normalizeSearchText(make))
+);
+
 const COMPANY_ALIASES: Record<string, string[]> = {
   tyson: [
     "tyson foods",
@@ -733,6 +737,7 @@ type QueryContext = {
 function buildQueryContext(query: string): QueryContext {
   const normalized = normalizeSearchText(query);
   const stripped = stripCorporateSuffixes(normalized);
+  const hasUppercase = /[A-Z]/.test(query);
   const tokens = Array.from(
     new Set(
       [normalized, stripped]
@@ -760,6 +765,10 @@ function buildQueryContext(query: string): QueryContext {
   const hasCorporateSuffix = normalized
     .split(" ")
     .some((token) => token && CORPORATE_SUFFIXES.has(token));
+  const isVehicleMake =
+    VEHICLE_MAKE_LOOKUP.has(normalized) || VEHICLE_MAKE_LOOKUP.has(stripped);
+  const tokenCount = normalized ? normalized.split(" ").filter(Boolean).length : 0;
+  const likelyBrandQuery = hasUppercase && tokenCount > 0 && tokenCount <= 3;
 
   // When a fuzzy match resolves to a known family, include the canonical
   // family key as an additional query variant so record text is matched
@@ -779,7 +788,12 @@ function buildQueryContext(query: string): QueryContext {
     tokens,
     aliases: normalizedAliases,
     strictRetailer: Boolean(family?.strictRetailer),
-    companyIntent: hasCorporateSuffix || normalizedAliases.length > 0 || Boolean(family),
+    companyIntent:
+      hasCorporateSuffix ||
+      normalizedAliases.length > 0 ||
+      Boolean(family) ||
+      isVehicleMake ||
+      likelyBrandQuery,
   };
 }
 
