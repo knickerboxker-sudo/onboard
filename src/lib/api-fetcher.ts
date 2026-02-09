@@ -593,6 +593,7 @@ export function filterByQuery(results: RecallResult[], query: string) {
       const title = normalizeSearchText(safeString(item.title));
       const summary = normalizeSearchText(safeString(item.summary));
       const company = normalizeSearchText(safeString(item.companyName));
+      const brand = normalizeSearchText(safeString(item.brand));
       const combined = [title, summary, company].filter(Boolean).join(" ").trim();
       const strippedCombined = stripCorporateSuffixes(combined);
       const words = combined.split(" ").filter(Boolean);
@@ -632,8 +633,20 @@ export function filterByQuery(results: RecallResult[], query: string) {
         !matchesPrimary &&
         !matchesPrimaryAlias;
 
-      if (context.strictRetailer || context.companyIntent) {
+      if (context.strictRetailer) {
+        const retailerResponsible = isRetailerResponsibleMatch({
+          context,
+          company,
+          brand,
+          matchesPrimaryAlias,
+        });
         // For strict retailers or company-focused queries, only match on title + companyName
+        // to avoid false positives from "sold at [Retailer]" mentions.
+        return (matchesPrimary || matchesPrimaryAlias) && retailerResponsible;
+      }
+
+      if (context.companyIntent) {
+        // For company-focused queries, only match on title + companyName
         // to avoid false positives from "sold at [Retailer]" mentions.
         return matchesPrimary || matchesPrimaryAlias;
       }
@@ -648,6 +661,30 @@ export function filterByQuery(results: RecallResult[], query: string) {
       ...item,
       matchReason: getMatchReason(item, query, context),
     }));
+}
+
+function isRetailerResponsibleMatch({
+  context,
+  company,
+  brand,
+  matchesPrimaryAlias,
+}: {
+  context: QueryContext;
+  company: string;
+  brand: string;
+  matchesPrimaryAlias: boolean;
+}) {
+  if (!context.strictRetailer) return true;
+  const strippedCompany = stripCorporateSuffixes(company);
+  const companyMatches = context.queryVariants.some(
+    (variant) =>
+      variant &&
+      (company.includes(variant) || strippedCompany.includes(variant))
+  );
+  const brandMatches =
+    brand &&
+    context.aliases.some((alias) => alias && brand.includes(alias));
+  return companyMatches || matchesPrimaryAlias || brandMatches;
 }
 
 function isRetailerContext(summary: string) {
