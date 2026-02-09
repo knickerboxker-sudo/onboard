@@ -38,8 +38,10 @@ const intentCache = new Map<string, CacheEntry>();
 let monthlyCallCount = 0;
 let monthlyCallMonth = new Date().getMonth();
 
-// Clean up stale entries every hour
-setInterval(() => {
+// Clean up stale entries every hour.
+// unref() allows the Node process to exit even if this timer is still active
+// (important for serverless / test environments).
+const cleanupTimer = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of intentCache.entries()) {
     if (now - entry.timestamp > CACHE_TTL_MS) {
@@ -47,6 +49,7 @@ setInterval(() => {
     }
   }
 }, CLEANUP_INTERVAL_MS);
+if (typeof cleanupTimer?.unref === "function") cleanupTimer.unref();
 
 // ── Keyword fallback helpers ────────────────────────────────────────────────
 

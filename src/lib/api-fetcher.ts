@@ -62,6 +62,14 @@ const VEHICLE_MAKE_LOOKUP = new Set(
   DEFAULT_NHTSA_MAKES.map((make) => normalizeSearchText(make))
 );
 
+/** Pre-compiled word-boundary patterns for each vehicle make (avoids regex
+ *  re-compilation on every resolveNhtsaMakes call). */
+const VEHICLE_MAKE_PATTERNS = new Map(
+  Array.from(VEHICLE_MAKE_NORMALIZED_MAP.entries()).map(
+    ([normalized, make]) => [make, new RegExp(`\\b${escapeRegExp(normalized)}\\b`)]
+  )
+);
+
 const COMPANY_ALIASES: Record<string, string[]> = {
   tyson: [
     "tyson foods",
@@ -414,8 +422,7 @@ function resolveNhtsaMakes(query?: string) {
   // This handles queries like "ford recalls", "dodge problems", or
   // "ford and toyota recalls" (returns multiple makes).
   const found: string[] = [];
-  for (const [normalizedMake, make] of VEHICLE_MAKE_NORMALIZED_MAP.entries()) {
-    const pattern = new RegExp(`\\b${escapeRegExp(normalizedMake)}\\b`);
+  for (const [make, pattern] of VEHICLE_MAKE_PATTERNS.entries()) {
     if (pattern.test(normalizedQuery)) {
       found.push(make);
     }
