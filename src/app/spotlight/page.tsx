@@ -307,7 +307,7 @@ export default function SpotlightPage() {
             {/* Disclaimer */}
             <p className="text-xs text-muted/70 mt-6 leading-relaxed max-w-2xl">
               Data is aggregated in real-time from NHTSA, CPSC, USDA FSIS, FDA,
-              EPA, and USCG. Company names are normalised for grouping but may
+              EPA, and USCG. Company names are normalized for grouping but may
               not always be perfectly de-duplicated. This is not legal advice.
             </p>
           </>

@@ -22,7 +22,7 @@ export interface CompanyRecallCount {
 }
 
 /**
- * Normalise a company name for grouping. Strips common corporate
+ * Normalize a company name for grouping. Strips common corporate
  * suffixes, collapses whitespace, and lower-cases the result.
  */
 function normalizeCompanyName(name: string): string {
