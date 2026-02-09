@@ -99,7 +99,7 @@ export function StreamingSearchStatus({
                   <span className="text-muted/50 text-xs">Not applicable</span>
                 )}
                 {isTrueFailure && (
-                  <span className="text-warning text-xs">Failed</span>
+                  <span className="text-warning text-xs">Temporarily unavailable</span>
                 )}
                 {source.status === "loading" && (
                   <span className="text-muted/60">Loading...</span>
