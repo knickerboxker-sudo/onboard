@@ -120,20 +120,50 @@ export async function GET(req: NextRequest) {
         dateRange: timeframeToFetchRange(timeframe),
       });
 
+      console.log("Spotlight debug: fetched raw results", {
+        count: results.length,
+        timeframe,
+      });
+
       const { recalls, companies } = buildRecallDataset(results);
       const start = timeframeStart(timeframe);
       const end = new Date();
 
+      console.log("Spotlight debug: unique recalls after dataset build", {
+        count: recalls.length,
+        companies: companies.length,
+      });
+      console.log("Spotlight debug: timeframe range", {
+        start: start.toISOString(),
+        end: end.toISOString(),
+      });
+
+      let invalidDateCount = 0;
+      let outOfRangeCount = 0;
+      let sectorMismatchCount = 0;
+
       const filteredRecalls = recalls.filter((recall) => {
         const publishedTime = resolveRecallTime(recall);
-        if (publishedTime === null) return false;
+        if (publishedTime === null) {
+          invalidDateCount += 1;
+          return false;
+        }
         if (publishedTime < start.getTime() || publishedTime > end.getTime()) {
+          outOfRangeCount += 1;
           return false;
         }
         if (sector !== "all" && recall.sector !== (sector as Sector)) {
+          sectorMismatchCount += 1;
           return false;
         }
         return true;
+      });
+
+      console.log("Spotlight debug: filtered recall counts", {
+        invalidDateCount,
+        outOfRangeCount,
+        sectorMismatchCount,
+        finalFilteredCount: filteredRecalls.length,
       });
 
       const companyLookup = new Map(companies.map((c) => [c.id, c.canonicalName]));
@@ -168,6 +198,15 @@ export async function GET(req: NextRequest) {
           ? b.recall_count - a.recall_count
           : a.recall_count - b.recall_count
       );
+
+      for (const company of companiesList.slice(0, 3)) {
+        const entry = companyCounts.get(company.company_id);
+        console.log("Spotlight debug: top company recall IDs", {
+          companyId: company.company_id,
+          companyName: company.company_name,
+          recallIds: Array.from(entry?.recallIds ?? []),
+        });
+      }
 
       return NextResponse.json({
         companies: companiesList.slice(0, limit),

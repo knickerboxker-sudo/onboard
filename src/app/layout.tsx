@@ -1,6 +1,17 @@
 import "@/src/app/globals.css";
 import type { Metadata } from "next";
 
+if (typeof window === "undefined") {
+  void import("@/src/lib/env").then(({ validateEnv }) => {
+    try {
+      validateEnv();
+    } catch (error) {
+      console.error("Environment validation failed:", error);
+      process.exit(1);
+    }
+  });
+}
+
 export const metadata: Metadata = {
   title: "sortir - Unified Recall Search",
   description:
