@@ -88,11 +88,11 @@ export default function RecallDetailPage({
       <Header />
       <main className="flex-1 max-w-5xl mx-auto px-6 py-10 w-full">
         <a
-          href="/spotlight"
+          href="/search"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink transition-colors mb-6"
         >
           <ArrowLeft size={15} />
-          Back to Spotlight
+          Back to Search
         </a>
 
         {loading ? (
