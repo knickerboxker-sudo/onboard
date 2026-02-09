@@ -94,6 +94,7 @@ type SourceStatus = {
   count?: number;
   duration?: number;
   error?: string;
+  notApplicable?: boolean;
 };
 
 function SearchContent() {
@@ -239,6 +240,7 @@ function SearchContent() {
     error?: string;
     results?: SearchResult[];
     total?: number;
+    notApplicable?: boolean;
   }) => {
     switch (event.type) {
       case "start":
@@ -284,7 +286,12 @@ function SearchContent() {
           setSourceStatuses((prev) =>
             prev.map((s) =>
               s.source === event.source
-                ? { ...s, status: "error", error: event.error }
+                ? {
+                    ...s,
+                    status: "error",
+                    error: event.error,
+                    notApplicable: event.notApplicable,
+                  }
                 : s
             )
           );

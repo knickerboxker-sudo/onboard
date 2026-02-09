@@ -8,6 +8,7 @@ type SourceStatus = {
   count?: number;
   duration?: number;
   error?: string;
+  notApplicable?: boolean;
 };
 
 interface StreamingSearchStatusProps {
@@ -24,11 +25,11 @@ export function StreamingSearchStatus({
   const completedCount = sources.filter((s) => s.status === "complete").length;
   // Sources that errored but simply don't cover the search (not applicable)
   const notApplicableSources = sources.filter(
-    (s) => s.status === "error" && s.count === undefined
+    (s) => s.status === "error" && s.notApplicable
   );
   // True failures are sources that were expected to work but broke
   const trueFailures = sources.filter(
-    (s) => s.status === "error" && s.count !== undefined
+    (s) => s.status === "error" && !s.notApplicable
   );
 
   return (
@@ -51,10 +52,8 @@ export function StreamingSearchStatus({
 
       <div className="space-y-2">
         {sources.map((source) => {
-          const isNotApplicable =
-            source.status === "error" && source.count === undefined;
-          const isTrueFailure =
-            source.status === "error" && source.count !== undefined;
+          const isNotApplicable = source.status === "error" && source.notApplicable;
+          const isTrueFailure = source.status === "error" && !source.notApplicable;
           return (
             <div
               key={source.source}
