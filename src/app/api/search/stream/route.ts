@@ -27,7 +27,7 @@ type StreamEvent =
   | { type: "start"; sources: RecallSource[] }
   | { type: "source_start"; source: RecallSource }
   | { type: "source_complete"; source: RecallSource; count: number; duration: number }
-  | { type: "source_error"; source: RecallSource; error: string }
+  | { type: "source_error"; source: RecallSource; error: string; notApplicable?: boolean }
   | { type: "results"; results: RecallResult[]; total: number }
   | { type: "complete"; total: number; duration: number }
   | { type: "error"; error: string };
@@ -173,6 +173,7 @@ export async function GET(req: NextRequest) {
             } catch (error) {
               const duration = Date.now() - sourceStart;
               const errorMsg = error instanceof Error ? error.message : "Unknown error";
+              const notApplicable = errorMsg.toLowerCase().includes("not applicable");
               
               console.error(
                 `${fetcher.source} failed after ${duration}ms:`,
@@ -183,6 +184,7 @@ export async function GET(req: NextRequest) {
                 type: "source_error",
                 source: fetcher.source,
                 error: errorMsg,
+                notApplicable,
               });
             }
           })
