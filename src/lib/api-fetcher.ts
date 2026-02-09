@@ -594,12 +594,6 @@ export function filterByQuery(results: RecallResult[], query: string) {
         strippedCombined
       );
 
-      if (!context.strictRetailer) {
-        return matchesText || matchesAlias;
-      }
-
-      // For strict retailers, only match on title + companyName (not summary)
-      // to avoid false positives from "sold at [Retailer]" mentions.
       const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
       const strippedPrimary = stripCorporateSuffixes(primaryCombined);
       const primaryWords = primaryCombined.split(" ").filter(Boolean);
@@ -617,12 +611,35 @@ export function filterByQuery(results: RecallResult[], query: string) {
         strippedPrimary
       );
 
-      return matchesPrimary || matchesPrimaryAlias;
+      const matchesSummaryOnly =
+        (matchesText || matchesAlias) &&
+        !matchesPrimary &&
+        !matchesPrimaryAlias;
+
+      if (context.strictRetailer || context.companyIntent) {
+        // For strict retailers or company-focused queries, only match on title + companyName
+        // to avoid false positives from "sold at [Retailer]" mentions.
+        return matchesPrimary || matchesPrimaryAlias;
+      }
+
+      if (matchesSummaryOnly && isRetailerContext(summary)) {
+        return false;
+      }
+
+      return matchesText || matchesAlias;
     })
     .map((item) => ({
       ...item,
       matchReason: getMatchReason(item, query, context),
     }));
+}
+
+function isRetailerContext(summary: string) {
+  if (!summary) return false;
+  return (
+    /\b(sold|available|purchased|retail(?:ed)?|exclusive(?:ly)?)\b/.test(summary) &&
+    /\b(at|by|from|through)\b/.test(summary)
+  );
 }
 
 /**
@@ -698,6 +715,7 @@ type QueryContext = {
   tokens: string[];
   aliases: string[];
   strictRetailer: boolean;
+  companyIntent: boolean;
 };
 
 function buildQueryContext(query: string): QueryContext {
@@ -727,6 +745,9 @@ function buildQueryContext(query: string): QueryContext {
   const normalizedAliases = Array.from(
     new Set(aliases.map((alias) => normalizeSearchText(alias)).filter(Boolean))
   );
+  const hasCorporateSuffix = normalized
+    .split(" ")
+    .some((token) => token && CORPORATE_SUFFIXES.has(token));
 
   // When a fuzzy match resolves to a known family, include the canonical
   // family key as an additional query variant so record text is matched
@@ -746,6 +767,7 @@ function buildQueryContext(query: string): QueryContext {
     tokens,
     aliases: normalizedAliases,
     strictRetailer: Boolean(family?.strictRetailer),
+    companyIntent: hasCorporateSuffix || normalizedAliases.length > 0 || Boolean(family),
   };
 }
 
