@@ -1,7 +1,11 @@
 import "@/src/app/globals.css";
 import type { Metadata } from "next";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
-if (typeof window === "undefined") {
+if (
+  typeof window === "undefined" &&
+  process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD
+) {
   void import("@/src/lib/env").then(({ validateEnv }) => {
     try {
       validateEnv();
