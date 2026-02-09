@@ -8,6 +8,7 @@ import {
   RecallCategory,
 } from "@/src/lib/api-fetcher";
 import { checkRateLimit, getClientIp } from "@/src/lib/rate-limit";
+import { containsProhibitedContent } from "@/src/lib/profanity-filter";
 
 // Validation schemas
 const dateRangeSchema = z.enum(["30d", "3m", "6m", "1y", "2y", "all"]);
@@ -21,19 +22,6 @@ const searchQuerySchema = z.object({
   refresh: z.enum(["1", "true"]).optional(),
   dateRange: dateRangeSchema.optional(),
 });
-
-// Prohibited content patterns for search queries
-const prohibitedPatterns: RegExp[] = [
-  /\b(?:child\s?porn|sexual\s?assault|sex\s?trafficking)\b/i,
-  /\b(?:hate\s?speech|racial\s?slur)\b/i,
-];
-
-/**
- * Checks if search query contains prohibited content.
- */
-function containsProhibitedContent(query: string): boolean {
-  return prohibitedPatterns.some((pattern) => pattern.test(query));
-}
 
 /**
  * Sanitizes search query to prevent injection attacks.
