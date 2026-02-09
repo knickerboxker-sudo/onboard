@@ -39,7 +39,18 @@ const EPA_URL = "https://echodata.epa.gov/echo/case_rest_services.get_cases";
 const USCG_CPSC_URL = "https://www.saferproducts.gov/RestWebServices/Recall?format=json";
 
 const DEFAULT_DATE_RANGE_YEARS = 2;
-const DEFAULT_NHTSA_MAKES = ["Ford", "Toyota", "Honda", "Chevrolet", "Nissan"];
+const DEFAULT_NHTSA_MAKES = [
+  "Ford", "Toyota", "Honda", "Chevrolet", "Nissan",
+  "BMW", "Mercedes-Benz", "Volkswagen", "Hyundai", "Kia",
+  "Subaru", "Mazda", "Dodge", "Ram", "Jeep",
+  "GMC", "Buick", "Tesla", "Volvo", "Audi",
+  "Lexus", "Acura", "Infiniti", "Porsche", "Genesis",
+  "Chrysler", "Lincoln", "Mitsubishi", "Cadillac", "Alfa Romeo",
+  "Fiat", "Mini", "Land Rover", "Jaguar", "Maserati",
+  "Bentley", "Rolls-Royce", "Aston Martin", "Lamborghini", "Ferrari",
+  "McLaren", "Rivian", "Lucid", "Polestar", "Fisker",
+  "Harley-Davidson", "Indian", "Polaris", "Kawasaki", "Yamaha",
+];
 
 const COMPANY_ALIASES: Record<string, string[]> = {
   tyson: [
@@ -281,7 +292,7 @@ export function decodeRecallId(id: string) {
 }
 
 async function fetchCpsc(dateRangeStart?: Date, signal?: AbortSignal) {
-  let url = CPSC_URL;
+  let url = `${CPSC_URL}&limit=1000`;
   if (dateRangeStart) {
     url += `&RecallDateStart=${encodeURIComponent(formatCpscDate(dateRangeStart))}`;
     url += `&RecallDateEnd=${encodeURIComponent(formatCpscDate(new Date()))}`;
@@ -378,6 +389,7 @@ async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
   let url = FSIS_URL;
   const params = new URLSearchParams();
   params.set("sort", "-field_recall_date");
+  params.set("page[limit]", "1000");
   if (dateRangeStart) {
     params.set("filter[field_recall_date][operator]", ">=");
     params.set("filter[field_recall_date][value]", formatCpscDate(dateRangeStart));
@@ -431,7 +443,7 @@ async function fetchFda(
   if (!searchQuery) return [];
   const url = `${FDA_URL}?search=${encodeURIComponent(
     searchQuery
-  )}&sort=report_date:desc&limit=100`;
+  )}&sort=report_date:desc&limit=1000`;
   const data = await fetchJson(url, signal);
   const results = Array.isArray(data?.results) ? data.results : [];
 
@@ -476,7 +488,7 @@ async function fetchEpa(
   // The API returns JSON when output=JSON and supports keyword search via p_case_summary.
   const params = new URLSearchParams({
     output: "JSON",
-    responseset: "100",
+    responseset: "1000",
   });
   if (query) {
     params.set("p_case_summary", query);
