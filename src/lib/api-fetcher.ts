@@ -136,6 +136,9 @@ const BRAND_FAMILIES: Record<
   },
 };
 
+/** Maximum allowed edit-distance ratio (edits / max-length) for fuzzy family matching. */
+const FUZZY_MATCH_THRESHOLD = 0.35;
+
 const CORPORATE_SUFFIXES = new Set([
   "inc",
   "incorporated",
@@ -749,6 +752,7 @@ function levenshtein(a: string, b: string): number {
 function fuzzyMatchFamily(
   query: string
 ): (typeof BRAND_FAMILIES)[string] | undefined {
+  // Queries shorter than 3 characters are too short for reliable fuzzy matching.
   if (!query || query.length < 3) return undefined;
 
   const queryTokens = query.split(" ").filter(Boolean);
@@ -759,7 +763,7 @@ function fuzzyMatchFamily(
     // Full-string comparison
     const dist = levenshtein(query, key);
     const maxLen = Math.max(query.length, key.length);
-    if (maxLen > 0 && dist / maxLen <= 0.35 && dist < bestDist) {
+    if (maxLen > 0 && dist / maxLen <= FUZZY_MATCH_THRESHOLD && dist < bestDist) {
       bestDist = dist;
       bestKey = key;
     }
@@ -776,7 +780,7 @@ function fuzzyMatchFamily(
         queryTokens.join("").length,
         keyTokens.join("").length
       );
-      if (totalLen > 0 && totalDist / totalLen <= 0.35 && totalDist < bestDist) {
+      if (totalLen > 0 && totalDist / totalLen <= FUZZY_MATCH_THRESHOLD && totalDist < bestDist) {
         bestDist = totalDist;
         bestKey = key;
       }
