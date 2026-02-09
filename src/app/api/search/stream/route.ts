@@ -9,6 +9,7 @@ import {
   sortRecallsByDate,
 } from "@/src/lib/api-fetcher";
 import { checkRateLimit, getClientIp } from "@/src/lib/rate-limit";
+import { containsProhibitedContent } from "@/src/lib/profanity-filter";
 
 // Validation schemas
 const dateRangeSchema = z.enum(["30d", "3m", "6m", "1y", "2y", "all"]);
@@ -86,6 +87,20 @@ export async function GET(req: NextRequest) {
   }
 
   const { q: query, category, source, dateRange } = validation.data;
+
+  // Check for prohibited content in search query
+  if (query && containsProhibitedContent(query)) {
+    console.log(`Prohibited content detected in streaming search for IP ${clientIp}: ${query}`);
+    return new Response(
+      JSON.stringify({ error: "Invalid search terms. Please revise your query." }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

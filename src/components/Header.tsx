@@ -23,6 +23,12 @@ export function Header() {
             Search
           </Link>
           <Link
+            href="/spotlight"
+            className="text-sm font-medium text-muted hover:text-ink px-3 py-2 rounded-lg hover:bg-highlight transition-all"
+          >
+            Spotlight
+          </Link>
+          <Link
             href="/about"
             className="text-sm font-medium text-muted hover:text-ink px-3 py-2 rounded-lg hover:bg-highlight transition-all"
           >
