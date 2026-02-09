@@ -4,7 +4,7 @@ import { ShareButton } from "@/src/components/ShareButton";
 import { notFound } from "next/navigation";
 import { formatDate, categoryLabel, categoryColor, sourceLabel } from "@/src/lib/utils";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Calendar, Building2, Tag, Shield } from "lucide-react";
+import { ArrowLeft, ExternalLink, Calendar, Building2, Tag, Shield, Package } from "lucide-react";
 import { decodeRecallId } from "@/src/lib/api-fetcher";
 import type { Metadata } from "next";
 
@@ -180,6 +180,15 @@ export default async function EventPage({
                     <div>
                       <p className="text-xs font-medium text-muted uppercase tracking-wider">Company</p>
                       <p className="text-sm text-ink">{event.companyName}</p>
+                    </div>
+                  </div>
+                )}
+                {event.productQuantity && (
+                  <div className="flex items-start gap-3">
+                    <Package size={15} className="text-muted mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs font-medium text-muted uppercase tracking-wider">Quantity Affected</p>
+                      <p className="text-sm text-ink">{event.productQuantity}</p>
                     </div>
                   </div>
                 )}

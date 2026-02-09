@@ -178,6 +178,8 @@ export async function GET(req: NextRequest) {
         totalRecalls: filtered.length,
         dateRange,
         fetchedAt,
+        /** Clarifies what each "count" represents. */
+        countLabel: "enforcement actions",
       });
     } finally {
       clearTimeout(timeout);
