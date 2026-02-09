@@ -21,6 +21,13 @@ const envSchema = z.object({
   // Optional Configuration
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   SENTRY_DSN: optionalEnv(z.string().url()),
+
+  // Optional Cohere AI Configuration
+  COHERE_API_KEY: optionalEnv(z.string().min(1)),
+  ENABLE_SEMANTIC_SEARCH: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
 });
 
 export type Env = z.infer<typeof envSchema>;

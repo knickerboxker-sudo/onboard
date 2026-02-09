@@ -44,6 +44,8 @@ npm run dev
 | `SMTP_FROM` | Email address to send from | Yes |
 | `NODE_ENV` | Environment (development, production, test) | No |
 | `SENTRY_DSN` | Sentry error tracking DSN (optional) | No |
+| `COHERE_API_KEY` | Cohere API key for intelligent search (optional) | No |
+| `ENABLE_SEMANTIC_SEARCH` | Enable AI-powered search understanding (optional, default false) | No |
 
 ## Railway Deployment
 

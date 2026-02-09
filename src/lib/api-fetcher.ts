@@ -1,3 +1,5 @@
+import { enhanceSearchIntent, type SearchIntent } from "@/src/lib/semantic-search";
+
 export type RecallSource = "CPSC" | "NHTSA" | "FSIS" | "FDA" | "EPA" | "USCG";
 export type RecallCategory = "consumer" | "vehicle" | "food" | "drug" | "device" | "environmental" | "marine";
 
@@ -60,6 +62,14 @@ const VEHICLE_MAKE_LOOKUP = new Set(
   DEFAULT_NHTSA_MAKES.map((make) => normalizeSearchText(make))
 );
 
+/** Pre-compiled word-boundary patterns for each vehicle make (avoids regex
+ *  re-compilation on every resolveNhtsaMakes call). */
+const VEHICLE_MAKE_PATTERNS = new Map(
+  Array.from(VEHICLE_MAKE_NORMALIZED_MAP.entries()).map(
+    ([normalized, make]) => [make, new RegExp(`\\b${escapeRegExp(normalized)}\\b`)]
+  )
+);
+
 const COMPANY_ALIASES: Record<string, string[]> = {
   tyson: [
     "tyson foods",
@@ -76,7 +86,7 @@ const COMPANY_ALIASES: Record<string, string[]> = {
 
 const BRAND_FAMILIES: Record<
   string,
-  { brands: string[]; strictRetailer?: boolean }
+  { brands: string[] }
 > = {
   walmart: {
     brands: [
@@ -89,11 +99,9 @@ const BRAND_FAMILIES: Record<
       "no boundaries",
       "onn",
     ],
-    strictRetailer: true,
   },
   costco: {
     brands: ["kirkland", "kirkland signature"],
-    strictRetailer: true,
   },
   target: {
     brands: [
@@ -104,11 +112,9 @@ const BRAND_FAMILIES: Record<
       "room essentials",
       "heyday",
     ],
-    strictRetailer: true,
   },
   ikea: {
     brands: ["ikea"],
-    strictRetailer: true,
   },
   amazon: {
     brands: [
@@ -124,7 +130,6 @@ const BRAND_FAMILIES: Record<
       "amazon essentials",
       "amazonfresh",
     ],
-    strictRetailer: true,
   },
   "home depot": {
     brands: [
@@ -135,23 +140,18 @@ const BRAND_FAMILIES: Record<
       "home decorators collection",
       "lifeproof",
     ],
-    strictRetailer: true,
   },
   autozone: {
     brands: ["duralast", "valucraft", "surestart"],
-    strictRetailer: true,
   },
   cvs: {
     brands: ["cvs health", "cvs pharmacy", "gold emblem"],
-    strictRetailer: true,
   },
   walgreens: {
     brands: ["walgreens", "nice", "wal phed"],
-    strictRetailer: true,
   },
   kroger: {
     brands: ["kroger", "simple truth", "private selection", "home chef"],
-    strictRetailer: true,
   },
   tyson: {
     brands: [
@@ -256,6 +256,18 @@ export async function fetchRecallResults({
     return { results: cached.data, fetchedAt: cached.timestamp };
   }
 
+  // Optionally enhance search intent via Cohere (1 API call per unique query,
+  // cached for 24 hours).  The intent data is logged for future use but does
+  // not alter core filtering logic yet.
+  let searchIntent: SearchIntent | undefined;
+  if (query && process.env.ENABLE_SEMANTIC_SEARCH === "true") {
+    try {
+      searchIntent = await enhanceSearchIntent(query);
+    } catch {
+      // Semantic search is optional – swallow errors silently.
+    }
+  }
+
   const dateRangeStart = getDateRangeStart(dateRange);
   
   /**
@@ -283,6 +295,13 @@ export async function fetchRecallResults({
   }
   const filtered = query ? filterByQuery(results, query) : results;
   const sorted = sortRecallsByDate(filtered);
+
+  if (searchIntent) {
+    console.log(
+      `[${new Date().toISOString()}] Semantic intent for "${query}":`,
+      JSON.stringify(searchIntent)
+    );
+  }
 
   const fetchedAt = Date.now();
   cache.set(cacheKey, { timestamp: fetchedAt, data: sorted });
@@ -339,9 +358,6 @@ async function fetchNhtsa(
   signal?: AbortSignal
 ) {
   const makes = resolveNhtsaMakes(query);
-  if (query && makes.length === 0) {
-    throw new Error("Not applicable: query is not a vehicle make");
-  }
   if (makes.length === 0) return [];
 
   const tasks = makes.map(async (make) => {
@@ -401,11 +417,17 @@ function resolveNhtsaMakes(query?: string) {
   if (!normalizedQuery) return [];
   const directMatch = VEHICLE_MAKE_NORMALIZED_MAP.get(normalizedQuery);
   if (directMatch) return [directMatch];
-  for (const [normalizedMake, make] of VEHICLE_MAKE_NORMALIZED_MAP.entries()) {
-    const pattern = new RegExp(`(^| )${escapeRegExp(normalizedMake)}( |$)`);
-    if (pattern.test(normalizedQuery)) return [make];
+
+  // Check if any known make appears as a whole word anywhere in the query.
+  // This handles queries like "ford recalls", "dodge problems", or
+  // "ford and toyota recalls" (returns multiple makes).
+  const found: string[] = [];
+  for (const [make, pattern] of VEHICLE_MAKE_PATTERNS.entries()) {
+    if (pattern.test(normalizedQuery)) {
+      found.push(make);
+    }
   }
-  return [];
+  return found;
 }
 
 async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
@@ -618,7 +640,6 @@ export function filterByQuery(results: RecallResult[], query: string) {
       const strippedCombined = stripCorporateSuffixes(combined);
       const words = combined.split(" ").filter(Boolean);
       const strippedWords = strippedCombined.split(" ").filter(Boolean);
-      const retailerMention = mentionsRetailer(context, summary, title);
       const companyMatches = matchesCompanyQuery(context, company);
       const brandMatches = matchesBrandQuery(context, brand);
       const matchesText = matchesQueryContext(
@@ -656,35 +677,27 @@ export function filterByQuery(results: RecallResult[], query: string) {
         !matchesPrimary &&
         !matchesPrimaryAlias;
 
-      if (context.strictRetailer) {
-        const retailerResponsible = isRetailerResponsibleMatch({
+      // Universal retail-location filtering:
+      // If the query only matches in the summary/title (not in companyName)
+      // AND the mention looks like a retail distribution context, exclude it.
+      // This prevents e.g. searching "Walmart" from showing a Tyson recall
+      // that just says "sold at Walmart stores".
+      if (matchesSummaryOnly && !companyMatches && !brandMatches) {
+        const isRetailMention = mentionsAsRetailLocation(
           context,
-          companyMatches,
-          brandMatches,
-          matchesPrimaryAlias,
-          retailerMention,
-        });
-        // For strict retailers or company-focused queries, only match on title + companyName
-        // to avoid false positives from "sold at [Retailer]" mentions.
-        return (matchesPrimary || matchesPrimaryAlias) && retailerResponsible;
+          summary,
+          title,
+          company
+        );
+        if (isRetailMention) {
+          return false;
+        }
       }
 
       if (context.companyIntent) {
-        if (
-          retailerMention &&
-          !companyMatches &&
-          !brandMatches &&
-          !matchesPrimaryAlias
-        ) {
-          return false;
-        }
         // For company-focused queries, only match on title + companyName
-        // to avoid false positives from "sold at [Retailer]" mentions.
+        // to avoid false positives from summary-only mentions.
         return matchesPrimary || matchesPrimaryAlias;
-      }
-
-      if (matchesSummaryOnly && isRetailerContext(summary)) {
-        return false;
       }
 
       return matchesText || matchesAlias;
@@ -695,44 +708,55 @@ export function filterByQuery(results: RecallResult[], query: string) {
     }));
 }
 
-function isRetailerResponsibleMatch({
-  context,
-  companyMatches,
-  brandMatches,
-  matchesPrimaryAlias,
-  retailerMention,
-}: {
-  context: QueryContext;
-  companyMatches: boolean;
-  brandMatches: boolean;
-  matchesPrimaryAlias: boolean;
-  retailerMention: boolean;
-}) {
-  if (!context.strictRetailer) return true;
-  if (brandMatches || matchesPrimaryAlias) return true;
-  if (!companyMatches) return false;
-  return !retailerMention;
-}
-
-function isRetailerContext(summary: string) {
-  if (!summary) return false;
-  return (
-    /\b(sold|available|purchased|retail(?:ed)?|exclusive(?:ly)?)\b/.test(summary) &&
-    /\b(at|by|from|through)\b/.test(summary)
-  );
-}
-
-function mentionsRetailer(
+/**
+ * Detects when a company is mentioned only as a retail location (e.g.
+ * "sold at Walmart") rather than as the responsible party for the recall.
+ *
+ * Returns true when the company name appears near retail-indicator phrases
+ * in the summary/title but is NOT listed as the companyName (responsible
+ * party) on the recall record.
+ */
+function mentionsAsRetailLocation(
   context: QueryContext,
   summary: string,
-  title: string
-) {
-  const combined = `${summary} ${title}`.trim();
+  title: string,
+  companyNameField?: string
+): boolean {
+  // If the company IS the responsible party, it's not just a retail mention
+  if (companyNameField) {
+    const strippedCompany = stripCorporateSuffixes(companyNameField);
+    const isResponsible = context.queryVariants.some(
+      (variant) =>
+        variant &&
+        (companyNameField.includes(variant) || strippedCompany.includes(variant))
+    );
+    if (isResponsible) return false;
+  }
+
+  const combined = `${summary} ${title}`.toLowerCase().trim();
   if (!combined) return false;
-  if (!isRetailerContext(combined)) return false;
-  return context.queryVariants.some(
-    (variant) => variant && combined.includes(variant)
-  );
+
+  // Check if any query variant appears within ~15 words of a retail phrase
+  for (const variant of context.queryVariants) {
+    if (!variant) continue;
+    const escaped = escapeRegExp(variant);
+    const retailPattern = new RegExp(
+      `(?:sold|available|distributed|purchased|recalled|found|bought)` +
+        `\\s+(?:at|from|by|through|exclusively\\s+at|exclusively\\s+from)` +
+        `\\s+[\\w\\s]{0,60}${escaped}`,
+      "i"
+    );
+    if (retailPattern.test(combined)) return true;
+
+    const retailPattern2 = new RegExp(
+      `(?:retailers?|stores?)\\s+(?:including|such\\s+as|like)` +
+        `\\s+[\\w\\s]{0,60}${escaped}`,
+      "i"
+    );
+    if (retailPattern2.test(combined)) return true;
+  }
+
+  return false;
 }
 
 function matchesCompanyQuery(context: QueryContext, company: string) {
@@ -822,7 +846,6 @@ type QueryContext = {
   compactQueryVariants: string[];
   tokens: string[];
   aliases: string[];
-  strictRetailer: boolean;
   companyIntent: boolean;
 };
 
@@ -879,7 +902,6 @@ function buildQueryContext(query: string): QueryContext {
     ].filter(Boolean),
     tokens,
     aliases: normalizedAliases,
-    strictRetailer: Boolean(family?.strictRetailer),
     companyIntent:
       hasCorporateSuffix ||
       normalizedAliases.length > 0 ||
