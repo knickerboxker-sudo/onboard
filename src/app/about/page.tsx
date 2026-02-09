@@ -92,6 +92,25 @@ export default function AboutPage() {
             suspect older recalls are relevant.
           </p>
 
+          <h2 className="text-xl font-semibold text-ink">
+            Counting Methodology
+          </h2>
+          <p>
+            Counts on the Recall Spotlight page represent{" "}
+            <strong className="text-ink">enforcement actions</strong> (recall
+            notices, safety alerts, and enforcement reports) filed by government
+            agencies — not individual products. A single enforcement action may
+            cover many products or SKUs. For example, a company recalling 2,000
+            products may have only a handful of enforcement reports, each
+            grouping multiple items together.
+          </p>
+          <p>
+            Where available (e.g., FDA enforcement reports), sortir captures the
+            reported product quantity for each action, but because these
+            quantities are free-text descriptions provided by the agencies, they
+            cannot be reliably summed into a single number.
+          </p>
+
           <h2 className="text-xl font-semibold text-ink">Disclaimers</h2>
           <p>
             sortir is not affiliated with any government agency. All recall

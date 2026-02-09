@@ -11,6 +11,8 @@ export interface RecallResult {
   url: string;
   companyName?: string;
   matchReason?: string;
+  /** Free-text quantity from the FDA enforcement API (e.g. "5,000 bottles"). */
+  productQuantity?: string;
 }
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
@@ -430,6 +432,7 @@ async function fetchFda(
         publishedAt,
         url,
         companyName: safeString(item?.recalling_firm) || undefined,
+        productQuantity: safeString(item?.product_quantity) || undefined,
       };
       return { ...recall, id: encodeRecallId(recall) };
     })

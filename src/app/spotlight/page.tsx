@@ -31,6 +31,7 @@ interface SpotlightResponse {
   totalRecalls: number;
   dateRange: string;
   fetchedAt: number;
+  countLabel?: string;
 }
 
 const DATE_RANGE_OPTIONS = [
@@ -91,9 +92,11 @@ export default function SpotlightPage() {
             Recall Spotlight
           </h1>
           <p className="text-sm text-muted max-w-xl leading-relaxed">
-            See which companies have the most — and fewest — product recalls
-            over a given time period. Data sourced in real-time from U.S.
-            government recall databases.
+            See which companies have the most — and fewest — enforcement
+            actions over a given time period. Each count represents a
+            government enforcement report, which may cover multiple individual
+            products or SKUs. Data sourced in real-time from U.S. government
+            recall databases.
           </p>
         </div>
 
@@ -123,8 +126,8 @@ export default function SpotlightPage() {
               onChange={(e) => setSortMode(e.target.value as SortMode)}
               className="text-sm px-3 py-2 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
             >
-              <option value="most">Most recalls</option>
-              <option value="least">Fewest recalls</option>
+              <option value="most">Most enforcement actions</option>
+              <option value="least">Fewest enforcement actions</option>
             </select>
           </div>
 
@@ -177,7 +180,7 @@ export default function SpotlightPage() {
                 <strong className="text-ink">{data.totalCompanies}</strong>{" "}
                 companies across{" "}
                 <strong className="text-ink">{data.totalRecalls}</strong>{" "}
-                recalls
+                enforcement actions
               </span>
               {data.fetchedAt && (
                 <span className="text-xs">
@@ -196,14 +199,14 @@ export default function SpotlightPage() {
                 <>
                   <TrendingUp size={18} className="text-danger" />
                   <h2 className="text-lg font-semibold text-ink">
-                    Most Recalls — {dateRangeLabel}
+                    Most Enforcement Actions — {dateRangeLabel}
                   </h2>
                 </>
               ) : (
                 <>
                   <Award size={18} className="text-emerald-600" />
                   <h2 className="text-lg font-semibold text-ink">
-                    Fewest Recalls — {dateRangeLabel}
+                    Fewest Enforcement Actions — {dateRangeLabel}
                   </h2>
                 </>
               )}
@@ -220,8 +223,8 @@ export default function SpotlightPage() {
                     <th className="text-left px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider">
                       Company
                     </th>
-                    <th className="text-center px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider">
-                      Recalls
+                    <th className="text-center px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider" title="Number of government enforcement reports filed. Each action may cover multiple individual products or SKUs.">
+                      Actions
                     </th>
                     <th className="text-left px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider hidden sm:table-cell">
                       Categories
@@ -306,6 +309,9 @@ export default function SpotlightPage() {
 
             {/* Disclaimer */}
             <p className="text-xs text-muted/70 mt-6 leading-relaxed max-w-2xl">
+              Counts reflect government enforcement reports (recall notices,
+              safety alerts, enforcement actions), not individual products.
+              A single enforcement action may cover many products or SKUs.
               Data is aggregated in real-time from NHTSA, CPSC, USDA FSIS, FDA,
               EPA, and USCG. Company names are normalized for grouping but may
               not always be perfectly de-duplicated. This is not legal advice.
@@ -314,7 +320,7 @@ export default function SpotlightPage() {
         ) : (
           <div className="text-center py-16">
             <p className="text-muted">
-              No recall data available for the selected time period.
+              No enforcement data available for the selected time period.
             </p>
           </div>
         )}
