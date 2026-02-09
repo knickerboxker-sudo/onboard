@@ -179,7 +179,7 @@ export async function GET(req: NextRequest) {
         dateRange,
         fetchedAt,
         /** Clarifies what each "count" represents. */
-        countLabel: "enforcement actions",
+        countLabel: "recall occurrences",
       });
     } finally {
       clearTimeout(timeout);

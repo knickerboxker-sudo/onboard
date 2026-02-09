@@ -13,6 +13,16 @@ export interface RecallResult {
   matchReason?: string;
   /** Free-text quantity from the FDA enforcement API (e.g. "5,000 bottles"). */
   productQuantity?: string;
+  sourceRecallId?: string;
+  recalledAt?: string;
+  status?: string;
+  classification?: string;
+  hazard?: string;
+  sourceProductId?: string;
+  brand?: string;
+  model?: string;
+  lotCodes?: string;
+  upcGtin?: string;
 }
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
@@ -283,8 +293,9 @@ async function fetchCpsc(dateRangeStart?: Date, signal?: AbortSignal) {
   return data
     .map((item) => {
       const recallDate = normalizeDate(item?.RecallDate);
+      const recallId = String(item?.RecallID || cryptoRandomId("cpsc"));
       const recall: RecallResult = {
-        id: String(item?.RecallID || cryptoRandomId("cpsc")),
+        id: recallId,
         title: safeString(item?.Title),
         summary: safeString(item?.Description),
         source: "CPSC",
@@ -292,6 +303,8 @@ async function fetchCpsc(dateRangeStart?: Date, signal?: AbortSignal) {
         publishedAt: recallDate,
         url: safeString(item?.URL),
         companyName: safeString(item?.CompanyName) || undefined,
+        sourceRecallId: recallId,
+        recalledAt: recallDate,
       };
       return { ...recall, id: encodeRecallId(recall) };
     })
@@ -323,6 +336,7 @@ async function fetchNhtsa(
       const publishedAt = normalizeDate(
         item?.ReportReceivedDate || item?.RecallDate || item?.LastUpdatedDate
       );
+      const recalledAt = normalizeDate(item?.RecallDate || item?.ReportReceivedDate);
       const title = [makeName, model].filter(Boolean).join(" ") || summary;
       const url = campaign
         ? `https://www.nhtsa.gov/recalls?nhtsaId=${encodeURIComponent(campaign)}`
@@ -337,6 +351,8 @@ async function fetchNhtsa(
         publishedAt,
         url,
         companyName: safeString(item?.Manufacturer) || undefined,
+        sourceRecallId: campaign || undefined,
+        recalledAt,
       };
 
       return { ...recall, id: encodeRecallId(recall) };
@@ -394,6 +410,8 @@ async function fetchFsis(dateRangeStart?: Date, signal?: AbortSignal) {
         url: itemUrl,
         companyName:
           safeString(item?.field_recalling_firm || item?.field_company_name) || undefined,
+        sourceRecallId: recallNumber || undefined,
+        recalledAt: publishedAt,
       };
 
       return { ...recall, id: encodeRecallId(recall) };
@@ -422,9 +440,11 @@ async function fetchFda(
       const summary = safeString(item?.reason_for_recall || item?.product_description);
       const title = safeString(item?.product_description || item?.recall_number);
       const publishedAt = normalizeDate(item?.report_date || item?.recall_initiation_date);
+      const recalledAt = normalizeDate(item?.recall_initiation_date || item?.report_date);
       const url = "https://www.fda.gov/safety/recalls";
+      const recallNumber = safeString(item?.recall_number);
       const recall: RecallResult = {
-        id: safeString(item?.recall_number) || cryptoRandomId("fda"),
+        id: recallNumber || cryptoRandomId("fda"),
         title,
         summary,
         source: "FDA",
@@ -433,6 +453,11 @@ async function fetchFda(
         url,
         companyName: safeString(item?.recalling_firm) || undefined,
         productQuantity: safeString(item?.product_quantity) || undefined,
+        sourceRecallId: recallNumber || undefined,
+        recalledAt,
+        status: safeString(item?.status) || undefined,
+        classification: safeString(item?.classification) || undefined,
+        hazard: safeString(item?.reason_for_recall) || undefined,
       };
       return { ...recall, id: encodeRecallId(recall) };
     })
@@ -489,6 +514,8 @@ async function fetchEpa(
         publishedAt,
         url,
         companyName: safeString(item?.FacilityName || item?.facility_name) || undefined,
+        sourceRecallId: caseNumber || undefined,
+        recalledAt: publishedAt,
       };
       return { ...recall, id: encodeRecallId(recall) };
     })
@@ -522,8 +549,9 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
     })
     .map((item) => {
       const recallDate = normalizeDate(item?.RecallDate);
+      const recallId = String(item?.RecallID || cryptoRandomId("uscg"));
       const recall: RecallResult = {
-        id: String(item?.RecallID || cryptoRandomId("uscg")),
+        id: recallId,
         title: safeString(item?.Title),
         summary: safeString(item?.Description),
         source: "USCG",
@@ -531,6 +559,8 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
         publishedAt: recallDate,
         url: safeString(item?.URL) || "https://uscgboating.org/content/recalls.php",
         companyName: safeString(item?.CompanyName) || undefined,
+        sourceRecallId: recallId,
+        recalledAt: recallDate,
       };
       return { ...recall, id: encodeRecallId(recall) };
     })

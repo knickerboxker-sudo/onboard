@@ -97,16 +97,15 @@ export default function AboutPage() {
           </h2>
           <p>
             Counts on the Recall Spotlight page represent{" "}
-            <strong className="text-ink">enforcement actions</strong> (recall
-            notices, safety alerts, and enforcement reports) filed by government
-            agencies — not individual products. A single enforcement action may
-            cover many products or SKUs. For example, a company recalling 2,000
-            products may have only a handful of enforcement reports, each
-            grouping multiple items together.
+            <strong className="text-ink">recall occurrences</strong> — distinct
+            recall instances published by government agencies. A single product
+            can be recalled multiple times, and each instance is counted
+            separately. This ensures Spotlight reflects the true number of
+            recall events over time.
           </p>
           <p>
             Where available (e.g., FDA enforcement reports), sortir captures the
-            reported product quantity for each action, but because these
+            reported product quantity for each recall occurrence, but because these
             quantities are free-text descriptions provided by the agencies, they
             cannot be reliably summed into a single number.
           </p>

@@ -3,45 +3,58 @@
 import { Header } from "@/src/components/Header";
 import { Footer } from "@/src/components/Footer";
 import { useEffect, useState } from "react";
-import { formatDate, categoryColor, categoryLabel, sourceLabel } from "@/src/lib/utils";
+import { formatDate } from "@/src/lib/utils";
 import {
   TrendingUp,
-  TrendingDown,
   AlertTriangle,
   Award,
   RefreshCw,
-  ChevronDown,
-  ChevronUp,
   Building2,
   Calendar,
   ArrowUpDown,
+  Filter,
 } from "lucide-react";
 
-interface CompanyRecallCount {
-  company: string;
-  count: number;
-  categories: string[];
-  sources: string[];
-  latestRecall: string;
+interface SpotlightCompany {
+  company_id: string;
+  company_name: string;
+  recall_count: number;
 }
 
 interface SpotlightResponse {
-  companies: CompanyRecallCount[];
-  totalCompanies: number;
-  totalRecalls: number;
-  dateRange: string;
-  fetchedAt: number;
+  companies: SpotlightCompany[];
+  metadata: {
+    timeframe_start: string;
+    timeframe_end: string;
+    sector: string;
+    total_companies: number;
+    total_recalls: number;
+  };
+  fetchedAt?: number;
   countLabel?: string;
 }
 
 const DATE_RANGE_OPTIONS = [
+  { value: "30d", label: "Last 30 days" },
+  { value: "90d", label: "Last 90 days" },
   { value: "1y", label: "Last year" },
   { value: "2y", label: "Last 2 years" },
-  { value: "5y", label: "Last 5 years" },
   { value: "all", label: "All time" },
 ];
 
-type SortMode = "most" | "least";
+const SECTOR_OPTIONS = [
+  { value: "all", label: "All sectors" },
+  { value: "FOOD", label: "Food" },
+  { value: "DRUGS", label: "Drugs" },
+  { value: "MEDICAL_DEVICE", label: "Medical Device" },
+  { value: "CONSUMER_PRODUCT", label: "Consumer Product" },
+  { value: "VEHICLE", label: "Vehicle" },
+  { value: "MARITIME", label: "Maritime" },
+  { value: "ENVIRONMENTAL", label: "Environmental" },
+  { value: "OTHER", label: "Other" },
+] as const;
+
+type SortMode = "most" | "fewest";
 
 export default function SpotlightPage() {
   const [data, setData] = useState<SpotlightResponse | null>(null);
@@ -50,17 +63,19 @@ export default function SpotlightPage() {
   const [dateRange, setDateRange] = useState("2y");
   const [sortMode, setSortMode] = useState<SortMode>("most");
   const [limit, setLimit] = useState(20);
+  const [sector, setSector] = useState("all");
 
   const fetchSpotlight = async () => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams({
-        dateRange,
+        timeframe: dateRange,
         sort: sortMode,
         limit: String(limit),
+        sector,
       });
-      const res = await fetch(`/api/recalls/spotlight?${params.toString()}`);
+      const res = await fetch(`/api/spotlight/companies?${params.toString()}`);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || "Failed to load data");
@@ -77,7 +92,7 @@ export default function SpotlightPage() {
   useEffect(() => {
     fetchSpotlight();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateRange, sortMode, limit]);
+  }, [dateRange, sortMode, limit, sector]);
 
   const dateRangeLabel =
     DATE_RANGE_OPTIONS.find((o) => o.value === dateRange)?.label ?? dateRange;
@@ -92,11 +107,11 @@ export default function SpotlightPage() {
             Recall Spotlight
           </h1>
           <p className="text-sm text-muted max-w-xl leading-relaxed">
-            See which companies have the most — and fewest — enforcement
-            actions over a given time period. Each count represents a
-            government enforcement report, which may cover multiple individual
-            products or SKUs. Data sourced in real-time from U.S. government
-            recall databases.
+            See which companies have the most — and fewest — recall occurrences
+            over a given time period. Each count represents a distinct recall
+            instance published by an agency, even if the same product is
+            recalled multiple times. Data sourced in real-time from U.S.
+            government recall databases.
           </p>
         </div>
 
@@ -126,8 +141,24 @@ export default function SpotlightPage() {
               onChange={(e) => setSortMode(e.target.value as SortMode)}
               className="text-sm px-3 py-2 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
             >
-              <option value="most">Most enforcement actions</option>
-              <option value="least">Fewest enforcement actions</option>
+              <option value="most">Most recall occurrences</option>
+              <option value="fewest">Fewest recall occurrences</option>
+            </select>
+          </div>
+
+          {/* Sector filter */}
+          <div className="flex items-center gap-2">
+            <Filter size={14} className="text-muted" />
+            <select
+              value={sector}
+              onChange={(e) => setSector(e.target.value)}
+              className="text-sm px-3 py-2 rounded-lg border border-border bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
+            >
+              {SECTOR_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -177,10 +208,14 @@ export default function SpotlightPage() {
             {/* Summary bar */}
             <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-muted">
               <span>
-                <strong className="text-ink">{data.totalCompanies}</strong>{" "}
+                <strong className="text-ink">
+                  {data.metadata.total_companies}
+                </strong>{" "}
                 companies across{" "}
-                <strong className="text-ink">{data.totalRecalls}</strong>{" "}
-                enforcement actions
+                <strong className="text-ink">
+                  {data.metadata.total_recalls}
+                </strong>{" "}
+                recall occurrences
               </span>
               {data.fetchedAt && (
                 <span className="text-xs">
@@ -199,14 +234,14 @@ export default function SpotlightPage() {
                 <>
                   <TrendingUp size={18} className="text-danger" />
                   <h2 className="text-lg font-semibold text-ink">
-                    Most Enforcement Actions — {dateRangeLabel}
+                    Most Recall Occurrences — {dateRangeLabel}
                   </h2>
                 </>
               ) : (
                 <>
                   <Award size={18} className="text-emerald-600" />
                   <h2 className="text-lg font-semibold text-ink">
-                    Fewest Enforcement Actions — {dateRangeLabel}
+                    Fewest Recall Occurrences — {dateRangeLabel}
                   </h2>
                 </>
               )}
@@ -223,24 +258,21 @@ export default function SpotlightPage() {
                     <th className="text-left px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider">
                       Company
                     </th>
-                    <th className="text-center px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider" title="Number of government enforcement reports filed. Each action may cover multiple individual products or SKUs.">
-                      Actions
-                    </th>
-                    <th className="text-left px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider hidden sm:table-cell">
-                      Categories
-                    </th>
-                    <th className="text-left px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider hidden md:table-cell">
-                      Sources
+                    <th
+                      className="text-center px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider"
+                      title="Counts represent distinct recall instances published by agencies. A product recalled multiple times counts multiple times."
+                    >
+                      Recalls
                     </th>
                     <th className="text-left px-4 py-3 font-semibold text-muted text-xs uppercase tracking-wider hidden lg:table-cell">
-                      Latest Recall
+                      Timeframe
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.companies.map((company, index) => (
                     <tr
-                      key={company.company}
+                      key={company.company_id}
                       className="border-b border-border/50 hover:bg-highlight/40 transition-colors"
                     >
                       <td className="px-4 py-3 text-muted font-medium">
@@ -252,54 +284,32 @@ export default function SpotlightPage() {
                             size={14}
                             className="text-muted/60 flex-shrink-0"
                           />
-                          <span className="font-medium text-ink">
-                            {company.company}
-                          </span>
+                          <a
+                            className="font-medium text-ink hover:text-accent transition-colors"
+                            href={`/companies/${company.company_id}?timeframe=${dateRange}&sector=${sector}`}
+                          >
+                            {company.company_name}
+                          </a>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
                           className={`inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-full text-xs font-bold ${
                             sortMode === "most"
-                              ? company.count >= 10
+                              ? company.recall_count >= 10
                                 ? "bg-red-100 text-red-700"
-                                : company.count >= 5
+                                : company.recall_count >= 5
                                 ? "bg-amber-100 text-amber-700"
                                 : "bg-gray-100 text-gray-700"
                               : "bg-emerald-100 text-emerald-700"
                           }`}
                         >
-                          {company.count}
+                          {company.recall_count}
                         </span>
                       </td>
-                      <td className="px-4 py-3 hidden sm:table-cell">
-                        <div className="flex flex-wrap gap-1">
-                          {company.categories.map((cat) => (
-                            <span
-                              key={cat}
-                              className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${categoryColor(cat)}`}
-                            >
-                              {categoryLabel(cat)}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        <div className="flex flex-wrap gap-1">
-                          {company.sources.map((src) => (
-                            <span
-                              key={src}
-                              className="text-[10px] font-medium text-muted bg-highlight px-1.5 py-0.5 rounded"
-                            >
-                              {sourceLabel(src)}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
                       <td className="px-4 py-3 text-muted text-xs hidden lg:table-cell">
-                        {company.latestRecall
-                          ? formatDate(company.latestRecall)
-                          : "—"}
+                        {formatDate(data.metadata.timeframe_start)} —{" "}
+                        {formatDate(data.metadata.timeframe_end)}
                       </td>
                     </tr>
                   ))}
@@ -309,18 +319,17 @@ export default function SpotlightPage() {
 
             {/* Disclaimer */}
             <p className="text-xs text-muted/70 mt-6 leading-relaxed max-w-2xl">
-              Counts reflect government enforcement reports (recall notices,
-              safety alerts, enforcement actions), not individual products.
-              A single enforcement action may cover many products or SKUs.
-              Data is aggregated in real-time from NHTSA, CPSC, USDA FSIS, FDA,
-              EPA, and USCG. Company names are normalized for grouping but may
-              not always be perfectly de-duplicated. This is not legal advice.
+              Counts represent distinct recall instances published by agencies.
+              A product recalled multiple times counts multiple times. Data is
+              aggregated in real-time from NHTSA, CPSC, USDA FSIS, FDA, EPA, and
+              USCG. Company names are normalized for grouping but may not always
+              be perfectly de-duplicated. This is not legal advice.
             </p>
           </>
         ) : (
           <div className="text-center py-16">
             <p className="text-muted">
-              No enforcement data available for the selected time period.
+              No recall data available for the selected time period.
             </p>
           </div>
         )}
