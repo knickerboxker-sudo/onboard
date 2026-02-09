@@ -830,6 +830,9 @@ function matchesQueryContext(
   words: string[],
   strippedWords: string[]
 ) {
+  const normalizedWords = words.map(stemToken);
+  const normalizedStrippedWords = strippedWords.map(stemToken);
+  const normalizedTokens = context.tokens.map(stemToken);
   const matchesDirect =
     context.queryVariants.length > 0
       ? context.queryVariants.some(
@@ -839,11 +842,17 @@ function matchesQueryContext(
         )
       : false;
   const matchesTokens =
-    context.tokens.length > 0 &&
-    context.tokens.every(
+    normalizedTokens.length > 0 &&
+    normalizedTokens.every(
       (token) =>
-        words.some((word) => word === token || word.startsWith(token)) ||
-        strippedWords.some((word) => word === token || word.startsWith(token))
+        normalizedWords.some(
+          (word) =>
+            word === token || word.startsWith(token) || token.startsWith(word)
+        ) ||
+        normalizedStrippedWords.some(
+          (word) =>
+            word === token || word.startsWith(token) || token.startsWith(word)
+        )
     );
   const matchesAdjacent =
     context.compactQueryVariants.length > 0 &&
@@ -893,6 +902,22 @@ function compactSearchText(value: string) {
   return value.replace(/\s+/g, "");
 }
 
+function stemToken(value: string) {
+  if (!value) return "";
+  let token = value;
+  if (token.length > 4 && token.endsWith("s")) {
+    token = token.slice(0, -1);
+  }
+  const suffixes = ["tions", "tion", "ions", "ion", "ing", "ers", "er", "or", "ies"];
+  for (const suffix of suffixes) {
+    if (token.length > suffix.length + 2 && token.endsWith(suffix)) {
+      token = token.slice(0, -suffix.length);
+      break;
+    }
+  }
+  return token;
+}
+
 function stripCorporateSuffixes(value: string) {
   if (!value) return "";
   return value
@@ -901,14 +926,81 @@ function stripCorporateSuffixes(value: string) {
     .join(" ");
 }
 
+function buildIsoDate(year: number, month: number, day: number) {
+  if (!year || !month || !day) return "";
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return "";
+  }
+  return date.toISOString();
+}
+
+function resolveYear(value: string) {
+  if (value.length === 4) return Number(value);
+  const year = Number(value);
+  if (!Number.isFinite(year)) return year;
+  const currentYear = new Date().getFullYear();
+  const currentCentury = Math.floor(currentYear / 100) * 100;
+  const candidate = currentCentury + year;
+  const fallback = currentCentury - 100 + year;
+  return Math.abs(candidate - currentYear) <= Math.abs(fallback - currentYear)
+    ? candidate
+    : fallback;
+}
+
+function monthFromText(value: string) {
+  const normalized = value.toLowerCase();
+  const months: Record<string, number> = {
+    jan: 1,
+    feb: 2,
+    mar: 3,
+    apr: 4,
+    may: 5,
+    jun: 6,
+    jul: 7,
+    aug: 8,
+    sep: 9,
+    oct: 10,
+    nov: 11,
+    dec: 12,
+  };
+  return months[normalized];
+}
+
 function normalizeDate(value?: string) {
   if (!value) return "";
   const trimmed = value.trim();
+  if (!trimmed) return "";
   if (/^\d{8}$/.test(trimmed)) {
     const year = trimmed.slice(0, 4);
     const month = trimmed.slice(4, 6);
     const day = trimmed.slice(6, 8);
-    return new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+    return buildIsoDate(Number(year), Number(month), Number(day));
+  }
+  const isoMatch = trimmed.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (isoMatch) {
+    return buildIsoDate(
+      Number(isoMatch[1]),
+      Number(isoMatch[2]),
+      Number(isoMatch[3])
+    );
+  }
+  const mdyMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (mdyMatch) {
+    const year = resolveYear(mdyMatch[3]);
+    return buildIsoDate(year, Number(mdyMatch[1]), Number(mdyMatch[2]));
+  }
+  const textMatch = trimmed.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2,4})$/);
+  if (textMatch) {
+    const month = monthFromText(textMatch[2]);
+    if (month) {
+      const year = resolveYear(textMatch[3]);
+      return buildIsoDate(year, month, Number(textMatch[1]));
+    }
   }
   const parsed = new Date(trimmed);
   if (!Number.isNaN(parsed.getTime())) {

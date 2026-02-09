@@ -66,6 +66,16 @@ function timeframeStart(timeframe: string): Date {
   return start;
 }
 
+function resolveRecallTime(recall: { publishedAt: string; recalledAt?: string }) {
+  const publishedTime = new Date(recall.publishedAt).getTime();
+  if (!Number.isNaN(publishedTime)) return publishedTime;
+  if (recall.recalledAt) {
+    const recalledTime = new Date(recall.recalledAt).getTime();
+    if (!Number.isNaN(recalledTime)) return recalledTime;
+  }
+  return null;
+}
+
 export async function GET(req: NextRequest) {
   const clientIp = getClientIp(req);
   const rateLimit = checkRateLimit(`spotlight:companies:${clientIp}`, {
@@ -115,8 +125,8 @@ export async function GET(req: NextRequest) {
       const end = new Date();
 
       const filteredRecalls = recalls.filter((recall) => {
-        const publishedTime = new Date(recall.publishedAt).getTime();
-        if (Number.isNaN(publishedTime)) return false;
+        const publishedTime = resolveRecallTime(recall);
+        if (publishedTime === null) return false;
         if (publishedTime < start.getTime() || publishedTime > end.getTime()) {
           return false;
         }
