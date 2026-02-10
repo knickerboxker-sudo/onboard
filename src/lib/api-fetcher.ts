@@ -167,9 +167,6 @@ const BRAND_FAMILIES: Record<
   },
 };
 
-/** Maximum allowed edit-distance ratio (edits / max-length) for fuzzy family matching. */
-const FUZZY_MATCH_THRESHOLD = 0.35;
-
 const CORPORATE_SUFFIXES = new Set([
   "inc",
   "incorporated",
@@ -630,77 +627,60 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 
 export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
+  const normalizedQueryText = normalizeSearchText(query);
+  const vehicleMakesInQuery = Array.from(VEHICLE_MAKE_LOOKUP).filter((make) =>
+    new RegExp(`\\b${escapeRegExp(make)}\\b`).test(normalizedQueryText)
+  );
   return results
     .filter((item) => {
-      const title = normalizeSearchText(safeString(item.title));
-      const summary = normalizeSearchText(safeString(item.summary));
-      const company = normalizeSearchText(safeString(item.companyName));
-      const brand = normalizeSearchText(safeString(item.brand));
-      const combined = [title, summary, company].filter(Boolean).join(" ").trim();
-      const strippedCombined = stripCorporateSuffixes(combined);
-      const words = combined.split(" ").filter(Boolean);
-      const strippedWords = strippedCombined.split(" ").filter(Boolean);
-      const companyMatches = matchesCompanyQuery(context, company);
-      const brandMatches = matchesBrandQuery(context, brand);
-      const matchesText = matchesQueryContext(
-        context,
-        combined,
-        strippedCombined,
-        words,
-        strippedWords
-      );
-      const matchesAlias = matchesAliases(
-        context,
-        combined,
-        strippedCombined
-      );
+      const normalizedCompany = normalizeSearchText(safeString(item.companyName));
+      const normalizedBrand = normalizeSearchText(safeString(item.brand));
+      const normalizedTitle = normalizeSearchText(safeString(item.title));
+      const normalizedSummary = normalizeSearchText(safeString(item.summary));
 
-      const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
-      const strippedPrimary = stripCorporateSuffixes(primaryCombined);
-      const primaryWords = primaryCombined.split(" ").filter(Boolean);
-      const strippedPrimaryWords = strippedPrimary.split(" ").filter(Boolean);
-      const matchesPrimary = matchesQueryContext(
-        context,
-        primaryCombined,
-        strippedPrimary,
-        primaryWords,
-        strippedPrimaryWords
-      );
-      const matchesPrimaryAlias = matchesAliases(
-        context,
-        primaryCombined,
-        strippedPrimary
-      );
+      // MATCH TYPE 1: Exact company name match (whole-word)
+      const companyMatch = context.queryVariants.some((variant) => {
+        if (!variant) return false;
+        const pattern = new RegExp(`\\b${escapeRegExp(variant)}\\b`);
+        return normalizedCompany === variant || pattern.test(normalizedCompany);
+      });
 
-      const matchesSummaryOnly =
-        (matchesText || matchesAlias) &&
-        !matchesPrimary &&
-        !matchesPrimaryAlias;
+      // MATCH TYPE 2: Brand family or alias match
+      const brandMatch = context.aliases.some((alias) => {
+        const normalizedAlias = normalizeSearchText(alias);
+        if (!normalizedAlias) return false;
+        const pattern = new RegExp(`\\b${escapeRegExp(normalizedAlias)}\\b`);
+        return pattern.test(normalizedCompany) || pattern.test(normalizedBrand);
+      });
 
-      // Universal retail-location filtering:
-      // If the query only matches in the summary/title (not in companyName)
-      // AND the mention looks like a retail distribution context, exclude it.
-      // This prevents e.g. searching "Walmart" from showing a Tyson recall
-      // that just says "sold at Walmart stores".
-      if (matchesSummaryOnly && !companyMatches && !brandMatches) {
-        const isRetailMention = mentionsAsRetailLocation(
-          context,
-          summary,
-          title,
-          company
+      // MATCH TYPE 3: Query phrase appears in title as whole words
+      const titleMatch = context.queryVariants.some((variant) => {
+        if (!variant) return false;
+        const pattern = new RegExp(`\\b${escapeRegExp(variant)}\\b`);
+        return pattern.test(normalizedTitle);
+      });
+
+      // MATCH TYPE 4: Vehicle make match (only for vehicle category)
+      const vehicleMakeMatch =
+        item.category === "vehicle" &&
+        vehicleMakesInQuery.length > 0 &&
+        vehicleMakesInQuery.some((make) =>
+          new RegExp(`\\b${escapeRegExp(make)}\\b`).test(normalizedTitle)
         );
-        if (isRetailMention) {
-          return false;
-        }
-      }
 
-      if (context.companyIntent) {
-        // For company-focused queries, only match on title + companyName
-        // to avoid false positives from summary-only mentions.
-        return matchesPrimary || matchesPrimaryAlias;
-      }
+      const isRetailMention =
+        !companyMatch &&
+        !brandMatch &&
+        mentionsAsRetailLocation(
+          query,
+          normalizedSummary,
+          normalizedTitle,
+          item.companyName
+        );
 
-      return matchesText || matchesAlias;
+      if (isRetailMention) return false;
+
+      return companyMatch || brandMatch || titleMatch || vehicleMakeMatch;
     })
     .map((item) => ({
       ...item,
@@ -717,61 +697,35 @@ export function filterByQuery(results: RecallResult[], query: string) {
  * party) on the recall record.
  */
 function mentionsAsRetailLocation(
-  context: QueryContext,
+  query: string,
   summary: string,
   title: string,
-  companyNameField?: string
+  companyName?: string
 ): boolean {
-  // If the company IS the responsible party, it's not just a retail mention
-  if (companyNameField) {
-    const strippedCompany = stripCorporateSuffixes(companyNameField);
-    const isResponsible = context.queryVariants.some(
-      (variant) =>
-        variant &&
-        (companyNameField.includes(variant) || strippedCompany.includes(variant))
-    );
-    if (isResponsible) return false;
+  // If company name matches query, they're responsible (not just retail)
+  if (companyName) {
+    const normalizedCompany = normalizeSearchText(companyName);
+    const normalizedQuery = normalizeSearchText(query);
+    if (normalizedCompany.includes(normalizedQuery)) return false;
   }
 
-  const combined = `${summary} ${title}`.toLowerCase().trim();
-  if (!combined) return false;
+  const combined = `${summary} ${title}`.toLowerCase();
+  const normalizedQuery = normalizeSearchText(query);
 
-  // Check if any query variant appears within ~15 words of a retail phrase
-  for (const variant of context.queryVariants) {
-    if (!variant) continue;
-    const escaped = escapeRegExp(variant);
-    const retailPattern = new RegExp(
-      `(?:sold|available|distributed|purchased|recalled|found|bought)` +
-        `\\s+(?:at|from|by|through|exclusively\\s+at|exclusively\\s+from)` +
-        `\\s+[\\w\\s]{0,60}${escaped}`,
-      "i"
-    );
-    if (retailPattern.test(combined)) return true;
+  // Retail indicator phrases
+  const retailPatterns = [
+    `sold at.*?${escapeRegExp(normalizedQuery)}`,
+    `available at.*?${escapeRegExp(normalizedQuery)}`,
+    `distributed through.*?${escapeRegExp(normalizedQuery)}`,
+    `purchased from.*?${escapeRegExp(normalizedQuery)}`,
+    `found at.*?${escapeRegExp(normalizedQuery)}`,
+    `retailers including.*?${escapeRegExp(normalizedQuery)}`,
+    `stores such as.*?${escapeRegExp(normalizedQuery)}`,
+    `${escapeRegExp(normalizedQuery)}.*?stores`,
+    `${escapeRegExp(normalizedQuery)}.*?locations`,
+  ];
 
-    const retailPattern2 = new RegExp(
-      `(?:retailers?|stores?)\\s+(?:including|such\\s+as|like)` +
-        `\\s+[\\w\\s]{0,60}${escaped}`,
-      "i"
-    );
-    if (retailPattern2.test(combined)) return true;
-  }
-
-  return false;
-}
-
-function matchesCompanyQuery(context: QueryContext, company: string) {
-  if (!company) return false;
-  const strippedCompany = stripCorporateSuffixes(company);
-  return context.queryVariants.some(
-    (variant) =>
-      variant &&
-      (company.includes(variant) || strippedCompany.includes(variant))
-  );
-}
-
-function matchesBrandQuery(context: QueryContext, brand: string) {
-  if (!brand) return false;
-  return context.aliases.some((alias) => alias && brand.includes(alias));
+  return retailPatterns.some((pattern) => new RegExp(pattern, "i").test(combined));
 }
 
 /**
@@ -793,49 +747,29 @@ function getMatchReason(
   query: string,
   context: QueryContext
 ): string | undefined {
-  const normalizedQuery = normalizeSearchText(query);
+  const normalizedCompany = normalizeSearchText(safeString(item.companyName));
+  const normalizedTitle = normalizeSearchText(safeString(item.title));
 
-  // Check if the query appears directly in the title or company name
-  const title = normalizeSearchText(safeString(item.title));
-  const company = normalizeSearchText(safeString(item.companyName));
-  const summary = normalizeSearchText(safeString(item.summary));
-
-  if (title.includes(normalizedQuery) || company.includes(normalizedQuery)) {
-    return undefined; // Direct match – no explanation needed
+  // If query matches company name, no explanation needed
+  if (
+    context.queryVariants.some(
+      (v) => v && new RegExp(`\\b${escapeRegExp(v)}\\b`).test(normalizedCompany)
+    )
+  ) {
+    return undefined;
   }
 
-  if (normalizedQuery && summary.includes(normalizedQuery)) {
-    return `Mentions "${query}" in recall details`;
-  }
-
-  // Check alias / brand-family match
-  if (context.aliases.length > 0) {
-    const combined = [title, summary, company]
-      .filter(Boolean)
-      .join(" ");
-    for (const alias of context.aliases) {
-      if (combined.includes(alias)) {
-        return `Related to "${query}" — matches known brand "${alias}"`;
-      }
+  // If brand match
+  for (const alias of context.aliases) {
+    const normalizedAlias = normalizeSearchText(alias);
+    if (normalizedAlias && normalizedCompany.includes(normalizedAlias)) {
+      return `Related to "${query}" — brand owned by this company`;
     }
   }
 
-  if (context.tokens.length > 0) {
-    const tokenMatch = context.tokens.find(
-      (token) => title.includes(token) || company.includes(token)
-    );
-    if (tokenMatch) {
-      return `Matches keyword "${tokenMatch}" in the company or title`;
-    }
-  }
-
-  // Check token match (partial / keyword match)
-  if (context.tokens.length > 0) {
-    for (const token of context.tokens) {
-      if (summary.includes(token) && !title.includes(token) && !company.includes(token)) {
-        return `Mentions "${token}" in recall details`;
-      }
-    }
+  // If title match
+  if (context.queryVariants.some((v) => v && normalizedTitle.includes(v))) {
+    return undefined;
   }
 
   return undefined;
@@ -843,8 +777,6 @@ function getMatchReason(
 
 type QueryContext = {
   queryVariants: string[];
-  compactQueryVariants: string[];
-  tokens: string[];
   aliases: string[];
   companyIntent: boolean;
 };
@@ -852,198 +784,30 @@ type QueryContext = {
 function buildQueryContext(query: string): QueryContext {
   const normalized = normalizeSearchText(query);
   const stripped = stripCorporateSuffixes(normalized);
-  const hasUppercase = /[A-Z]/.test(query);
-  const tokens = Array.from(
-    new Set(
-      [normalized, stripped]
-        .filter(Boolean)
-        .flatMap((variant) => variant.split(" "))
-        .filter(Boolean)
-    )
-  );
-  const family =
-    BRAND_FAMILIES[normalized] ||
-    BRAND_FAMILIES[stripped] ||
-    BRAND_FAMILIES[tokens[0] || ""] ||
-    fuzzyMatchFamily(normalized);
-  const familyKey = family
-    ? Object.keys(BRAND_FAMILIES).find((k) => BRAND_FAMILIES[k] === family)
-    : undefined;
-  const aliases = [
-    ...(COMPANY_ALIASES[normalized] || []),
-    ...(COMPANY_ALIASES[stripped] || []),
-    ...(family?.brands || []),
-  ];
-  const normalizedAliases = Array.from(
-    new Set(aliases.map((alias) => normalizeSearchText(alias)).filter(Boolean))
-  );
+  const queryVariants = Array.from(new Set([normalized, stripped].filter(Boolean)));
+
+  const aliasSet = new Set<string>();
+  for (const variant of queryVariants) {
+    (COMPANY_ALIASES[variant] || []).forEach((alias) => aliasSet.add(alias));
+    const family = BRAND_FAMILIES[variant];
+    if (family) {
+      family.brands.forEach((brand) => aliasSet.add(brand));
+    }
+  }
+
+  const normalizedAliases = Array.from(aliasSet)
+    .map((alias) => normalizeSearchText(alias))
+    .filter(Boolean);
+
   const hasCorporateSuffix = normalized
     .split(" ")
     .some((token) => token && CORPORATE_SUFFIXES.has(token));
-  const isVehicleMake =
-    VEHICLE_MAKE_LOOKUP.has(normalized) || VEHICLE_MAKE_LOOKUP.has(stripped);
-  const tokenCount = normalized ? normalized.split(" ").filter(Boolean).length : 0;
-  const likelyBrandQuery = hasUppercase && tokenCount > 0 && tokenCount <= 3;
-
-  // When a fuzzy match resolves to a known family, include the canonical
-  // family key as an additional query variant so record text is matched
-  // against the corrected name (e.g. "depit" → "home depot").
-  const extraVariants: string[] = [];
-  if (familyKey && familyKey !== normalized && familyKey !== stripped) {
-    extraVariants.push(familyKey);
-  }
 
   return {
-    queryVariants: [...new Set([normalized, stripped, ...extraVariants].filter(Boolean))],
-    compactQueryVariants: [
-      compactSearchText(normalized),
-      compactSearchText(stripped),
-      ...extraVariants.map(compactSearchText),
-    ].filter(Boolean),
-    tokens,
-    aliases: normalizedAliases,
-    companyIntent:
-      hasCorporateSuffix ||
-      normalizedAliases.length > 0 ||
-      Boolean(family) ||
-      isVehicleMake ||
-      likelyBrandQuery,
+    queryVariants,
+    aliases: Array.from(new Set(normalizedAliases)),
+    companyIntent: hasCorporateSuffix || normalizedAliases.length > 0,
   };
-}
-
-/**
- * Compute the Levenshtein edit-distance between two strings.
- */
-function levenshtein(a: string, b: string): number {
-  const m = a.length;
-  const n = b.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () =>
-    Array.from({ length: n + 1 }, () => 0)
-  );
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost
-      );
-    }
-  }
-  return dp[m][n];
-}
-
-/**
- * Try to match a normalized query against BRAND_FAMILIES keys using fuzzy
- * matching.  Returns the family entry if a close-enough match is found.
- *
- * The approach checks each token of the query against each token of every
- * family key so that a misspelling of one word in a multi-word key (e.g.
- * "home depit" vs "home depot") is caught.  For single-token queries the
- * whole query is compared against each key as well.
- */
-function fuzzyMatchFamily(
-  query: string
-): (typeof BRAND_FAMILIES)[string] | undefined {
-  // Queries shorter than 3 characters are too short for reliable fuzzy matching.
-  if (!query || query.length < 3) return undefined;
-
-  const queryTokens = query.split(" ").filter(Boolean);
-  let bestKey: string | undefined;
-  let bestDist = Infinity;
-
-  for (const key of Object.keys(BRAND_FAMILIES)) {
-    // Full-string comparison
-    const dist = levenshtein(query, key);
-    const maxLen = Math.max(query.length, key.length);
-    if (maxLen > 0 && dist / maxLen <= FUZZY_MATCH_THRESHOLD && dist < bestDist) {
-      bestDist = dist;
-      bestKey = key;
-    }
-
-    // Per-token comparison for multi-word keys – allow one token to be
-    // misspelled while the others match exactly.
-    const keyTokens = key.split(" ").filter(Boolean);
-    if (keyTokens.length > 1 && queryTokens.length === keyTokens.length) {
-      let totalDist = 0;
-      for (let i = 0; i < keyTokens.length; i++) {
-        totalDist += levenshtein(queryTokens[i], keyTokens[i]);
-      }
-      const totalLen = Math.max(
-        queryTokens.join("").length,
-        keyTokens.join("").length
-      );
-      if (totalLen > 0 && totalDist / totalLen <= FUZZY_MATCH_THRESHOLD && totalDist < bestDist) {
-        bestDist = totalDist;
-        bestKey = key;
-      }
-    }
-  }
-
-  return bestKey ? BRAND_FAMILIES[bestKey] : undefined;
-}
-
-function matchesQueryContext(
-  context: QueryContext,
-  normalizedCombined: string,
-  strippedCombined: string,
-  words: string[],
-  strippedWords: string[]
-) {
-  const normalizedWords = words.map(stemToken);
-  const normalizedStrippedWords = strippedWords.map(stemToken);
-  const normalizedTokens = context.tokens.map(stemToken);
-  const matchesDirect =
-    context.queryVariants.length > 0
-      ? context.queryVariants.some(
-          (variant) =>
-            normalizedCombined.includes(variant) ||
-            strippedCombined.includes(variant)
-        )
-      : false;
-  const matchesTokens =
-    normalizedTokens.length > 0 &&
-    normalizedTokens.every(
-      (token) =>
-        normalizedWords.some(
-          (word) =>
-            word === token || word.startsWith(token) || token.startsWith(word)
-        ) ||
-        normalizedStrippedWords.some(
-          (word) =>
-            word === token || word.startsWith(token) || token.startsWith(word)
-        )
-    );
-  const matchesAdjacent =
-    context.compactQueryVariants.length > 0 &&
-    context.compactQueryVariants.some((variant) => {
-      if (!variant) return false;
-      const checkAdjacent = (list: string[]) =>
-        list.some(
-          (word, index) =>
-            index < list.length - 1 && `${word}${list[index + 1]}` === variant
-        );
-      return checkAdjacent(words) || checkAdjacent(strippedWords);
-    });
-
-  return matchesDirect || matchesTokens || matchesAdjacent;
-}
-
-function matchesAliases(
-  context: QueryContext,
-  normalizedCombined: string,
-  strippedCombined: string
-) {
-  if (context.aliases.length === 0) return false;
-  return context.aliases.some((alias) => {
-    const strippedAlias = stripCorporateSuffixes(alias);
-    return (
-      normalizedCombined.includes(alias) ||
-      strippedCombined.includes(strippedAlias)
-    );
-  });
 }
 
 function safeString(value: unknown) {
@@ -1060,28 +824,8 @@ function normalizeSearchText(value: string) {
     .replace(/\s+/g, " ");
 }
 
-function compactSearchText(value: string) {
-  return value.replace(/\s+/g, "");
-}
-
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function stemToken(value: string) {
-  if (!value) return "";
-  let token = value;
-  if (token.length > 4 && token.endsWith("s")) {
-    token = token.slice(0, -1);
-  }
-  const suffixes = ["tions", "tion", "ions", "ion", "ing", "ers", "er", "or", "ies"];
-  for (const suffix of suffixes) {
-    if (token.length > suffix.length + 2 && token.endsWith(suffix)) {
-      token = token.slice(0, -suffix.length);
-      break;
-    }
-  }
-  return token;
 }
 
 function stripCorporateSuffixes(value: string) {
