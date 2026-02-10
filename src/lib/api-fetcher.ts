@@ -1,5 +1,3 @@
-import { enhanceSearchIntent, type SearchIntent } from "@/src/lib/semantic-search";
-
 export type RecallSource = "CPSC" | "NHTSA" | "FSIS" | "FDA" | "EPA" | "USCG";
 export type RecallCategory = "consumer" | "vehicle" | "food" | "drug" | "device" | "environmental" | "marine";
 
@@ -167,9 +165,6 @@ const BRAND_FAMILIES: Record<
   },
 };
 
-/** Maximum allowed edit-distance ratio (edits / max-length) for fuzzy family matching. */
-const FUZZY_MATCH_THRESHOLD = 0.35;
-
 const CORPORATE_SUFFIXES = new Set([
   "inc",
   "incorporated",
@@ -188,6 +183,50 @@ const CORPORATE_SUFFIXES = new Set([
   "intl",
   "international",
 ]);
+
+// Bound regex caches to avoid unbounded growth from many unique queries; 50 covers typical session usage.
+const PATTERN_CACHE_LIMIT = 50;
+
+type QueryVariantPattern = { variant: string; pattern: RegExp };
+type AliasPattern = { normalizedAlias: string; pattern: RegExp };
+
+const QUERY_PATTERN_CACHE = new Map<
+  string,
+  { queryVariantPatterns: QueryVariantPattern[]; aliasPatterns: AliasPattern[] }
+>();
+
+function getPatternCacheEntry(cacheKey: string, context: QueryContext) {
+  const existing = QUERY_PATTERN_CACHE.get(cacheKey);
+  if (existing) return existing;
+
+  const buildWholeWordPattern = (value: string) =>
+    new RegExp(`(?:^|\\s)${escapeRegExp(value)}(?:$|\\s)`);
+
+  const queryVariantPatterns = context.queryVariants
+    .filter(Boolean)
+    .map((variant) => ({ variant, pattern: buildWholeWordPattern(variant) }));
+
+  const aliasPatterns = context.aliases
+    .map((alias) => normalizeSearchText(alias))
+    .filter(Boolean)
+    .map((normalizedAlias) => ({
+      normalizedAlias,
+      pattern: buildWholeWordPattern(normalizedAlias),
+    }));
+
+  const entry = { queryVariantPatterns, aliasPatterns };
+  QUERY_PATTERN_CACHE.set(cacheKey, entry);
+  trimCache(QUERY_PATTERN_CACHE);
+  return entry;
+}
+
+function trimCache(map: Map<string, unknown>) {
+  while (map.size > PATTERN_CACHE_LIMIT) {
+    const firstKey = map.keys().next().value;
+    if (firstKey === undefined) break;
+    map.delete(firstKey);
+  }
+}
 
 const SEARCH_FIELDS = ["title", "summary", "companyName"] as const satisfies ReadonlyArray<
   keyof RecallResult
@@ -256,18 +295,6 @@ export async function fetchRecallResults({
     return { results: cached.data, fetchedAt: cached.timestamp };
   }
 
-  // Optionally enhance search intent via Cohere (1 API call per unique query,
-  // cached for 24 hours).  The intent data is logged for future use but does
-  // not alter core filtering logic yet.
-  let searchIntent: SearchIntent | undefined;
-  if (query && process.env.ENABLE_SEMANTIC_SEARCH === "true") {
-    try {
-      searchIntent = await enhanceSearchIntent(query);
-    } catch {
-      // Semantic search is optional – swallow errors silently.
-    }
-  }
-
   const dateRangeStart = getDateRangeStart(dateRange);
   
   /**
@@ -295,13 +322,6 @@ export async function fetchRecallResults({
   }
   const filtered = query ? filterByQuery(results, query) : results;
   const sorted = sortRecallsByDate(filtered);
-
-  if (searchIntent) {
-    console.log(
-      `[${new Date().toISOString()}] Semantic intent for "${query}":`,
-      JSON.stringify(searchIntent)
-    );
-  }
 
   const fetchedAt = Date.now();
   cache.set(cacheKey, { timestamp: fetchedAt, data: sorted });
@@ -630,81 +650,63 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 
 export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
+  const normalizedQueryText = normalizeSearchText(query);
+  const { queryVariantPatterns, aliasPatterns } = getPatternCacheEntry(
+    normalizedQueryText,
+    context
+  );
+  const vehicleMakesInQuery = Array.from(VEHICLE_MAKE_PATTERNS.entries())
+    .filter(([, pattern]) => pattern.test(normalizedQueryText))
+    .map(([make]) => make);
   return results
     .filter((item) => {
-      const title = normalizeSearchText(safeString(item.title));
-      const summary = normalizeSearchText(safeString(item.summary));
-      const company = normalizeSearchText(safeString(item.companyName));
-      const brand = normalizeSearchText(safeString(item.brand));
-      const combined = [title, summary, company].filter(Boolean).join(" ").trim();
-      const strippedCombined = stripCorporateSuffixes(combined);
-      const words = combined.split(" ").filter(Boolean);
-      const strippedWords = strippedCombined.split(" ").filter(Boolean);
-      const companyMatches = matchesCompanyQuery(context, company);
-      const brandMatches = matchesBrandQuery(context, brand);
-      const matchesText = matchesQueryContext(
-        context,
-        combined,
-        strippedCombined,
-        words,
-        strippedWords
-      );
-      const matchesAlias = matchesAliases(
-        context,
-        combined,
-        strippedCombined
+      const normalizedCompany = normalizeSearchText(safeString(item.companyName));
+      const normalizedBrand = normalizeSearchText(safeString(item.brand));
+      const normalizedTitle = normalizeSearchText(safeString(item.title));
+      const normalizedSummary = normalizeSearchText(safeString(item.summary));
+
+      // MATCH TYPE 1: Exact company name match (whole-word)
+      const companyMatch = queryVariantPatterns.some(
+        ({ variant, pattern }) =>
+          normalizedCompany === variant || pattern.test(normalizedCompany)
       );
 
-      const primaryCombined = [title, company].filter(Boolean).join(" ").trim();
-      const strippedPrimary = stripCorporateSuffixes(primaryCombined);
-      const primaryWords = primaryCombined.split(" ").filter(Boolean);
-      const strippedPrimaryWords = strippedPrimary.split(" ").filter(Boolean);
-      const matchesPrimary = matchesQueryContext(
-        context,
-        primaryCombined,
-        strippedPrimary,
-        primaryWords,
-        strippedPrimaryWords
-      );
-      const matchesPrimaryAlias = matchesAliases(
-        context,
-        primaryCombined,
-        strippedPrimary
+      // MATCH TYPE 2: Brand family or alias match
+      const brandMatch = aliasPatterns.some(({ pattern }) => {
+        return pattern.test(normalizedCompany) || pattern.test(normalizedBrand);
+      });
+
+      // MATCH TYPE 3: Query phrase appears in title as whole words
+      const titleMatch = queryVariantPatterns.some(({ pattern }) =>
+        pattern.test(normalizedTitle)
       );
 
-      const matchesSummaryOnly =
-        (matchesText || matchesAlias) &&
-        !matchesPrimary &&
-        !matchesPrimaryAlias;
+      // MATCH TYPE 4: Vehicle make match (only for vehicle category)
+      const vehicleMakeMatch =
+        item.category === "vehicle" &&
+        vehicleMakesInQuery.length > 0 &&
+        vehicleMakesInQuery.some((make) => {
+          const pattern = VEHICLE_MAKE_PATTERNS.get(make);
+          return pattern ? pattern.test(normalizedTitle) : false;
+        });
 
-      // Universal retail-location filtering:
-      // If the query only matches in the summary/title (not in companyName)
-      // AND the mention looks like a retail distribution context, exclude it.
-      // This prevents e.g. searching "Walmart" from showing a Tyson recall
-      // that just says "sold at Walmart stores".
-      if (matchesSummaryOnly && !companyMatches && !brandMatches) {
-        const isRetailMention = mentionsAsRetailLocation(
-          context,
-          summary,
-          title,
-          company
+      const isRetailMention =
+        !companyMatch &&
+        !brandMatch &&
+        mentionsAsRetailLocation(
+          query,
+          normalizedSummary,
+          normalizedTitle,
+          item.companyName
         );
-        if (isRetailMention) {
-          return false;
-        }
-      }
 
-      if (context.companyIntent) {
-        // For company-focused queries, only match on title + companyName
-        // to avoid false positives from summary-only mentions.
-        return matchesPrimary || matchesPrimaryAlias;
-      }
+      if (isRetailMention) return false;
 
-      return matchesText || matchesAlias;
+      return companyMatch || brandMatch || titleMatch || vehicleMakeMatch;
     })
     .map((item) => ({
       ...item,
-      matchReason: getMatchReason(item, query, context),
+      matchReason: getMatchReason(item, query, context, queryVariantPatterns, aliasPatterns),
     }));
 }
 
@@ -717,61 +719,44 @@ export function filterByQuery(results: RecallResult[], query: string) {
  * party) on the recall record.
  */
 function mentionsAsRetailLocation(
-  context: QueryContext,
+  query: string,
   summary: string,
   title: string,
-  companyNameField?: string
+  companyName?: string
 ): boolean {
-  // If the company IS the responsible party, it's not just a retail mention
-  if (companyNameField) {
-    const strippedCompany = stripCorporateSuffixes(companyNameField);
-    const isResponsible = context.queryVariants.some(
-      (variant) =>
-        variant &&
-        (companyNameField.includes(variant) || strippedCompany.includes(variant))
-    );
-    if (isResponsible) return false;
+  const normalizedQuery = normalizeSearchText(query);
+
+  // If company name matches query, they're responsible (not just retail)
+  if (companyName) {
+    const normalizedCompany = normalizeSearchText(companyName);
+    if (normalizedCompany.includes(normalizedQuery)) return false;
   }
 
-  const combined = `${summary} ${title}`.toLowerCase().trim();
-  if (!combined) return false;
+  const combined = normalizeSearchText(`${summary} ${title}`);
 
-  // Check if any query variant appears within ~15 words of a retail phrase
-  for (const variant of context.queryVariants) {
-    if (!variant) continue;
-    const escaped = escapeRegExp(variant);
-    const retailPattern = new RegExp(
-      `(?:sold|available|distributed|purchased|recalled|found|bought)` +
-        `\\s+(?:at|from|by|through|exclusively\\s+at|exclusively\\s+from)` +
-        `\\s+[\\w\\s]{0,60}${escaped}`,
-      "i"
-    );
-    if (retailPattern.test(combined)) return true;
-
-    const retailPattern2 = new RegExp(
-      `(?:retailers?|stores?)\\s+(?:including|such\\s+as|like)` +
-        `\\s+[\\w\\s]{0,60}${escaped}`,
-      "i"
-    );
-    if (retailPattern2.test(combined)) return true;
-  }
-
-  return false;
+  // Retail indicator phrases
+  const retailRegexes = getRetailRegexes(normalizedQuery);
+  return retailRegexes.some((regex) => regex.test(combined));
 }
 
-function matchesCompanyQuery(context: QueryContext, company: string) {
-  if (!company) return false;
-  const strippedCompany = stripCorporateSuffixes(company);
-  return context.queryVariants.some(
-    (variant) =>
-      variant &&
-      (company.includes(variant) || strippedCompany.includes(variant))
-  );
-}
+const RETAIL_REGEX_CACHE = new Map<string, RegExp[]>();
 
-function matchesBrandQuery(context: QueryContext, brand: string) {
-  if (!brand) return false;
-  return context.aliases.some((alias) => alias && brand.includes(alias));
+function getRetailRegexes(normalizedQuery: string) {
+  const cached = RETAIL_REGEX_CACHE.get(normalizedQuery);
+  if (cached) return cached;
+
+  const q = escapeRegExp(normalizedQuery);
+  const retailPatterns = [
+    `\\b(?:sold at|available at|distributed through|purchased from|found at)\\b[^\\n\\.]{0,80}\\b${q}\\b`,
+    `\\b(?:retailers including|stores such as)\\b[^\\n\\.]{0,80}\\b${q}\\b`,
+    `\\b${q}\\b[^\\n\\.]{0,80}\\bstores\\b`,
+    `\\b${q}\\b[^\\n\\.]{0,80}\\blocations\\b`,
+  ];
+
+  const retailRegexes = retailPatterns.map((pattern) => new RegExp(pattern, "i"));
+  RETAIL_REGEX_CACHE.set(normalizedQuery, retailRegexes);
+  trimCache(RETAIL_REGEX_CACHE);
+  return retailRegexes;
 }
 
 /**
@@ -791,51 +776,30 @@ export const SOURCE_SCOPE: Record<RecallSource, string> = {
 function getMatchReason(
   item: RecallResult,
   query: string,
-  context: QueryContext
+  context: QueryContext,
+  queryVariantPatterns: QueryVariantPattern[],
+  aliasPatterns: AliasPattern[]
 ): string | undefined {
-  const normalizedQuery = normalizeSearchText(query);
+  const normalizedCompany = normalizeSearchText(safeString(item.companyName));
+  const normalizedTitle = normalizeSearchText(safeString(item.title));
 
-  // Check if the query appears directly in the title or company name
-  const title = normalizeSearchText(safeString(item.title));
-  const company = normalizeSearchText(safeString(item.companyName));
-  const summary = normalizeSearchText(safeString(item.summary));
-
-  if (title.includes(normalizedQuery) || company.includes(normalizedQuery)) {
-    return undefined; // Direct match – no explanation needed
+  // If query matches company name, no explanation needed
+  if (
+    queryVariantPatterns.some(({ pattern }) => pattern.test(normalizedCompany))
+  ) {
+    return undefined;
   }
 
-  if (normalizedQuery && summary.includes(normalizedQuery)) {
-    return `Mentions "${query}" in recall details`;
-  }
-
-  // Check alias / brand-family match
-  if (context.aliases.length > 0) {
-    const combined = [title, summary, company]
-      .filter(Boolean)
-      .join(" ");
-    for (const alias of context.aliases) {
-      if (combined.includes(alias)) {
-        return `Related to "${query}" — matches known brand "${alias}"`;
-      }
+  // If brand match
+  for (const { pattern } of aliasPatterns) {
+    if (pattern.test(normalizedCompany)) {
+      return `Related to "${query}" — brand owned by this company`;
     }
   }
 
-  if (context.tokens.length > 0) {
-    const tokenMatch = context.tokens.find(
-      (token) => title.includes(token) || company.includes(token)
-    );
-    if (tokenMatch) {
-      return `Matches keyword "${tokenMatch}" in the company or title`;
-    }
-  }
-
-  // Check token match (partial / keyword match)
-  if (context.tokens.length > 0) {
-    for (const token of context.tokens) {
-      if (summary.includes(token) && !title.includes(token) && !company.includes(token)) {
-        return `Mentions "${token}" in recall details`;
-      }
-    }
+  // If title match
+  if (context.queryVariants.some((v) => v && normalizedTitle.includes(v))) {
+    return undefined;
   }
 
   return undefined;
@@ -843,8 +807,6 @@ function getMatchReason(
 
 type QueryContext = {
   queryVariants: string[];
-  compactQueryVariants: string[];
-  tokens: string[];
   aliases: string[];
   companyIntent: boolean;
 };
@@ -852,198 +814,30 @@ type QueryContext = {
 function buildQueryContext(query: string): QueryContext {
   const normalized = normalizeSearchText(query);
   const stripped = stripCorporateSuffixes(normalized);
-  const hasUppercase = /[A-Z]/.test(query);
-  const tokens = Array.from(
-    new Set(
-      [normalized, stripped]
-        .filter(Boolean)
-        .flatMap((variant) => variant.split(" "))
-        .filter(Boolean)
-    )
-  );
-  const family =
-    BRAND_FAMILIES[normalized] ||
-    BRAND_FAMILIES[stripped] ||
-    BRAND_FAMILIES[tokens[0] || ""] ||
-    fuzzyMatchFamily(normalized);
-  const familyKey = family
-    ? Object.keys(BRAND_FAMILIES).find((k) => BRAND_FAMILIES[k] === family)
-    : undefined;
-  const aliases = [
-    ...(COMPANY_ALIASES[normalized] || []),
-    ...(COMPANY_ALIASES[stripped] || []),
-    ...(family?.brands || []),
-  ];
-  const normalizedAliases = Array.from(
-    new Set(aliases.map((alias) => normalizeSearchText(alias)).filter(Boolean))
-  );
+  const queryVariants = Array.from(new Set([normalized, stripped].filter(Boolean)));
+
+  const aliasSet = new Set<string>();
+  for (const variant of queryVariants) {
+    (COMPANY_ALIASES[variant] || []).forEach((alias) => aliasSet.add(alias));
+    const family = BRAND_FAMILIES[variant];
+    if (family) {
+      family.brands.forEach((brand) => aliasSet.add(brand));
+    }
+  }
+
+  const normalizedAliases = Array.from(aliasSet)
+    .map((alias) => normalizeSearchText(alias))
+    .filter(Boolean);
+
   const hasCorporateSuffix = normalized
     .split(" ")
     .some((token) => token && CORPORATE_SUFFIXES.has(token));
-  const isVehicleMake =
-    VEHICLE_MAKE_LOOKUP.has(normalized) || VEHICLE_MAKE_LOOKUP.has(stripped);
-  const tokenCount = normalized ? normalized.split(" ").filter(Boolean).length : 0;
-  const likelyBrandQuery = hasUppercase && tokenCount > 0 && tokenCount <= 3;
-
-  // When a fuzzy match resolves to a known family, include the canonical
-  // family key as an additional query variant so record text is matched
-  // against the corrected name (e.g. "depit" → "home depot").
-  const extraVariants: string[] = [];
-  if (familyKey && familyKey !== normalized && familyKey !== stripped) {
-    extraVariants.push(familyKey);
-  }
 
   return {
-    queryVariants: [...new Set([normalized, stripped, ...extraVariants].filter(Boolean))],
-    compactQueryVariants: [
-      compactSearchText(normalized),
-      compactSearchText(stripped),
-      ...extraVariants.map(compactSearchText),
-    ].filter(Boolean),
-    tokens,
-    aliases: normalizedAliases,
-    companyIntent:
-      hasCorporateSuffix ||
-      normalizedAliases.length > 0 ||
-      Boolean(family) ||
-      isVehicleMake ||
-      likelyBrandQuery,
+    queryVariants,
+    aliases: Array.from(new Set(normalizedAliases)),
+    companyIntent: hasCorporateSuffix || normalizedAliases.length > 0,
   };
-}
-
-/**
- * Compute the Levenshtein edit-distance between two strings.
- */
-function levenshtein(a: string, b: string): number {
-  const m = a.length;
-  const n = b.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () =>
-    Array.from({ length: n + 1 }, () => 0)
-  );
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost
-      );
-    }
-  }
-  return dp[m][n];
-}
-
-/**
- * Try to match a normalized query against BRAND_FAMILIES keys using fuzzy
- * matching.  Returns the family entry if a close-enough match is found.
- *
- * The approach checks each token of the query against each token of every
- * family key so that a misspelling of one word in a multi-word key (e.g.
- * "home depit" vs "home depot") is caught.  For single-token queries the
- * whole query is compared against each key as well.
- */
-function fuzzyMatchFamily(
-  query: string
-): (typeof BRAND_FAMILIES)[string] | undefined {
-  // Queries shorter than 3 characters are too short for reliable fuzzy matching.
-  if (!query || query.length < 3) return undefined;
-
-  const queryTokens = query.split(" ").filter(Boolean);
-  let bestKey: string | undefined;
-  let bestDist = Infinity;
-
-  for (const key of Object.keys(BRAND_FAMILIES)) {
-    // Full-string comparison
-    const dist = levenshtein(query, key);
-    const maxLen = Math.max(query.length, key.length);
-    if (maxLen > 0 && dist / maxLen <= FUZZY_MATCH_THRESHOLD && dist < bestDist) {
-      bestDist = dist;
-      bestKey = key;
-    }
-
-    // Per-token comparison for multi-word keys – allow one token to be
-    // misspelled while the others match exactly.
-    const keyTokens = key.split(" ").filter(Boolean);
-    if (keyTokens.length > 1 && queryTokens.length === keyTokens.length) {
-      let totalDist = 0;
-      for (let i = 0; i < keyTokens.length; i++) {
-        totalDist += levenshtein(queryTokens[i], keyTokens[i]);
-      }
-      const totalLen = Math.max(
-        queryTokens.join("").length,
-        keyTokens.join("").length
-      );
-      if (totalLen > 0 && totalDist / totalLen <= FUZZY_MATCH_THRESHOLD && totalDist < bestDist) {
-        bestDist = totalDist;
-        bestKey = key;
-      }
-    }
-  }
-
-  return bestKey ? BRAND_FAMILIES[bestKey] : undefined;
-}
-
-function matchesQueryContext(
-  context: QueryContext,
-  normalizedCombined: string,
-  strippedCombined: string,
-  words: string[],
-  strippedWords: string[]
-) {
-  const normalizedWords = words.map(stemToken);
-  const normalizedStrippedWords = strippedWords.map(stemToken);
-  const normalizedTokens = context.tokens.map(stemToken);
-  const matchesDirect =
-    context.queryVariants.length > 0
-      ? context.queryVariants.some(
-          (variant) =>
-            normalizedCombined.includes(variant) ||
-            strippedCombined.includes(variant)
-        )
-      : false;
-  const matchesTokens =
-    normalizedTokens.length > 0 &&
-    normalizedTokens.every(
-      (token) =>
-        normalizedWords.some(
-          (word) =>
-            word === token || word.startsWith(token) || token.startsWith(word)
-        ) ||
-        normalizedStrippedWords.some(
-          (word) =>
-            word === token || word.startsWith(token) || token.startsWith(word)
-        )
-    );
-  const matchesAdjacent =
-    context.compactQueryVariants.length > 0 &&
-    context.compactQueryVariants.some((variant) => {
-      if (!variant) return false;
-      const checkAdjacent = (list: string[]) =>
-        list.some(
-          (word, index) =>
-            index < list.length - 1 && `${word}${list[index + 1]}` === variant
-        );
-      return checkAdjacent(words) || checkAdjacent(strippedWords);
-    });
-
-  return matchesDirect || matchesTokens || matchesAdjacent;
-}
-
-function matchesAliases(
-  context: QueryContext,
-  normalizedCombined: string,
-  strippedCombined: string
-) {
-  if (context.aliases.length === 0) return false;
-  return context.aliases.some((alias) => {
-    const strippedAlias = stripCorporateSuffixes(alias);
-    return (
-      normalizedCombined.includes(alias) ||
-      strippedCombined.includes(strippedAlias)
-    );
-  });
 }
 
 function safeString(value: unknown) {
@@ -1060,28 +854,8 @@ function normalizeSearchText(value: string) {
     .replace(/\s+/g, " ");
 }
 
-function compactSearchText(value: string) {
-  return value.replace(/\s+/g, "");
-}
-
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function stemToken(value: string) {
-  if (!value) return "";
-  let token = value;
-  if (token.length > 4 && token.endsWith("s")) {
-    token = token.slice(0, -1);
-  }
-  const suffixes = ["tions", "tion", "ions", "ion", "ing", "ers", "er", "or", "ies"];
-  for (const suffix of suffixes) {
-    if (token.length > suffix.length + 2 && token.endsWith(suffix)) {
-      token = token.slice(0, -suffix.length);
-      break;
-    }
-  }
-  return token;
 }
 
 function stripCorporateSuffixes(value: string) {
