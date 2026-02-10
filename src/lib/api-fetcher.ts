@@ -1,5 +1,3 @@
-import { enhanceSearchIntent, type SearchIntent } from "@/src/lib/semantic-search";
-
 export type RecallSource = "CPSC" | "NHTSA" | "FSIS" | "FDA" | "EPA" | "USCG";
 export type RecallCategory = "consumer" | "vehicle" | "food" | "drug" | "device" | "environmental" | "marine";
 
@@ -186,6 +184,50 @@ const CORPORATE_SUFFIXES = new Set([
   "international",
 ]);
 
+// Bound regex caches to avoid unbounded growth from many unique queries; 50 covers typical session usage.
+const PATTERN_CACHE_LIMIT = 50;
+
+type QueryVariantPattern = { variant: string; pattern: RegExp };
+type AliasPattern = { normalizedAlias: string; pattern: RegExp };
+
+const QUERY_PATTERN_CACHE = new Map<
+  string,
+  { queryVariantPatterns: QueryVariantPattern[]; aliasPatterns: AliasPattern[] }
+>();
+
+function getPatternCacheEntry(cacheKey: string, context: QueryContext) {
+  const existing = QUERY_PATTERN_CACHE.get(cacheKey);
+  if (existing) return existing;
+
+  const buildWholeWordPattern = (value: string) =>
+    new RegExp(`(?:^|\\s)${escapeRegExp(value)}(?:$|\\s)`);
+
+  const queryVariantPatterns = context.queryVariants
+    .filter(Boolean)
+    .map((variant) => ({ variant, pattern: buildWholeWordPattern(variant) }));
+
+  const aliasPatterns = context.aliases
+    .map((alias) => normalizeSearchText(alias))
+    .filter(Boolean)
+    .map((normalizedAlias) => ({
+      normalizedAlias,
+      pattern: buildWholeWordPattern(normalizedAlias),
+    }));
+
+  const entry = { queryVariantPatterns, aliasPatterns };
+  QUERY_PATTERN_CACHE.set(cacheKey, entry);
+  trimCache(QUERY_PATTERN_CACHE);
+  return entry;
+}
+
+function trimCache(map: Map<string, unknown>) {
+  while (map.size > PATTERN_CACHE_LIMIT) {
+    const firstKey = map.keys().next().value;
+    if (firstKey === undefined) break;
+    map.delete(firstKey);
+  }
+}
+
 const SEARCH_FIELDS = ["title", "summary", "companyName"] as const satisfies ReadonlyArray<
   keyof RecallResult
 >;
@@ -253,18 +295,6 @@ export async function fetchRecallResults({
     return { results: cached.data, fetchedAt: cached.timestamp };
   }
 
-  // Optionally enhance search intent via Cohere (1 API call per unique query,
-  // cached for 24 hours).  The intent data is logged for future use but does
-  // not alter core filtering logic yet.
-  let searchIntent: SearchIntent | undefined;
-  if (query && process.env.ENABLE_SEMANTIC_SEARCH === "true") {
-    try {
-      searchIntent = await enhanceSearchIntent(query);
-    } catch {
-      // Semantic search is optional – swallow errors silently.
-    }
-  }
-
   const dateRangeStart = getDateRangeStart(dateRange);
   
   /**
@@ -292,13 +322,6 @@ export async function fetchRecallResults({
   }
   const filtered = query ? filterByQuery(results, query) : results;
   const sorted = sortRecallsByDate(filtered);
-
-  if (searchIntent) {
-    console.log(
-      `[${new Date().toISOString()}] Semantic intent for "${query}":`,
-      JSON.stringify(searchIntent)
-    );
-  }
 
   const fetchedAt = Date.now();
   cache.set(cacheKey, { timestamp: fetchedAt, data: sorted });
@@ -628,9 +651,13 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
   const normalizedQueryText = normalizeSearchText(query);
-  const vehicleMakesInQuery = Array.from(VEHICLE_MAKE_LOOKUP).filter((make) =>
-    new RegExp(`\\b${escapeRegExp(make)}\\b`).test(normalizedQueryText)
+  const { queryVariantPatterns, aliasPatterns } = getPatternCacheEntry(
+    normalizedQueryText,
+    context
   );
+  const vehicleMakesInQuery = Array.from(VEHICLE_MAKE_PATTERNS.entries())
+    .filter(([, pattern]) => pattern.test(normalizedQueryText))
+    .map(([make]) => make);
   return results
     .filter((item) => {
       const normalizedCompany = normalizeSearchText(safeString(item.companyName));
@@ -639,34 +666,29 @@ export function filterByQuery(results: RecallResult[], query: string) {
       const normalizedSummary = normalizeSearchText(safeString(item.summary));
 
       // MATCH TYPE 1: Exact company name match (whole-word)
-      const companyMatch = context.queryVariants.some((variant) => {
-        if (!variant) return false;
-        const pattern = new RegExp(`\\b${escapeRegExp(variant)}\\b`);
-        return normalizedCompany === variant || pattern.test(normalizedCompany);
-      });
+      const companyMatch = queryVariantPatterns.some(
+        ({ variant, pattern }) =>
+          normalizedCompany === variant || pattern.test(normalizedCompany)
+      );
 
       // MATCH TYPE 2: Brand family or alias match
-      const brandMatch = context.aliases.some((alias) => {
-        const normalizedAlias = normalizeSearchText(alias);
-        if (!normalizedAlias) return false;
-        const pattern = new RegExp(`\\b${escapeRegExp(normalizedAlias)}\\b`);
+      const brandMatch = aliasPatterns.some(({ pattern }) => {
         return pattern.test(normalizedCompany) || pattern.test(normalizedBrand);
       });
 
       // MATCH TYPE 3: Query phrase appears in title as whole words
-      const titleMatch = context.queryVariants.some((variant) => {
-        if (!variant) return false;
-        const pattern = new RegExp(`\\b${escapeRegExp(variant)}\\b`);
-        return pattern.test(normalizedTitle);
-      });
+      const titleMatch = queryVariantPatterns.some(({ pattern }) =>
+        pattern.test(normalizedTitle)
+      );
 
       // MATCH TYPE 4: Vehicle make match (only for vehicle category)
       const vehicleMakeMatch =
         item.category === "vehicle" &&
         vehicleMakesInQuery.length > 0 &&
-        vehicleMakesInQuery.some((make) =>
-          new RegExp(`\\b${escapeRegExp(make)}\\b`).test(normalizedTitle)
-        );
+        vehicleMakesInQuery.some((make) => {
+          const pattern = VEHICLE_MAKE_PATTERNS.get(make);
+          return pattern ? pattern.test(normalizedTitle) : false;
+        });
 
       const isRetailMention =
         !companyMatch &&
@@ -684,7 +706,7 @@ export function filterByQuery(results: RecallResult[], query: string) {
     })
     .map((item) => ({
       ...item,
-      matchReason: getMatchReason(item, query, context),
+      matchReason: getMatchReason(item, query, context, queryVariantPatterns, aliasPatterns),
     }));
 }
 
@@ -702,30 +724,39 @@ function mentionsAsRetailLocation(
   title: string,
   companyName?: string
 ): boolean {
+  const normalizedQuery = normalizeSearchText(query);
+
   // If company name matches query, they're responsible (not just retail)
   if (companyName) {
     const normalizedCompany = normalizeSearchText(companyName);
-    const normalizedQuery = normalizeSearchText(query);
     if (normalizedCompany.includes(normalizedQuery)) return false;
   }
 
-  const combined = `${summary} ${title}`.toLowerCase();
-  const normalizedQuery = normalizeSearchText(query);
+  const combined = normalizeSearchText(`${summary} ${title}`);
 
   // Retail indicator phrases
+  const retailRegexes = getRetailRegexes(normalizedQuery);
+  return retailRegexes.some((regex) => regex.test(combined));
+}
+
+const RETAIL_REGEX_CACHE = new Map<string, RegExp[]>();
+
+function getRetailRegexes(normalizedQuery: string) {
+  const cached = RETAIL_REGEX_CACHE.get(normalizedQuery);
+  if (cached) return cached;
+
+  const q = escapeRegExp(normalizedQuery);
   const retailPatterns = [
-    `sold at.*?${escapeRegExp(normalizedQuery)}`,
-    `available at.*?${escapeRegExp(normalizedQuery)}`,
-    `distributed through.*?${escapeRegExp(normalizedQuery)}`,
-    `purchased from.*?${escapeRegExp(normalizedQuery)}`,
-    `found at.*?${escapeRegExp(normalizedQuery)}`,
-    `retailers including.*?${escapeRegExp(normalizedQuery)}`,
-    `stores such as.*?${escapeRegExp(normalizedQuery)}`,
-    `${escapeRegExp(normalizedQuery)}.*?stores`,
-    `${escapeRegExp(normalizedQuery)}.*?locations`,
+    `\\b(?:sold at|available at|distributed through|purchased from|found at)\\b[^\\n\\.]{0,80}\\b${q}\\b`,
+    `\\b(?:retailers including|stores such as)\\b[^\\n\\.]{0,80}\\b${q}\\b`,
+    `\\b${q}\\b[^\\n\\.]{0,80}\\bstores\\b`,
+    `\\b${q}\\b[^\\n\\.]{0,80}\\blocations\\b`,
   ];
 
-  return retailPatterns.some((pattern) => new RegExp(pattern, "i").test(combined));
+  const retailRegexes = retailPatterns.map((pattern) => new RegExp(pattern, "i"));
+  RETAIL_REGEX_CACHE.set(normalizedQuery, retailRegexes);
+  trimCache(RETAIL_REGEX_CACHE);
+  return retailRegexes;
 }
 
 /**
@@ -745,24 +776,23 @@ export const SOURCE_SCOPE: Record<RecallSource, string> = {
 function getMatchReason(
   item: RecallResult,
   query: string,
-  context: QueryContext
+  context: QueryContext,
+  queryVariantPatterns: QueryVariantPattern[],
+  aliasPatterns: AliasPattern[]
 ): string | undefined {
   const normalizedCompany = normalizeSearchText(safeString(item.companyName));
   const normalizedTitle = normalizeSearchText(safeString(item.title));
 
   // If query matches company name, no explanation needed
   if (
-    context.queryVariants.some(
-      (v) => v && new RegExp(`\\b${escapeRegExp(v)}\\b`).test(normalizedCompany)
-    )
+    queryVariantPatterns.some(({ pattern }) => pattern.test(normalizedCompany))
   ) {
     return undefined;
   }
 
   // If brand match
-  for (const alias of context.aliases) {
-    const normalizedAlias = normalizeSearchText(alias);
-    if (normalizedAlias && normalizedCompany.includes(normalizedAlias)) {
+  for (const { pattern } of aliasPatterns) {
+    if (pattern.test(normalizedCompany)) {
       return `Related to "${query}" — brand owned by this company`;
     }
   }
