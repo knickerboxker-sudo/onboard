@@ -5,7 +5,6 @@ import { useChatStore } from "@/src/lib/store";
 import Sidebar from "@/src/components/Sidebar";
 import ChatBubble from "@/src/components/ChatBubble";
 import ChatInput from "@/src/components/ChatInput";
-import { Sparkles } from "lucide-react";
 
 export default function Home() {
   const {
@@ -154,8 +153,8 @@ export default function Home() {
               <div className="max-w-3xl mx-auto px-4 sm:px-6">
                 {active.messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4">
-                    <div className="w-12 h-12 rounded-2xl bg-accent-light flex items-center justify-center mb-4">
-                      <Sparkles size={22} className="text-accent" />
+                    <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 text-white text-lg font-semibold">
+                      S
                     </div>
                     <h2 className="text-lg font-semibold mb-1">
                       How can I help you?
