@@ -41,8 +41,9 @@ export default function Home() {
         newConversation();
       }
 
-      // Use a short delay so zustand state settles when creating a new conversation
-      await new Promise((r) => setTimeout(r, 50));
+      // Allow Zustand state to settle after newConversation() so activeId is available
+      const STATE_SETTLE_MS = 50;
+      await new Promise((r) => setTimeout(r, STATE_SETTLE_MS));
 
       const currentState = useChatStore.getState();
       const currentId = currentState.activeId;
@@ -161,7 +162,7 @@ export default function Home() {
                     </h2>
                     <p className="text-sm text-muted max-w-md">
                       Start a conversation with sortir. Your messages are stored
-                      privately in your browser&apos;s local storage.
+                      privately in your browser{"'"}s local storage.
                     </p>
                   </div>
                 )}
