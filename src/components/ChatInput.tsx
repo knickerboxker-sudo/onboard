@@ -49,7 +49,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
             onInput={handleInput}
             placeholder="Message sortir…"
             disabled={disabled}
-            className="min-h-[44px] max-h-40 w-full min-w-0 resize-none bg-transparent px-3 py-2.5 text-base leading-6 placeholder:text-muted/60 focus:outline-none disabled:opacity-50 sm:text-sm sm:leading-5"
+            className="min-h-[44px] max-h-40 w-full min-w-0 resize-none bg-transparent px-3 py-2.5 text-base leading-6 text-ink caret-ink placeholder:text-muted/60 focus:outline-none disabled:opacity-50 sm:text-sm sm:leading-5"
           />
           <button
             onClick={submit}
