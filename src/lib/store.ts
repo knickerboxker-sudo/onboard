@@ -25,7 +25,7 @@ interface ChatState {
 export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
   activeId: null,
-  sidebarOpen: true,
+  sidebarOpen: false,
 
   hydrate: () => {
     const conversations = loadConversations();
