@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, KeyboardEvent } from "react";
-import { Send } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 interface Props {
   onSend: (text: string) => void;
@@ -38,9 +38,9 @@ export default function ChatInput({ onSend, disabled }: Props) {
   };
 
   return (
-    <div className="border-t border-border bg-card px-4 py-3">
-      <div className="max-w-3xl mx-auto flex items-stretch gap-2">
-        <div className="flex-1 relative">
+    <div className="border-t border-border bg-card px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+      <div className="max-w-3xl mx-auto flex items-end gap-3 min-w-0">
+        <div className="flex-1 relative min-w-0">
           <textarea
             ref={textareaRef}
             rows={1}
@@ -50,16 +50,16 @@ export default function ChatInput({ onSend, disabled }: Props) {
             onInput={handleInput}
             placeholder="Message sortir…"
             disabled={disabled}
-            className="w-full resize-none rounded-xl border border-border bg-base px-4 py-3 text-sm placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all disabled:opacity-50"
+            className="w-full min-h-[44px] max-h-40 resize-none rounded-2xl border border-border bg-base px-4 py-3 text-sm leading-5 placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all disabled:opacity-50"
           />
         </div>
         <button
           onClick={submit}
           disabled={disabled || !value.trim()}
-          className="shrink-0 self-stretch flex items-center justify-center p-3 rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="shrink-0 flex h-11 w-11 items-center justify-center rounded-2xl bg-accent text-white shadow-soft hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Send message"
         >
-          <Send size={16} />
+          <ArrowUp size={18} />
         </button>
       </div>
       <p className="text-center text-[11px] text-muted/50 mt-2 max-w-3xl mx-auto">
