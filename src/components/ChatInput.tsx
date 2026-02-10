@@ -38,30 +38,44 @@ export default function ChatInput({ onSend, disabled }: Props) {
 
   return (
     <div className="border-t border-border bg-card px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-      <div className="max-w-3xl mx-auto relative min-w-0">
-        <textarea
-          ref={textareaRef}
-          rows={1}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onInput={handleInput}
-          placeholder="Message sortir…"
-          disabled={disabled}
-          className="w-full min-h-[48px] max-h-40 resize-none rounded-2xl border border-border bg-base pl-4 pr-14 py-3.5 text-sm leading-5 placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all disabled:opacity-50"
-        />
-        <button
-          onClick={submit}
-          disabled={disabled || !value.trim()}
-          className="absolute right-2 bottom-2 flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          aria-label="Send message"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 13V3M8 3L3 8M8 3L13 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+      <div className="max-w-3xl mx-auto min-w-0">
+        <div className="flex items-end gap-2 rounded-2xl border border-border bg-base p-1.5 transition-all focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/30">
+          <textarea
+            ref={textareaRef}
+            rows={1}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onInput={handleInput}
+            placeholder="Message sortir…"
+            disabled={disabled}
+            className="min-h-[44px] max-h-40 w-full min-w-0 resize-none bg-transparent px-3 py-2.5 text-base leading-6 placeholder:text-muted/60 focus:outline-none disabled:opacity-50 sm:text-sm sm:leading-5"
+          />
+          <button
+            onClick={submit}
+            disabled={disabled || !value.trim()}
+            className="mb-0.5 flex h-10 w-10 shrink-0 self-center items-center justify-center rounded-xl bg-accent text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-30"
+            aria-label="Send message"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 13V3M8 3L3 8M8 3L13 8"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
-      <p className="text-center text-[11px] text-muted/50 mt-2 max-w-3xl mx-auto">
+      <p className="mx-auto mt-2 max-w-3xl text-center text-[11px] text-muted/50">
         Powered by Cohere · Conversations stored locally in your browser
       </p>
     </div>
