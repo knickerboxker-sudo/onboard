@@ -39,7 +39,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
 
   return (
     <div className="border-t border-border bg-card px-4 py-3">
-      <div className="max-w-3xl mx-auto flex items-end gap-2">
+      <div className="max-w-3xl mx-auto flex items-stretch gap-2">
         <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
@@ -56,7 +56,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
         <button
           onClick={submit}
           disabled={disabled || !value.trim()}
-          className="shrink-0 p-3 rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="shrink-0 self-stretch flex items-center justify-center p-3 rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Send message"
         >
           <Send size={16} />
