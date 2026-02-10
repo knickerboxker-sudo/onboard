@@ -651,10 +651,17 @@ async function fetchUscg(dateRangeStart?: Date, signal?: AbortSignal) {
 export function filterByQuery(results: RecallResult[], query: string) {
   const context = buildQueryContext(query);
   const normalizedQueryText = normalizeSearchText(query);
+  const queryTerms = normalizedQueryText.split(" ").filter(Boolean);
   const { queryVariantPatterns, aliasPatterns } = getPatternCacheEntry(
     normalizedQueryText,
     context
   );
+  if (queryTerms.length === 0) {
+    return results.map((item) => ({
+      ...item,
+      matchReason: getMatchReason(item, query, context, queryVariantPatterns, aliasPatterns),
+    }));
+  }
   const vehicleMakesInQuery = Array.from(VEHICLE_MAKE_PATTERNS.entries())
     .filter(([, pattern]) => pattern.test(normalizedQueryText))
     .map(([make]) => make);
@@ -664,22 +671,43 @@ export function filterByQuery(results: RecallResult[], query: string) {
       const normalizedBrand = normalizeSearchText(safeString(item.brand));
       const normalizedTitle = normalizeSearchText(safeString(item.title));
       const normalizedSummary = normalizeSearchText(safeString(item.summary));
+      const compactCompany = normalizedCompany.replace(/\s+/g, "");
+      const compactBrand = normalizedBrand.replace(/\s+/g, "");
+      const compactTitle = normalizedTitle.replace(/\s+/g, "");
+      const compactSummary = normalizedSummary.replace(/\s+/g, "");
 
-      // MATCH TYPE 1: Exact company name match (whole-word)
-      const companyMatch = queryVariantPatterns.some(
-        ({ variant, pattern }) =>
-          normalizedCompany === variant || pattern.test(normalizedCompany)
+      const matchesTerm = (term: string, normalizedValue: string, compactValue: string) => {
+        if (!term) return false;
+        const compactTerm = term.replace(/\s+/g, "");
+        return normalizedValue.includes(term) || (compactTerm && compactValue.includes(compactTerm));
+      };
+
+      // MATCH TYPE 1: Query term appears in company name
+      const companyMatch = queryTerms.some((term) =>
+        matchesTerm(term, normalizedCompany, compactCompany)
       );
 
       // MATCH TYPE 2: Brand family or alias match
-      const brandMatch = aliasPatterns.some(({ pattern }) => {
-        return pattern.test(normalizedCompany) || pattern.test(normalizedBrand);
+      const brandMatch = aliasPatterns.some(({ normalizedAlias }) => {
+        if (!normalizedAlias) return false;
+        const compactAlias = normalizedAlias.replace(/\s+/g, "");
+        return (
+          normalizedCompany.includes(normalizedAlias) ||
+          normalizedBrand.includes(normalizedAlias) ||
+          (compactAlias &&
+            (compactCompany.includes(compactAlias) || compactBrand.includes(compactAlias)))
+        );
       });
 
-      // MATCH TYPE 3: Query phrase appears in title as whole words
-      const titleMatch = queryVariantPatterns.some(({ pattern }) =>
-        pattern.test(normalizedTitle)
+      // MATCH TYPE 3: Query term appears in title, summary, or brand
+      const titleMatch = queryTerms.some((term) => matchesTerm(term, normalizedTitle, compactTitle));
+      const summaryMatch = queryTerms.some((term) =>
+        matchesTerm(term, normalizedSummary, compactSummary)
       );
+      const brandTermMatch = queryTerms.some((term) =>
+        matchesTerm(term, normalizedBrand, compactBrand)
+      );
+      const termMatch = companyMatch || titleMatch || summaryMatch || brandTermMatch;
 
       // MATCH TYPE 4: Vehicle make match (only for vehicle category)
       const vehicleMakeMatch =
@@ -702,7 +730,7 @@ export function filterByQuery(results: RecallResult[], query: string) {
 
       if (isRetailMention) return false;
 
-      return companyMatch || brandMatch || titleMatch || vehicleMakeMatch;
+      return termMatch || brandMatch || vehicleMakeMatch;
     })
     .map((item) => ({
       ...item,
