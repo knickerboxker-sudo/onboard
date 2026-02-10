@@ -1,7 +1,6 @@
 "use client";
 
 import { Message } from "@/src/lib/storage";
-import { Bot, User } from "lucide-react";
 
 interface Props {
   message: Message;
@@ -12,17 +11,19 @@ export default function ChatBubble({ message }: Props) {
 
   return (
     <div
-      className={`flex gap-3 px-4 py-3 ${
-        isUser ? "" : "bg-highlight/50"
+      className={`flex gap-3 px-4 py-4 ${
+        isUser ? "" : "bg-highlight/40"
       }`}
     >
       {/* Avatar */}
       <div
-        className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-white ${
-          isUser ? "bg-accent" : "bg-ink"
+        className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold ${
+          isUser
+            ? "bg-accent text-white"
+            : "bg-ink text-white"
         }`}
       >
-        {isUser ? <User size={14} /> : <Bot size={14} />}
+        {isUser ? "Y" : "S"}
       </div>
 
       {/* Content */}

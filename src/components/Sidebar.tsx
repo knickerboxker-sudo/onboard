@@ -2,7 +2,6 @@
 
 import { useChatStore } from "@/src/lib/store";
 import {
-  MessageSquarePlus,
   PanelLeftClose,
   PanelLeft,
   Trash2,
@@ -56,9 +55,9 @@ export default function Sidebar() {
       <div className="px-3 py-2">
         <button
           onClick={newConversation}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border border-dashed border-border text-muted hover:text-ink hover:border-accent hover:bg-accent-light transition-all"
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-border text-muted hover:text-ink hover:border-accent hover:bg-accent-light transition-all"
         >
-          <MessageSquarePlus size={16} />
+          <span className="text-base leading-none">+</span>
           New chat
         </button>
       </div>
@@ -98,7 +97,7 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-border">
         <p className="text-[11px] text-muted leading-relaxed">
-          Private &middot; Data stored locally
+          Private · Data stored locally
         </p>
       </div>
     </aside>
