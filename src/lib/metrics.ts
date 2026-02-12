@@ -4,12 +4,13 @@
 
 import { normalizeCik } from "./cik";
 import { secFetch, submissionsUrl, companyFactsUrl, filingDocUrl } from "./sec-client";
+import { fetchFilingPrimaryDocumentText } from "./sec";
+import { extractEmployeeCountFromFiling } from "./employee";
 import type { Company, Filing, MetricSnapshot, MetricNotes, TTMSummary, CompanyMetrics } from "./types";
 
 const MIN_EMPLOYEE_COUNT = 10;
 const MAX_EMPLOYEE_COUNT = 10_000_000;
 const MAX_RECENT_FILINGS = 20;
-const MAX_FILING_SIZE_BYTES = 5 * 1024 * 1024;
 
 /* ── Submissions parsing ──────────────────────────────── */
 
@@ -201,7 +202,7 @@ export function extractEmployeeCountFromText(text: string): {
 
   // Patterns for employee count
   const patterns = [
-    /(?:approximately|about|roughly|over|more than)?\s*([\d,]+)\s*(?:full[\s-]?time)?\s*employees/gi,
+    /(?:approximately|about|roughly|over|more than)?\s*([\d,]+)\s*(?:full[\s-]?time\s+(?:equivalent\s+)?)?\s*employees/gi,
     /(?:we|the company)\s+(?:employed|had|have)\s+(?:approximately|about|roughly|over|more than)?\s*([\d,]+)\s+(?:full[\s-]?time\s+)?(?:employees|people|associates|team members)/gi,
     /(?:as of [^,]+,?\s*)?(?:we|the company)\s+had\s+(?:approximately|about)?\s*([\d,]+)\s+employees/gi,
     /(?:employee|headcount|workforce)\s+(?:count|total|of)\s+(?:was|is|of)?\s*(?:approximately|about)?\s*([\d,]+)/gi,
@@ -316,19 +317,25 @@ export async function computeMetrics(
     if (employeeCount === null && filing.formType === "10-K") {
       try {
         notes.fallbacks.push("employee-text-extraction");
-        const html = await secFetch<string>(filing.primaryDocumentUrl, {
-          maxBytes: MAX_FILING_SIZE_BYTES,
-          ttlSeconds: 86400 * 7, // Cache filing HTML for 7 days
+        // Derive primaryDoc from the URL (last path segment)
+        const primaryDoc = filing.primaryDocumentUrl.split("/").pop() ?? "";
+        const { url: docUrl, text: docText } = await fetchFilingPrimaryDocumentText({
+          cik: paddedCik,
+          accessionNo: filing.accessionNo,
+          primaryDoc,
         });
-        const result = extractEmployeeCountFromText(html);
-        if (result.count !== null) {
-          employeeCount = result.count;
-          employeeCountSource = "reported";
+        const result = extractEmployeeCountFromFiling({
+          text: docText,
+          url: docUrl,
+          accessionNo: filing.accessionNo,
+          formType: filing.formType,
+          periodEndDate: filing.periodEndDate,
+        });
+        if (result.employeeCount !== null) {
+          employeeCount = result.employeeCount;
+          employeeCountSource = result.source;
           notes.warnings.push(...result.warnings);
-          notes.evidence = {
-            matchedSentence: result.sentence ?? "",
-            url: filing.primaryDocumentUrl,
-          };
+          notes.evidence = result.evidence;
         }
       } catch {
         notes.warnings.push("Failed to fetch filing document for employee extraction");

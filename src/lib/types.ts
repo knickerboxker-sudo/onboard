@@ -14,15 +14,22 @@ export interface Filing {
   primaryDocumentUrl: string;
 }
 
+export interface EmployeeEvidence {
+  url: string;
+  accessionNo: string;
+  formType: "10-K" | "10-Q";
+  periodEndDate?: string;
+  quote: string;
+  method: "regex" | "llm";
+  matchSpan?: { start: number; end: number };
+}
+
 export interface MetricNotes {
   tagsUsed: string[];
   usedXbrl: boolean;
   fallbacks: string[];
   warnings: string[];
-  evidence?: {
-    matchedSentence: string;
-    url: string;
-  };
+  evidence?: EmployeeEvidence;
 }
 
 export interface MetricSnapshot {
