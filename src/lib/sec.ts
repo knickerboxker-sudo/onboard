@@ -18,6 +18,7 @@ export function stripHtml(html: string): string {
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
     .replace(/&#\d+;/g, " ")
     .replace(/\s+/g, " ")
     .trim();
