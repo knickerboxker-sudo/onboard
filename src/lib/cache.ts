@@ -78,11 +78,13 @@ class FileCache implements CacheBackend {
 
 /* ── MemoryCache (prod / serverless) ─────────────────── */
 
+const DEFAULT_MAX_ENTRIES = parseInt(process.env.CACHE_MAX_ENTRIES ?? "500", 10);
+
 class MemoryCache implements CacheBackend {
   private maxEntries: number;
   private store = new Map<string, { value: unknown; expiresAt: number }>();
 
-  constructor(maxEntries = 500) {
+  constructor(maxEntries = DEFAULT_MAX_ENTRIES) {
     this.maxEntries = maxEntries;
   }
 

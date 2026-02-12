@@ -8,10 +8,14 @@ const SEC_BASE = "https://data.sec.gov";
 const SEC_ARCHIVES = "https://www.sec.gov/Archives/edgar/data";
 
 function getUserAgent(): string {
-  return (
-    process.env.SEC_USER_AGENT ??
-    "edgar-per-employee/1.0 (contact: dev@example.com)"
-  );
+  const ua = process.env.SEC_USER_AGENT;
+  if (!ua) {
+    console.warn(
+      "SEC_USER_AGENT env var not set. Set it to comply with SEC EDGAR access policy."
+    );
+    return "edgar-per-employee/1.0";
+  }
+  return ua;
 }
 
 /* ── Token-bucket throttle ────────────────────────────── */

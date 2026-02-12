@@ -9,8 +9,8 @@ const paramsSchema = z.object({
 
 // Basic per-IP rate limiting (in-memory, resets on restart)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 10; // requests per minute
-const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT = parseInt(process.env.REFRESH_RATE_LIMIT ?? "10", 10);
+const RATE_WINDOW_MS = parseInt(process.env.REFRESH_RATE_WINDOW_MS ?? "60000", 10);
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();

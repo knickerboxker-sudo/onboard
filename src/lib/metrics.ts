@@ -6,6 +6,11 @@ import { normalizeCik } from "./cik";
 import { secFetch, submissionsUrl, companyFactsUrl, filingDocUrl } from "./sec-client";
 import type { Company, Filing, MetricSnapshot, MetricNotes, TTMSummary, CompanyMetrics } from "./types";
 
+const MIN_EMPLOYEE_COUNT = 10;
+const MAX_EMPLOYEE_COUNT = 10_000_000;
+const MAX_RECENT_FILINGS = 20;
+const MAX_FILING_SIZE_BYTES = 5 * 1024 * 1024;
+
 /* ── Submissions parsing ──────────────────────────────── */
 
 interface RawFiling {
@@ -210,7 +215,7 @@ export function extractEmployeeCountFromText(text: string): {
     while ((match = pattern.exec(cleaned)) !== null) {
       const numStr = match[1].replace(/,/g, "");
       const num = parseInt(numStr, 10);
-      if (num < 10 || num > 10_000_000) continue; // Sanity bounds
+      if (num < MIN_EMPLOYEE_COUNT || num > MAX_EMPLOYEE_COUNT) continue;
 
       // Get surrounding context (sentence)
       const start = Math.max(0, match.index - 100);
@@ -270,8 +275,7 @@ export async function computeMetrics(
     // Company facts might not be available for all companies
   }
 
-  // Limit to recent filings
-  const recentFilings = filings.slice(0, 20);
+  const recentFilings = filings.slice(0, MAX_RECENT_FILINGS);
   const snapshots: MetricSnapshot[] = [];
 
   for (const filing of recentFilings) {
@@ -313,7 +317,7 @@ export async function computeMetrics(
       try {
         notes.fallbacks.push("employee-text-extraction");
         const html = await secFetch<string>(filing.primaryDocumentUrl, {
-          maxBytes: 5 * 1024 * 1024,
+          maxBytes: MAX_FILING_SIZE_BYTES,
           ttlSeconds: 86400 * 7, // Cache filing HTML for 7 days
         });
         const result = extractEmployeeCountFromText(html);
