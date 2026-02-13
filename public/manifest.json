@@ -1,7 +1,7 @@
 {
-  "name": "sortir",
-  "short_name": "sortir",
-  "description": "Private local-storage AI agent powered by Cohere",
+  "name": "Onboard Labor Instrument",
+  "short_name": "Onboard",
+  "description": "Public labor market signal instrument powered by BLS data.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f0f",
@@ -18,6 +18,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
