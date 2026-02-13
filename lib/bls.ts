@@ -66,6 +66,12 @@ export type AnalyzeRequest = {
   experience: ExperienceLevel;
 };
 
+const CAREER_PATHS: Record<(typeof OCCUPATIONS)[number]["soc"], string[]> = {
+  "15-1252": ["QA Engineer", "Data Engineer", "Engineering Manager"],
+  "29-1141": ["Charge Nurse", "Nurse Educator", "Nurse Practitioner"],
+  "43-4051": ["Customer Success Specialist", "Sales Operations Coordinator", "Support Team Lead"],
+};
+
 const normalize = (value: string) => value.toLowerCase().trim();
 
 export function findOccupation(query: string) {
@@ -118,6 +124,7 @@ export function analyzeMarket(input: AnalyzeRequest) {
     nationalAverageGrowthPct: SNAPSHOT.nationalAverageGrowthPct,
     metrics,
     limitations,
+    careerPaths: CAREER_PATHS[occupation.soc],
   };
 }
 

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Onboard Labor Market Instrument",
-  description: "Public labor-market signal instrument using BLS datasets.",
+  title: "Onboard Career Conversation Agent",
+  description: "Conversational career and job path guidance using BLS data and Cohere.",
   icons: {
     icon: [
       { url: "/sortir-logo-192.png", sizes: "192x192", type: "image/png" },
