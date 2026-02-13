@@ -16,6 +16,8 @@ type AnalyzeResponse = {
   projectedGrowthPct?: number;
   projectedChange?: number;
   nationalAverageGrowthPct?: number;
+  careerPaths?: string[];
+  assistantMessage?: string;
   limitations?: string[];
   metrics?: {
     demandScore: number;
@@ -41,6 +43,7 @@ export default function HomePage() {
   const [geography, setGeography] = useState("national");
   const [experience, setExperience] = useState("median");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [message, setMessage] = useState("I like building things with technology and want a stable career path.");
   const [loading, setLoading] = useState(false);
 
   const options = useMemo(() => occupationOptions.map((item) => `${item.title} (${item.soc})`), []);
@@ -51,7 +54,7 @@ export default function HomePage() {
     const response = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ occupation: occupationInput, geography, experience }),
+      body: JSON.stringify({ occupation: occupationInput, geography, experience, message }),
     });
     const data = (await response.json()) as AnalyzeResponse;
     setResult(data);
@@ -62,10 +65,14 @@ export default function HomePage() {
     <main>
       <div className="row" style={{ marginBottom: 12 }}>
         <Image src="/sortir-logo.png" alt="Onboard logo" width={40} height={40} className="logo" />
-        <h1>Labor Market Truth Instrument</h1>
+        <h1>Onboard Career Conversation Agent</h1>
       </div>
       <form className="panel" onSubmit={onSubmit}>
         <div className="grid">
+          <div>
+            <label htmlFor="message">Tell the assistant what kind of work you want</label>
+            <input id="message" value={message} onChange={(event) => setMessage(event.target.value)} required />
+          </div>
           <div>
             <label htmlFor="occupation">Occupation selector (BLS SOC normalized)</label>
             <input
@@ -101,7 +108,7 @@ export default function HomePage() {
           </div>
         </div>
         <div style={{ marginTop: 12 }}>
-          <button type="submit">{loading ? "Analyzing..." : "Analyze Market"}</button>
+          <button type="submit">{loading ? "Thinking..." : "Ask Career Assistant"}</button>
         </div>
       </form>
 
@@ -113,6 +120,11 @@ export default function HomePage() {
 
       {result?.metrics && !result.error && (
         <section className="panel" style={{ marginTop: 12 }}>
+          <div className="metric">
+            <h3>Conversation</h3>
+            <p><strong>You:</strong> {message}</p>
+            <p><strong>Assistant:</strong> {result.assistantMessage}</p>
+          </div>
           <div>
             <h2>1. Market Signal</h2>
             <p>{result.metrics.marketSignal}</p>
@@ -140,6 +152,7 @@ export default function HomePage() {
             <p>
               {result.occupation?.title} ({result.occupation?.soc}) shows a {result.metrics.marketSignal.toLowerCase()} market signal based on BLS projected growth, employment size, and inflation-adjusted wage trend. This output is deterministic for the same input values and does not include recommendations.
             </p>
+            {!!result.careerPaths?.length && <p>Related career paths: {result.careerPaths.join(", ")}.</p>}
             {!!result.limitations?.length && <p>{result.limitations.join(" ")}</p>}
             <small>
               Data source: {result.source}. OEWS updated {result.updated?.oews}; Projections updated {result.updated?.projections}; Historical updated {result.updated?.historical}.
@@ -147,6 +160,16 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="panel" style={{ marginTop: 12 }}>
+        <h3>Railway environment variables</h3>
+        <p>
+          Required: <code>COHERE_API_KEY</code> for live conversational responses.
+        </p>
+        <p>
+          No additional required variables are needed for this app beyond <code>COHERE_API_KEY</code>. Optional: <code>COHERE_MODEL</code> if you want to pin a specific Cohere chat model; otherwise the SDK default is used.
+        </p>
+      </section>
     </main>
   );
 }
