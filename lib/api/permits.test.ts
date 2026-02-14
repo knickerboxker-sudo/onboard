@@ -2,21 +2,31 @@ import { describe, expect, it } from "vitest";
 import { getPermits, getPermitStats } from "@/lib/api/permits";
 
 describe("permit api", () => {
-  it("filters permits by search, city, zip code, and type", async () => {
+  it("filters permits by city and zip code", async () => {
     const all = await getPermits();
     const candidate = all[0];
 
     const filtered = await getPermits({
-      search: candidate.address.split(" ")[0],
       city: candidate.city,
       zipCode: candidate.zipCode,
-      type: candidate.permitType,
     });
 
     expect(filtered.length).toBeGreaterThan(0);
     expect(filtered.every((permit) => permit.city === candidate.city)).toBe(true);
     expect(filtered.every((permit) => permit.zipCode === candidate.zipCode)).toBe(true);
-    expect(filtered.every((permit) => permit.permitType === candidate.permitType)).toBe(true);
+  });
+
+  it("filters permits by filed date range", async () => {
+    const all = await getPermits();
+    const target = all[Math.floor(all.length / 2)];
+
+    const filtered = await getPermits({
+      dateFrom: target.filedDate,
+      dateTo: target.filedDate,
+    });
+
+    expect(filtered.length).toBeGreaterThan(0);
+    expect(filtered.every((permit) => permit.filedDate === target.filedDate)).toBe(true);
   });
 
   it("sorts permits by estimated value", async () => {

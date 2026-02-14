@@ -7,6 +7,8 @@ export type PermitFilters = {
   city?: string;
   zipCode?: string;
   type?: string;
+  dateFrom?: string;
+  dateTo?: string;
   sortBy?: "value-high" | "value-low" | "filed-newest" | "filed-oldest";
 };
 
@@ -39,8 +41,13 @@ export async function getPermits(filters?: PermitFilters) {
     const matchCity = !filters.city || permit.city === filters.city;
     const matchZipCode = !filters.zipCode || permit.zipCode.startsWith(filters.zipCode);
     const matchType = !filters.type || permit.permitType === filters.type;
+    const filedTime = new Date(permit.filedDate).getTime();
+    const matchDateFrom = !filters.dateFrom || filedTime >= new Date(filters.dateFrom).getTime();
+    const matchDateTo =
+      !filters.dateTo ||
+      filedTime <= new Date(`${filters.dateTo}T23:59:59.999`).getTime();
 
-    return matchSearch && matchCity && matchZipCode && matchType;
+    return matchSearch && matchCity && matchZipCode && matchType && matchDateFrom && matchDateTo;
   });
 
   return sortPermits(filtered, filters.sortBy);

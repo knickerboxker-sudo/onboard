@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { PermitTable } from "@/components/dashboard/PermitTable";
@@ -9,11 +9,10 @@ import { getPermits } from "@/lib/api/permits";
 import type { PermitFilters } from "@/lib/api/permits";
 
 type PermitPageFilters = {
-  search: string;
-  city: string;
   zipCode: string;
-  type: string;
-  sortBy: NonNullable<PermitFilters["sortBy"]> | "";
+  sortBy: NonNullable<PermitFilters["sortBy"]>;
+  dateFrom: string;
+  dateTo: string;
 };
 
 export default function PermitsPage() {
@@ -21,48 +20,34 @@ export default function PermitsPage() {
   const [permits, setPermits] = useState<Permit[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<PermitPageFilters>({
-    search: "",
-    city: "",
     zipCode: "",
-    type: "",
-    sortBy: "",
+    sortBy: "filed-newest",
+    dateFrom: "",
+    dateTo: "",
   });
-  const [appliedFilters, setAppliedFilters] = useState<PermitPageFilters>({
-    search: "",
-    city: "",
-    zipCode: "",
-    type: "",
-    sortBy: "",
-  });
+  const [appliedFilters, setAppliedFilters] = useState<PermitPageFilters>(filters);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setAppliedFilters((current) => ({
-        ...current,
-        search: filters.search,
-        zipCode: filters.zipCode,
-      }));
+      setAppliedFilters((current) => ({ ...current, zipCode: filters.zipCode }));
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [filters.search, filters.zipCode]);
+  }, [filters.zipCode]);
 
   useEffect(() => {
     let isCurrent = true;
 
     async function loadPermits() {
       setIsLoading(true);
-      const nextPermits = await getPermits({
-        ...appliedFilters,
-        sortBy: appliedFilters.sortBy || undefined,
-      });
+      const nextPermits = await getPermits(appliedFilters);
       if (!isCurrent) return;
 
       setPermits(nextPermits);
       setIsLoading(false);
       const params = new URLSearchParams();
       Object.entries(appliedFilters).forEach(([key, value]) => {
-        if (value) params.set(key, value);
+        if (value && !(key === "sortBy" && value === "filed-newest")) params.set(key, value);
       });
       router.replace(params.toString() ? `/permits?${params.toString()}` : "/permits");
     }
@@ -76,31 +61,26 @@ export default function PermitsPage() {
 
   const handleFilterChange = (name: string, value: string) => {
     setFilters((current) => ({ ...current, [name as keyof PermitPageFilters]: value }));
-    if (name === "city" || name === "type" || name === "sortBy") {
+    if (name !== "zipCode") {
       setAppliedFilters((current) => ({ ...current, [name as keyof PermitPageFilters]: value }));
     }
   };
 
-
-  const cities = useMemo(() => [...new Set(permits.map((permit) => permit.city))], [permits]);
-
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-semibold text-gray-900">All Permits</h1>
+      <h1 className="text-3xl font-semibold text-gray-900">Permit Search</h1>
       <p className="text-sm text-gray-600">
-        Search by location (including ZIP code), then sort by price or date to prioritize the best jobs.
+        Search by ZIP code, optionally set a filed date range, and sort by newest filing date or permit value.
       </p>
       <FilterBar
-        search={filters.search}
-        city={filters.city}
         zipCode={filters.zipCode}
-        type={filters.type}
         sortBy={filters.sortBy}
-        cities={cities}
+        dateFrom={filters.dateFrom}
+        dateTo={filters.dateTo}
         onChange={handleFilterChange}
       />
       <p className="flex items-center gap-2 text-sm text-gray-600">
-        {permits.length} permits found {filters.sortBy ? "" : "(sorted by most recent)"}
+        {permits.length} permits found
         {isLoading ? (
           <>
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
@@ -114,10 +94,7 @@ export default function PermitsPage() {
         ) : (
           <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-700">
             <p className="font-medium text-gray-900">No permits found matching your search criteria.</p>
-            <p className="mt-1">
-              Try clearing filters or broadening your search terms. ZIP code searches such as 48160 or
-              48176 can return zero matches when there are no permits in those areas.
-            </p>
+            <p className="mt-1">Try another ZIP code or expand your selected date range.</p>
           </div>
         )}
       </section>
