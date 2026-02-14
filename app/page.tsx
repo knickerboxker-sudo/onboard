@@ -21,6 +21,7 @@ const metricInfo: Record<string, string> = {
   drugRecallCount:
     "Drug recall count reflects reported FDA drug enforcement recalls tied to the selected area query.",
 };
+const softTransition = "transition-colors duration-200";
 
 function formatNumber(value: number | null, suffix = "") {
   if (value == null) return "Data unavailable";
@@ -29,7 +30,7 @@ function formatNumber(value: number | null, suffix = "") {
 
 function inlineComparison(value: number | null, baseline: number | null) {
   if (value == null || baseline == null || baseline === 0) return "Context unavailable";
-  const delta = ((value - baseline) / Math.abs(baseline)) * 100;
+  const delta = ((value - baseline) / baseline) * 100;
   const dir = delta < 0 ? "lower" : "higher";
   return `${Math.abs(delta).toFixed(1)}% ${dir} than comparison average`;
 }
@@ -164,8 +165,13 @@ export default function Page() {
             <Image src="/sortir-logo.png" alt="Area Health Dashboard" width={24} height={24} />
             <p className="text-sm">Area health dashboard</p>
           </div>
-          <button className="rounded border border-border px-2 py-1 text-xs text-muted transition-colors duration-200 hover:bg-highlight">
-            Settings
+          <button
+            disabled
+            aria-disabled="true"
+            title="Settings are coming soon."
+            className={`rounded border border-border px-2 py-1 text-xs text-muted ${softTransition} hover:bg-highlight disabled:cursor-not-allowed`}
+          >
+            Settings (soon)
           </button>
         </div>
       </header>
@@ -188,11 +194,11 @@ export default function Page() {
               }}
               aria-invalid={Boolean(input && validation)}
               placeholder="Try: Austin, TX or 10001"
-              className="w-full rounded border border-border bg-base px-3 py-2 text-sm outline-none transition-colors duration-200 focus:border-accent"
+              className={`w-full rounded border border-border bg-base px-3 py-2 text-sm outline-none ${softTransition} focus:border-accent`}
             />
             <button
               onClick={addLocation}
-              className="rounded border border-accent bg-accent px-3 py-2 text-sm text-white transition-colors duration-200 hover:bg-accent-hover"
+              className={`rounded border border-accent bg-accent px-3 py-2 text-sm text-white ${softTransition} hover:bg-accent-hover`}
             >
               Add location
             </button>
@@ -250,7 +256,7 @@ export default function Page() {
                 {metrics.map((metric, index) => (
                   <tr
                     key={metric.location}
-                    className={index % 2 === 0 ? "bg-card transition-colors duration-200" : "bg-highlight/50 transition-colors duration-200"}
+                    className={`${softTransition} ${index % 2 === 0 ? "bg-card" : "bg-highlight/50"}`}
                   >
                     <td className="border-t border-border px-4 py-3 align-top">
                       <div>{metric.location}</div>
@@ -306,12 +312,12 @@ export default function Page() {
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
               placeholder="Which area is better for someone with asthma?"
-              className="w-full rounded border border-border bg-base px-3 py-2 text-sm outline-none transition-colors duration-200 focus:border-accent"
+              className={`w-full rounded border border-border bg-base px-3 py-2 text-sm outline-none ${softTransition} focus:border-accent`}
             />
             <button
               type="submit"
               disabled={chatLoading || !question.trim()}
-              className="rounded border border-accent bg-accent px-3 py-2 text-sm text-white transition-colors duration-200 hover:bg-accent-hover disabled:opacity-60"
+              className={`rounded border border-accent bg-accent px-3 py-2 text-sm text-white ${softTransition} hover:bg-accent-hover disabled:opacity-60`}
             >
               {chatLoading ? "Thinking…" : "Ask"}
             </button>

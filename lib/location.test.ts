@@ -29,5 +29,8 @@ describe("location utilities", () => {
     expect(validationMessage("Austin", ["Austin"])).toBe(
       "Location already added.",
     );
+    expect(validationMessage("El Paso", ["A", "B", "C", "D"])).toBe(
+      "You can compare up to 4 locations.",
+    );
   });
 });

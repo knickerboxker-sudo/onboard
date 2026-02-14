@@ -21,17 +21,29 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> 
 }
 
 async function fetchOpenAq(location: string): Promise<number | null> {
-  const data = await fetchJson<{ results?: Array<{ value?: number }> }>(
-    `https://api.openaq.org/v3/locations?limit=1&order_by=lastUpdated&sort=desc&city=${encodeURIComponent(location)}`,
+  const city = location.split(",")[0]?.trim();
+  const byCity = city
+    ? await fetchJson<{ results?: Array<{ value?: number }> }>(
+        `https://api.openaq.org/v3/locations?limit=1&order_by=lastUpdated&sort=desc&city=${encodeURIComponent(city)}`,
+      )
+    : null;
+
+  if (byCity?.results?.[0]?.value != null) return byCity.results[0].value;
+
+  const byLocation = await fetchJson<{ results?: Array<{ value?: number }> }>(
+    `https://api.openaq.org/v3/locations?limit=1&order_by=lastUpdated&sort=desc&location=${encodeURIComponent(location)}`,
   );
-  return data?.results?.[0]?.value ?? null;
+  return byLocation?.results?.[0]?.value ?? null;
 }
 
 async function fetchFredUnemployment(location: string): Promise<number | null> {
   const apiKey = process.env.FRED_API_KEY;
   if (!apiKey) return null;
 
-  const seriesId = "UNRATE";
+  const search = await fetchJson<{ seriess?: Array<{ id?: string }> }>(
+    `https://api.stlouisfed.org/fred/series/search?search_text=${encodeURIComponent(`${location} unemployment rate`)}&api_key=${apiKey}&file_type=json&limit=1`,
+  );
+  const seriesId = search?.seriess?.[0]?.id ?? "UNRATE";
   const data = await fetchJson<{ observations?: Array<{ value?: string }> }>(
     `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${apiKey}&file_type=json&limit=1&sort_order=desc`,
   );
@@ -52,8 +64,20 @@ async function fetchUsdaFoodAccess(location: string): Promise<number | null> {
 }
 
 async function fetchOpenFdaRecalls(location: string): Promise<number | null> {
+  const trimmed = location.trim();
+  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  const city = parts[0]?.toUpperCase();
+  const state = parts[1]?.toUpperCase();
+  const zip = trimmed.match(/\b\d{5}\b/)?.[0];
+  const terms = [
+    city ? `city:\"${city}\"` : null,
+    state ? `state:${state}` : null,
+    zip ? `postal_code:${zip}` : null,
+  ].filter(Boolean);
+  if (!terms.length) return null;
+
   const data = await fetchJson<{ meta?: { results?: { total?: number } } }>(
-    `https://api.fda.gov/drug/enforcement.json?search=state:${encodeURIComponent(location)}&limit=1`,
+    `https://api.fda.gov/drug/enforcement.json?search=${encodeURIComponent(terms.join("+OR+"))}&limit=1`,
   );
   return data?.meta?.results?.total ?? null;
 }
@@ -75,6 +99,9 @@ export async function fetchAreaMetric(location: string): Promise<AreaMetric> {
   if (airQualityPm25 == null) notes.push("Air quality data unavailable.");
   if (unemploymentRate == null) notes.push("Economic data unavailable.");
   if (foodAccessScore == null) notes.push("Food access data unavailable.");
+  if (foodAccessScore != null) {
+    notes.push("Food access uses USDA FoodData Central search-hit proxy.");
+  }
   if (drugRecallCount == null) notes.push("Drug safety data unavailable.");
 
   const value: AreaMetric = {
