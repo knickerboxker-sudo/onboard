@@ -44,10 +44,10 @@ export default async function PermitDetailPage({ params }: { params: { id: strin
           <article className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700">{permit.projectDescription}</article>
         </section>
         <aside className="space-y-3 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <button className="w-full rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:brightness-90">
+          <button className="min-h-11 w-full rounded-md bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-90">
             Save Lead
           </button>
-          <button className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+          <button className="min-h-11 w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
             Set Alert for Similar
           </button>
           <div>

@@ -6,7 +6,29 @@ import { formatDate } from "@/lib/date";
 export function PermitTable({ permits }: { permits: Permit[] }) {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-      <table className="min-w-full divide-y divide-gray-200 text-sm">
+      <div className="space-y-3 p-3 md:hidden">
+        {permits.map((permit) => (
+          <article key={permit.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-2 flex items-start justify-between gap-3">
+              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">{permit.permitType}</span>
+              <span className="text-sm font-medium text-gray-600">{permit.status}</span>
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">{permit.address}</h3>
+            <p className="text-sm text-gray-600">
+              {permit.city}, {permit.zipCode}
+            </p>
+            <p className="mt-3 text-2xl font-semibold text-blue-600">{formatCurrency(permit.estimatedValue)}</p>
+            <p className="mt-1 text-sm text-gray-500">Filed {formatDate(permit.filedDate)}</p>
+            <Link
+              href={`/permits/${permit.id}`}
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-90"
+            >
+              View Details
+            </Link>
+          </article>
+        ))}
+      </div>
+      <table className="hidden min-w-full divide-y divide-gray-200 text-sm md:table">
         <thead className="bg-gray-50 text-left text-gray-600">
           <tr>
             <th className="px-4 py-3">Permit #</th>

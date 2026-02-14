@@ -26,20 +26,20 @@ export function FilterBar({ search, city, zipCode, type, sortBy, onChange, citie
           value={search}
           onChange={(event) => onChange("search", event.target.value)}
           placeholder="Search address"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-h-11 w-full rounded-md border border-gray-300 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-sm"
         />
         <input
           aria-label="Filter by zip code"
           value={zipCode}
           onChange={(event) => onChange("zipCode", event.target.value.replace(/\D/g, "").slice(0, 5))}
           placeholder="ZIP code"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-h-11 w-full rounded-md border border-gray-300 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-sm"
         />
         <select
           aria-label="Filter by city"
           value={city}
           onChange={(event) => onChange("city", event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-h-11 w-full rounded-md border border-gray-300 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-sm"
         >
           <option value="">All cities</option>
           {cities.map((cityOption) => (
@@ -52,7 +52,7 @@ export function FilterBar({ search, city, zipCode, type, sortBy, onChange, citie
           aria-label="Sort permits"
           value={sortBy}
           onChange={(event) => onChange("sortBy", event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-h-11 w-full rounded-md border border-gray-300 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-sm"
         >
           <option value="">Sort by</option>
           <option value="value-high">Price: High to Low</option>
@@ -64,7 +64,7 @@ export function FilterBar({ search, city, zipCode, type, sortBy, onChange, citie
           aria-label="Filter by permit type"
           value={type}
           onChange={(event) => onChange("type", event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-h-11 w-full rounded-md border border-gray-300 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-sm"
         >
           <option value="">All types</option>
           <option value="Commercial">Commercial</option>
@@ -80,7 +80,7 @@ export function FilterBar({ search, city, zipCode, type, sortBy, onChange, citie
             onChange("type", "");
             onChange("sortBy", "");
           }}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm transition hover:bg-gray-50"
+          className="min-h-11 w-full rounded-md border border-gray-300 px-3 py-2.5 text-base transition hover:bg-gray-50 md:text-sm"
         >
           Clear all {activeFilters ? `(${activeFilters})` : ""}
         </button>

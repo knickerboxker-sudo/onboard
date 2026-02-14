@@ -16,7 +16,7 @@ export default function PricingPage() {
             <h2 className="text-xl font-semibold text-gray-900">{tier.name}</h2>
             <p className="mt-2 text-2xl text-blue-600">{tier.price}</p>
             <p className="mt-2 text-sm text-gray-600">{tier.details}</p>
-            <button className="mt-4 w-full rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:brightness-90">
+            <button className="mt-4 min-h-11 w-full rounded-md bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-90">
               Start Free Trial
             </button>
           </article>
