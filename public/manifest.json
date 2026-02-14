@@ -1,11 +1,11 @@
 {
-  "name": "Onboard Labor Instrument",
-  "short_name": "Onboard",
-  "description": "Public labor market signal instrument powered by BLS data.",
+  "name": "Area Health Dashboard",
+  "short_name": "Area Health",
+  "description": "Compare health and quality-of-life indicators across locations.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f0f",
-  "theme_color": "#0f0f0f",
+  "background_color": "#f7f7f5",
+  "theme_color": "#355d77",
   "icons": [
     {
       "src": "/sortir-logo-192.png",
