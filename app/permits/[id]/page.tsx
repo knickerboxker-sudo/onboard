@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import { getPermitById, formatCurrency, getPermits } from "@/lib/api/permits";
+import { formatDate } from "@/lib/date";
 
 export default async function PermitDetailPage({ params }: { params: { id: string } }) {
   const permit = await getPermitById(params.id);
@@ -30,7 +30,7 @@ export default async function PermitDetailPage({ params }: { params: { id: strin
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-gray-500">Filed date</p>
-              <p className="text-sm text-gray-800">{format(new Date(permit.filedDate), "MMM d, yyyy")}</p>
+              <p className="text-sm text-gray-800">{formatDate(permit.filedDate)}</p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-gray-500">Permit type</p>

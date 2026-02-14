@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const links = [
@@ -14,7 +13,6 @@ const links = [
 export function Header() {
   const [visible, setVisible] = useState(true);
   const [lastY, setLastY] = useState(0);
-  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     const onScroll = () => {
@@ -28,10 +26,9 @@ export function Header() {
   }, [lastY]);
 
   return (
-    <motion.header
-      animate={{ y: visible ? 0 : -80 }}
-      transition={{ duration: shouldReduceMotion ? 0 : 0.3, ease: "easeInOut" }}
+    <header
       className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/80 bg-white/80 backdrop-blur"
+      style={{ transform: visible ? "translateY(0)" : "translateY(-80px)", transition: "transform 0.3s ease-in-out" }}
     >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="text-lg font-semibold text-gray-900">
@@ -52,6 +49,6 @@ export function Header() {
           Sign Up
         </button>
       </div>
-    </motion.header>
+    </header>
   );
 }

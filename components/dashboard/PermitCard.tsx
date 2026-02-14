@@ -1,23 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { format } from "date-fns";
 import type { Permit } from "@/lib/types";
 import { formatCurrency } from "@/lib/api/permits";
+import { formatDate } from "@/lib/date";
 
 export function PermitCard({ permit }: { permit: Permit }) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)" }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-    >
+    <article className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
       <div className="mb-3 flex items-center justify-between">
         <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">{permit.permitType}</span>
-        <span className="text-xs text-gray-500">{format(new Date(permit.filedDate), "MMM d")}</span>
+        <span className="text-xs text-gray-500">{formatDate(permit.filedDate)}</span>
       </div>
       <h3 className="text-base font-semibold text-gray-900">{permit.address}</h3>
       <p className="text-sm text-gray-500">
@@ -30,6 +23,6 @@ export function PermitCard({ permit }: { permit: Permit }) {
           View Details
         </Link>
       </div>
-    </motion.article>
+    </article>
   );
 }
