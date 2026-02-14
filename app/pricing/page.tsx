@@ -8,7 +8,7 @@ export default function PricingPage() {
   return (
     <div className="space-y-8">
       <section className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-        <h1 className="text-3xl font-semibold text-gray-900">Get Leads Before Your Competition</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Get Leads Before Your Competition</h1>
       </section>
       <section className="grid gap-4 md:grid-cols-3">
         {tiers.map((tier) => (
