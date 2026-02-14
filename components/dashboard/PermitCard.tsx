@@ -5,35 +5,21 @@ import { CalendarDays, DollarSign, MapPin } from "lucide-react";
 import type { Permit } from "@/lib/types";
 import { formatCurrency } from "@/lib/api/permits";
 import { formatDate } from "@/lib/date";
-import { getPermitValueTier } from "@/lib/permit-ui";
-
-function getValueClasses(value: number) {
-  const tier = getPermitValueTier(value);
-  if (tier === "high") return "bg-emerald-50 text-emerald-700";
-  if (tier === "medium") return "bg-blue-50 text-blue-700";
-  return "bg-slate-100 text-slate-700";
-}
-
-function getStatusClasses(status: Permit["status"]) {
-  if (status === "Approved") return "bg-emerald-100 text-emerald-700";
-  if (status === "Under Review") return "bg-amber-100 text-amber-700";
-  if (status === "Started") return "bg-blue-100 text-blue-700";
-  return "bg-slate-100 text-slate-700";
-}
+import { getPermitStatusClasses, getPermitValueClasses } from "@/lib/permit-ui";
 
 export function PermitCard({ permit }: { permit: Permit }) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-wide text-slate-700">{permit.permitType}</span>
-        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClasses(permit.status)}`}>{permit.status}</span>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getPermitStatusClasses(permit.status)}`}>{permit.status}</span>
       </div>
       <h3 className="text-lg font-semibold text-slate-900">{permit.address}</h3>
       <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-600">
         <MapPin className="h-3.5 w-3.5 text-slate-400" />
         {permit.city}, {permit.state}
       </p>
-      <div className={`mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-3xl font-bold ${getValueClasses(permit.estimatedValue)}`}>
+      <div className={`mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-3xl font-bold ${getPermitValueClasses(permit.estimatedValue, "card")}`}>
         <DollarSign className="h-5 w-5" />
         {formatCurrency(permit.estimatedValue).replace("$", "")}
       </div>
