@@ -1,11 +1,11 @@
 {
-  "name": "Area Health Dashboard",
-  "short_name": "Area Health",
-  "description": "Compare health and quality-of-life indicators across locations.",
+  "name": "Permit Lead Generator",
+  "short_name": "PermitLeads",
+  "description": "Aggregate public permit data and track new contractor leads.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f7f5",
-  "theme_color": "#355d77",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
   "icons": [
     {
       "src": "/sortir-logo-192.png",
