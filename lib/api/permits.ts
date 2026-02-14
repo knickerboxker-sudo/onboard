@@ -2,7 +2,7 @@ import mockPermits from "@/public/data/mock-permits.json";
 import type { Permit } from "@/lib/types";
 import { isDateAfter, subDays } from "@/lib/date";
 
-type PermitFilters = {
+export type PermitFilters = {
   search?: string;
   city?: string;
   zipCode?: string;

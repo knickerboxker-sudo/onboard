@@ -6,11 +6,20 @@ import { FilterBar } from "@/components/dashboard/FilterBar";
 import { PermitTable } from "@/components/dashboard/PermitTable";
 import type { Permit } from "@/lib/types";
 import { getPermits } from "@/lib/api/permits";
+import type { PermitFilters } from "@/lib/api/permits";
+
+type PermitPageFilters = {
+  search: string;
+  city: string;
+  zipCode: string;
+  type: string;
+  sortBy: NonNullable<PermitFilters["sortBy"]> | "";
+};
 
 export default function PermitsPage() {
   const router = useRouter();
   const [permits, setPermits] = useState<Permit[]>([]);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<PermitPageFilters>({
     search: "",
     city: "",
     zipCode: "",
@@ -20,7 +29,10 @@ export default function PermitsPage() {
 
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
-      const nextPermits = await getPermits(filters);
+      const nextPermits = await getPermits({
+        ...filters,
+        sortBy: filters.sortBy || undefined,
+      });
       setPermits(nextPermits);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
@@ -47,7 +59,9 @@ export default function PermitsPage() {
         type={filters.type}
         sortBy={filters.sortBy}
         cities={cities}
-        onChange={(name, value) => setFilters((current) => ({ ...current, [name]: value }))}
+        onChange={(name, value) =>
+          setFilters((current) => ({ ...current, [name as keyof PermitPageFilters]: value }))
+        }
       />
       <p className="text-sm text-gray-600">{permits.length} permits found</p>
       <section className="space-y-4">
