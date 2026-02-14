@@ -32,7 +32,12 @@ export function Header() {
       style={{ transform: visible ? "translateY(0)" : "translateY(-80px)", transition: "transform 0.3s ease-in-out" }}
     >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="truncate text-base font-semibold text-gray-900 sm:text-lg">
+        <Link
+          href="/"
+          aria-label="Permit Lead Generator"
+          title="Permit Lead Generator"
+          className="truncate text-base font-semibold text-gray-900 sm:text-lg"
+        >
           Permit Lead Generator
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
@@ -53,14 +58,16 @@ export function Header() {
           <button
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-gray-300 text-gray-700 md:hidden"
             aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
             onClick={() => setMenuOpen((open) => !open)}
           >
-            <span className="text-xl leading-none">{menuOpen ? "×" : "☰"}</span>
+            <span aria-hidden="true" className="text-xl leading-none">{menuOpen ? "×" : "☰"}</span>
           </button>
         </div>
       </div>
       {menuOpen && (
-        <nav className="border-t border-gray-200 bg-white p-3 md:hidden">
+        <nav id="mobile-navigation" className="border-t border-gray-200 bg-white p-3 md:hidden">
           <div className="space-y-1">
             {links.map((link) => (
               <Link
