@@ -68,7 +68,7 @@ export default function PermitsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-semibold text-gray-900">Permit Search</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Permit Search</h1>
       <p className="text-sm text-gray-600">
         Search by ZIP code, optionally set a filed date range, and sort by newest filing date or permit value.
       </p>

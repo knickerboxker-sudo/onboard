@@ -31,7 +31,7 @@ export function Header() {
       className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/80 bg-white/80 backdrop-blur"
       style={{ transform: visible ? "translateY(0)" : "translateY(-80px)", transition: "transform 0.3s ease-in-out" }}
     >
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
         <Link
           href="/"
           aria-label="Permit Lead Generator"
@@ -52,7 +52,7 @@ export function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <button className="min-h-11 rounded-md bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-90">
+          <button className="hidden min-h-11 rounded-md bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-90 sm:inline-flex sm:items-center">
             Sign Up
           </button>
           <button
@@ -79,6 +79,9 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <button className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-90">
+              Sign Up
+            </button>
           </div>
         </nav>
       )}
