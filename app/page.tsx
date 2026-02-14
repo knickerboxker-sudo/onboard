@@ -20,6 +20,45 @@ const highlights = [
   "Introductions only, no transaction handling",
 ];
 
+const implementationPhases = [
+  {
+    name: "Phase 1 - Core MVP",
+    items: [
+      "Project setup, PostgreSQL schema, Prisma ORM, and environment variable foundations",
+      "JWT authentication, email verification, and password reset workflows",
+      "Stripe subscriptions (monthly/annual), webhooks, and investor access controls",
+      "Business profile creation, secure photo upload flow, and dashboard status visibility",
+      "Investor profile onboarding, state selection, browsing filters, and business detail views",
+      "Connection request lifecycle (investor and business), notifications, and request limits",
+      "Transactional email templates, legal pages, admin dashboard basics, and analytics tracking",
+      "Responsive UX polish, security hardening, testing strategy, deployment, and pre-launch checks",
+    ],
+  },
+  {
+    name: "Phase 2 - Enhancements",
+    items: [
+      "Advanced multi-filter discovery with URL persistence and sorting",
+      "Business analytics dashboards with trends, insights, and exports",
+      "Investor preference matching, recommendation scoring, and digests",
+      "Admin moderation, verification workflows, and fraud/flag handling",
+      "Saved businesses, notes/tags, success stories, and onboarding drip campaigns",
+      "Platform-wide search, investor networking, and web push notifications",
+    ],
+  },
+  {
+    name: "Phase 3 - Advanced Features",
+    items: [
+      "In-app messaging with real-time updates, read states, and abuse controls",
+      "Multi-state investor access and tiered Stripe subscription upgrades",
+      "Business premium tiers, featured placement, and ROI comparisons",
+      "Educational deal-structure resources and downloadable templates",
+      "Advanced reporting (cohorts, funnels, A/B testing, predictive analytics)",
+      "Partner API integrations, video profiles, secure document exchange, and deal pipelines",
+      "International expansion, multi-currency support, localization, and regional compliance",
+    ],
+  },
+];
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -88,6 +127,26 @@ export default function HomePage() {
               <span key={type} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
                 {type}
               </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="text-xl font-semibold text-slate-950">BizConnect Implementation Guide</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
+            Delivery is structured in three phases, starting with the core marketplace MVP and scaling into deeper analytics,
+            automation, and platform expansion.
+          </p>
+          <div className="mt-5 space-y-4">
+            {implementationPhases.map((phase) => (
+              <article key={phase.name} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-800">{phase.name}</h3>
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
+                  {phase.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
             ))}
           </div>
         </section>
