@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, DollarSign, MapPin } from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
 import type { Permit } from "@/lib/types";
 import { formatCurrency } from "@/lib/api/permits";
 import { formatDate } from "@/lib/date";
@@ -19,9 +19,8 @@ export function PermitCard({ permit }: { permit: Permit }) {
         <MapPin className="h-3.5 w-3.5 text-slate-400" />
         {permit.city}, {permit.state}
       </p>
-      <div className={`mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-3xl font-bold ${getPermitValueClasses(permit.estimatedValue, "card")}`}>
-        <DollarSign className="h-5 w-5" />
-        {formatCurrency(permit.estimatedValue).replace("$", "")}
+      <div className={`mt-4 inline-flex items-center rounded-lg px-3 py-2 text-3xl font-semibold ${getPermitValueClasses(permit.estimatedValue, "card")}`}>
+        {formatCurrency(permit.estimatedValue)}
       </div>
       <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
         <CalendarDays className="h-4 w-4 text-slate-400" />
