@@ -6,12 +6,20 @@ type ChatPayload = {
   metrics?: AreaMetric[];
 };
 
+function defaultPrompt(metrics: AreaMetric[]) {
+  if (metrics.length <= 1) {
+    return "Give a short, practical summary of this area. Mention missing data and what it means.";
+  }
+
+  return "Compare these areas and highlight trade-offs in air quality, unemployment, food access proxy, and drug recalls. End with one plain-language recommendation.";
+}
+
 async function getAnswer(question: string, metrics: AreaMetric[]): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const context = metrics.map(summarizeMetric).join("\n");
 
   if (!apiKey) {
-    return `Based on the available metrics, here is a practical interpretation:\n${context}\nQuestion: ${question}`;
+    return `Automatic area summary:\n${context}\n\nFocus: ${question}`;
   }
 
   try {
@@ -28,7 +36,7 @@ async function getAnswer(question: string, metrics: AreaMetric[]): Promise<strin
         messages: [
           {
             role: "user",
-            content: `You are a factual civic health analyst. Explain trade-offs clearly without hyperbole. Data:\n${context}\n\nQuestion: ${question}`,
+            content: `You are a factual civic health analyst. Explain trade-offs clearly without hyperbole. Data:\n${context}\n\nInstruction: ${question}`,
           },
         ],
       }),
@@ -70,13 +78,13 @@ function streamText(text: string) {
 
 export async function POST(request: Request) {
   const body = (await request.json()) as ChatPayload;
-  const question = body.question?.trim();
   const metrics = body.metrics ?? [];
 
-  if (!question) {
-    return NextResponse.json({ error: "Question is required." }, { status: 400 });
+  if (!metrics.length) {
+    return NextResponse.json({ error: "At least one location result is required." }, { status: 400 });
   }
 
+  const question = body.question?.trim() || defaultPrompt(metrics);
   const answer = await getAnswer(question, metrics);
   return new Response(streamText(answer), {
     headers: {
