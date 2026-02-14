@@ -39,6 +39,14 @@ export default function PermitsPage() {
     let isCurrent = true;
 
     async function loadPermits() {
+      const shouldSearch = appliedFilters.zipCode.length === 5;
+      if (!shouldSearch) {
+        setPermits([]);
+        setIsLoading(false);
+        router.replace("/permits");
+        return;
+      }
+
       setIsLoading(true);
       const nextPermits = await getPermits(appliedFilters);
       if (!isCurrent) return;
@@ -68,9 +76,9 @@ export default function PermitsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Permit Search</h1>
-      <p className="text-sm text-gray-600">
-        Search by ZIP code, optionally set a filed date range, and sort by newest filing date or permit value.
+      <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Permit Search</h1>
+      <p className="max-w-2xl text-sm text-slate-600 sm:text-base">
+        Start with a ZIP code to view local permits. Then refine by filing date and sort by newest filing or value.
       </p>
       <FilterBar
         zipCode={filters.zipCode}
@@ -79,21 +87,30 @@ export default function PermitsPage() {
         dateTo={filters.dateTo}
         onChange={handleFilterChange}
       />
-      <p className="flex items-center gap-2 text-sm text-gray-600">
-        {permits.length} permits found
-        {isLoading ? (
-          <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
-            <span>Searching permits...</span>
-          </>
-        ) : null}
-      </p>
+      {appliedFilters.zipCode.length === 5 ? (
+        <p className="flex items-center gap-2 text-sm text-slate-600">
+          {permits.length} permits found
+          {isLoading ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
+              <span>Searching permits...</span>
+            </>
+          ) : null}
+        </p>
+      ) : (
+        <p className="text-sm text-slate-500">Enter a 5-digit ZIP code to view permit results.</p>
+      )}
       <section className="space-y-4">
-        {permits.length ? (
+        {appliedFilters.zipCode.length < 5 ? (
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-700">
+            <p className="font-medium text-slate-900">No results shown yet.</p>
+            <p className="mt-1">Search by ZIP code to explore permits in a specific area.</p>
+          </div>
+        ) : permits.length ? (
           <PermitTable permits={permits} />
         ) : (
-          <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-700">
-            <p className="font-medium text-gray-900">No permits found matching your search criteria.</p>
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-700">
+            <p className="font-medium text-slate-900">No permits found matching your search criteria.</p>
             <p className="mt-1">Try another ZIP code or expand your selected date range.</p>
           </div>
         )}

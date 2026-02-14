@@ -4,8 +4,8 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 
 export const metadata: Metadata = {
-  title: "Permit Lead Generator",
-  description: "Track public permits and capture high-intent contractor leads.",
+  title: "Sortir",
+  description: "Find public permit opportunities by ZIP code.",
   icons: {
     icon: "/sortir-logo-192.png",
     apple: "/apple-touch-icon.png",
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <Header />
-        <main className="pt-16">{children}</main>
+        <main className="pt-20">{children}</main>
       </body>
     </html>
   );
