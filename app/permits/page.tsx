@@ -30,10 +30,6 @@ export default function PermitsPage() {
     return () => clearTimeout(timeoutId);
   }, [filters, router]);
 
-  useEffect(() => {
-    getPermits().then(setPermits);
-  }, []);
-
   const cities = useMemo(() => [...new Set(permits.map((permit) => permit.city))], [permits]);
 
   return (
