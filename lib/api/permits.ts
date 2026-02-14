@@ -12,9 +12,25 @@ export type PermitFilters = {
 
 const permits = mockPermits as Permit[];
 
+function sortPermits(items: Permit[], sortBy?: PermitFilters["sortBy"]) {
+  return [...items].sort((a, b) => {
+    if (sortBy === "value-high") {
+      return b.estimatedValue - a.estimatedValue;
+    }
+    if (sortBy === "value-low") {
+      return a.estimatedValue - b.estimatedValue;
+    }
+    if (sortBy === "filed-oldest") {
+      return new Date(a.filedDate).getTime() - new Date(b.filedDate).getTime();
+    }
+
+    return new Date(b.filedDate).getTime() - new Date(a.filedDate).getTime();
+  });
+}
+
 export async function getPermits(filters?: PermitFilters) {
   if (!filters) {
-    return permits;
+    return sortPermits(permits);
   }
 
   const filtered = permits.filter((permit) => {
@@ -27,23 +43,7 @@ export async function getPermits(filters?: PermitFilters) {
     return matchSearch && matchCity && matchZipCode && matchType;
   });
 
-  if (!filters.sortBy) {
-    return filtered;
-  }
-
-  return [...filtered].sort((a, b) => {
-    if (filters.sortBy === "value-high") {
-      return b.estimatedValue - a.estimatedValue;
-    }
-    if (filters.sortBy === "value-low") {
-      return a.estimatedValue - b.estimatedValue;
-    }
-    if (filters.sortBy === "filed-oldest") {
-      return new Date(a.filedDate).getTime() - new Date(b.filedDate).getTime();
-    }
-
-    return new Date(b.filedDate).getTime() - new Date(a.filedDate).getTime();
-  });
+  return sortPermits(filtered, filters.sortBy);
 }
 
 export async function getPermitById(id: string) {
