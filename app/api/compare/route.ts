@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
   if (rawLocations.length < MIN_LOCATIONS || rawLocations.length > MAX_LOCATIONS) {
     return NextResponse.json(
-      { error: "Provide between 2 and 4 locations." },
+      { error: "Provide between 1 and 4 locations." },
       { status: 400 },
     );
   }

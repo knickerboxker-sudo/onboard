@@ -1,4 +1,4 @@
-export const MIN_LOCATIONS = 2;
+export const MIN_LOCATIONS = 1;
 export const MAX_LOCATIONS = 4;
 
 export function parseLocationsParam(value: string | null | undefined): string[] {
@@ -20,10 +20,7 @@ export function serializeLocationsParam(locations: string[]): string {
   return locations.map((value) => value.trim()).filter(Boolean).join("|");
 }
 
-export function validationMessage(
-  candidate: string,
-  locations: string[],
-): string | null {
+export function validationMessage(candidate: string, locations: string[]): string | null {
   const trimmed = candidate.trim();
   if (!trimmed) return "Enter a city or ZIP code.";
   if (locations.some((item) => item.toLowerCase() === trimmed.toLowerCase())) {

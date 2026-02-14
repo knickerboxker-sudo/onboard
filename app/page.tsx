@@ -41,9 +41,8 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [metrics, setMetrics] = useState<AreaMetric[]>([]);
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
+  const [analysis, setAnalysis] = useState("");
+  const [analysisLoading, setAnalysisLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
 
   useEffect(() => {
@@ -66,6 +65,7 @@ export default function Page() {
 
     if (locations.length < MIN_LOCATIONS) {
       setMetrics([]);
+      setAnalysis("");
       return;
     }
 
@@ -92,6 +92,47 @@ export default function Page() {
     void loadMetrics();
   }, [locations]);
 
+  useEffect(() => {
+    if (!metrics.length) {
+      setAnalysis("");
+      return;
+    }
+
+    const loadAnalysis = async () => {
+      setAnalysisLoading(true);
+      setAnalysis("");
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ metrics }),
+        });
+
+        if (!response.ok || !response.body) {
+          setAnalysis("Automatic analysis unavailable right now.");
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          accumulated += decoder.decode(value, { stream: true });
+          setAnalysis(accumulated);
+        }
+      } catch {
+        setAnalysis("Automatic analysis unavailable right now.");
+      } finally {
+        setAnalysisLoading(false);
+      }
+    };
+
+    void loadAnalysis();
+  }, [metrics]);
+
   const validation = validationMessage(input, locations);
 
   const averages = useMemo(() => {
@@ -109,41 +150,6 @@ export default function Page() {
       drugRecallCount: average(metrics.map((item) => item.drugRecallCount)),
     };
   }, [metrics]);
-
-  async function askQuestion(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!question.trim()) return;
-
-    setChatLoading(true);
-    setAnswer("");
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question, metrics }),
-      });
-
-      if (!response.body) {
-        setAnswer("No response received.");
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        accumulated += decoder.decode(value, { stream: true });
-        setAnswer(accumulated);
-      }
-    } catch {
-      setAnswer("I could not process that question right now.");
-    } finally {
-      setChatLoading(false);
-    }
-  }
 
   function addLocation() {
     const message = validationMessage(input, locations);
@@ -171,34 +177,34 @@ export default function Page() {
             title="Settings are coming soon."
             className={`rounded border border-border px-2 py-1 text-xs text-muted ${softTransition} hover:bg-highlight disabled:cursor-not-allowed`}
           >
-            Settings (soon)
+            Settings
           </button>
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[2fr_1fr]">
+      <section className="mx-auto grid max-w-6xl gap-4 px-4 py-6 sm:grid-cols-[2fr,1fr] sm:px-6">
         <article className="rounded-xl border border-border bg-card p-4">
-          <label htmlFor="location-input" className="text-sm text-muted">
-            Add 2-4 cities or ZIP codes
-          </label>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <h1 className="text-lg font-medium">Search one area or compare up to four</h1>
+          <p className="mt-1 text-sm text-muted">
+            Enter a city, city + state, or ZIP. Results load automatically without asking a question.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <label htmlFor="location-input" className="sr-only">
+              City or ZIP code
+            </label>
             <input
               id="location-input"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  addLocation();
-                }
-              }}
-              aria-invalid={Boolean(input && validation)}
-              placeholder="Try: Austin, TX or 10001"
-              className={`w-full rounded border border-border bg-base px-3 py-2 text-sm outline-none ${softTransition} focus:border-accent`}
+              placeholder="Austin, TX or 78701"
+              className={`min-w-0 flex-1 rounded border border-border bg-base px-3 py-2 text-sm outline-none ${softTransition} focus:border-accent`}
             />
             <button
+              type="button"
               onClick={addLocation}
-              className={`rounded border border-accent bg-accent px-3 py-2 text-sm text-white ${softTransition} hover:bg-accent-hover`}
+              disabled={Boolean(validation)}
+              className={`rounded border border-accent bg-accent px-3 py-2 text-sm text-white ${softTransition} hover:bg-accent-hover disabled:opacity-60`}
             >
               Add location
             </button>
@@ -231,7 +237,7 @@ export default function Page() {
       <section className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
         <article className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="border-b border-border px-4 py-3 text-sm text-muted">
-            {loading ? "Loading location metrics…" : "Comparison table"}
+            {loading ? "Loading location metrics…" : "Results"}
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
@@ -294,7 +300,7 @@ export default function Page() {
 
           {!loading && locations.length < MIN_LOCATIONS ? (
             <p className="border-t border-border px-4 py-3 text-sm text-muted">
-              Add at least two locations to compare.
+              Add at least one location to start.
             </p>
           ) : null}
         </article>
@@ -302,30 +308,11 @@ export default function Page() {
 
       <section className="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
         <article className="rounded-xl border border-border bg-card p-4">
-          <h2 className="text-sm text-muted">Ask the analysis assistant</h2>
-          <form onSubmit={askQuestion} className="mt-2 space-y-2">
-            <label htmlFor="question" className="sr-only">
-              Ask a question
-            </label>
-            <input
-              id="question"
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Which area is better for someone with asthma?"
-              className={`w-full rounded border border-border bg-base px-3 py-2 text-sm outline-none ${softTransition} focus:border-accent`}
-            />
-            <button
-              type="submit"
-              disabled={chatLoading || !question.trim()}
-              className={`rounded border border-accent bg-accent px-3 py-2 text-sm text-white ${softTransition} hover:bg-accent-hover disabled:opacity-60`}
-            >
-              {chatLoading ? "Thinking…" : "Ask"}
-            </button>
-          </form>
-
+          <h2 className="text-sm text-muted">Automatic analysis</h2>
           <div className="mt-3 min-h-20 rounded border border-border bg-base p-3 text-sm text-ink" aria-live="polite">
-            {answer || "Responses appear here with practical interpretation of the compared metrics."}
+            {analysis || (analysisLoading ? "Preparing automatic summary…" : "Summary appears here after results load.")}
           </div>
+          <p className="mt-2 text-xs text-muted">You do not need to ask a question for analysis.</p>
         </article>
       </section>
     </main>

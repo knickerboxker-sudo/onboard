@@ -20,20 +20,26 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> 
   }
 }
 
-async function fetchOpenAq(location: string): Promise<number | null> {
-  const city = location.split(",")[0]?.trim();
-  const byCity = city
-    ? await fetchJson<{ results?: Array<{ value?: number }> }>(
-        `https://api.openaq.org/v3/locations?limit=1&order_by=lastUpdated&sort=desc&city=${encodeURIComponent(city)}`,
-      )
-    : null;
+async function fetchOpenMeteoPm25(location: string): Promise<number | null> {
+  const geo = await fetchJson<{
+    results?: Array<{ latitude: number; longitude: number }>;
+  }>(`https://geocoding-api.open-meteo.com/v1/search?count=1&name=${encodeURIComponent(location)}`);
 
-  if (byCity?.results?.[0]?.value != null) return byCity.results[0].value;
+  const first = geo?.results?.[0];
+  if (!first) return null;
 
-  const byLocation = await fetchJson<{ results?: Array<{ value?: number }> }>(
-    `https://api.openaq.org/v3/locations?limit=1&order_by=lastUpdated&sort=desc&location=${encodeURIComponent(location)}`,
+  const air = await fetchJson<{
+    current?: { pm2_5?: number | null };
+    hourly?: { pm2_5?: Array<number | null> };
+  }>(
+    `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${first.latitude}&longitude=${first.longitude}&current=pm2_5&hourly=pm2_5`,
   );
-  return byLocation?.results?.[0]?.value ?? null;
+
+  const current = air?.current?.pm2_5;
+  if (typeof current === "number") return current;
+
+  const hourly = air?.hourly?.pm2_5?.find((item): item is number => typeof item === "number");
+  return hourly ?? null;
 }
 
 async function fetchFredUnemployment(location: string): Promise<number | null> {
@@ -89,7 +95,7 @@ export async function fetchAreaMetric(location: string): Promise<AreaMetric> {
 
   const [airQualityPm25, unemploymentRate, foodAccessScore, drugRecallCount] =
     await Promise.all([
-      fetchOpenAq(location),
+      fetchOpenMeteoPm25(location),
       fetchFredUnemployment(location),
       fetchUsdaFoodAccess(location),
       fetchOpenFdaRecalls(location),
@@ -97,8 +103,8 @@ export async function fetchAreaMetric(location: string): Promise<AreaMetric> {
 
   const notes: string[] = [];
   if (airQualityPm25 == null) notes.push("Air quality data unavailable.");
-  if (unemploymentRate == null) notes.push("Economic data unavailable.");
-  if (foodAccessScore == null) notes.push("Food access data unavailable.");
+  if (unemploymentRate == null) notes.push("Economic data unavailable (set FRED_API_KEY).");
+  if (foodAccessScore == null) notes.push("Food access data unavailable (set USDA_API_KEY).");
   if (foodAccessScore != null) {
     notes.push("Food access uses USDA FoodData Central search-hit proxy.");
   }
