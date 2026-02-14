@@ -81,6 +81,24 @@ export function findOccupation(query: string) {
   return OCCUPATIONS.find((item) => normalize(item.title).includes(q));
 }
 
+const SECTOR_TO_OCCUPATION: Record<string, (typeof OCCUPATIONS)[number]["title"]> = {
+  technology: "Software Developers",
+  tech: "Software Developers",
+  healthcare: "Registered Nurses",
+  health: "Registered Nurses",
+  nursing: "Registered Nurses",
+  customer: "Customer Service Representatives",
+  service: "Customer Service Representatives",
+  support: "Customer Service Representatives",
+};
+
+export function occupationFromSector(sector: string) {
+  const key = normalize(sector).split(/\s+/)[0];
+  const mapped = SECTOR_TO_OCCUPATION[key];
+  if (!mapped) return null;
+  return findOccupation(mapped) || null;
+}
+
 export function analyzeMarket(input: AnalyzeRequest) {
   const occupation = findOccupation(input.occupation);
   if (!occupation) {

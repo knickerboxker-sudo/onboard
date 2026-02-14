@@ -1,4 +1,4 @@
-import { analyzeMarket } from "@/lib/bls";
+import { analyzeMarket, occupationFromSector } from "@/lib/bls";
 import { CohereClient } from "cohere-ai";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,7 +6,14 @@ const MAX_USER_MESSAGE_LENGTH = 500;
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const result = analyzeMarket(body);
+  const sector = typeof body.sector === "string" ? body.sector : "technology";
+  const inferredOccupation =
+    occupationFromSector(sector) || occupationFromSector(body.message || "") || occupationFromSector("technology");
+  const result = analyzeMarket({
+    occupation: inferredOccupation?.title || "Software Developers",
+    geography: "national",
+    experience: "median",
+  });
   if ("error" in result) return NextResponse.json(result);
 
   const userMessage =
