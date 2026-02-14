@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PermitCard } from "@/components/dashboard/PermitCard";
 import { FilterBar } from "@/components/dashboard/FilterBar";
+import { PermitTable } from "@/components/dashboard/PermitTable";
 import type { Permit } from "@/lib/types";
 import { getPermits } from "@/lib/api/permits";
 
@@ -13,7 +13,9 @@ export default function PermitsPage() {
   const [filters, setFilters] = useState({
     search: "",
     city: "",
+    zipCode: "",
     type: "",
+    sortBy: "",
   });
 
   useEffect(() => {
@@ -35,18 +37,21 @@ export default function PermitsPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-3xl font-semibold text-gray-900">All Permits</h1>
+      <p className="text-sm text-gray-600">
+        Search by location (including ZIP code), then sort by price or date to prioritize the best jobs.
+      </p>
       <FilterBar
         search={filters.search}
         city={filters.city}
+        zipCode={filters.zipCode}
         type={filters.type}
+        sortBy={filters.sortBy}
         cities={cities}
         onChange={(name, value) => setFilters((current) => ({ ...current, [name]: value }))}
       />
       <p className="text-sm text-gray-600">{permits.length} permits found</p>
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {permits.map((permit) => (
-          <PermitCard key={permit.id} permit={permit} />
-        ))}
+      <section className="space-y-4">
+        <PermitTable permits={permits} />
       </section>
     </div>
   );

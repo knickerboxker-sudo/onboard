@@ -1,11 +1,13 @@
 import mockPermits from "@/public/data/mock-permits.json";
-import { isAfter, parseISO, subDays } from "date-fns";
 import type { Permit } from "@/lib/types";
+import { isDateAfter, subDays } from "@/lib/date";
 
 type PermitFilters = {
   search?: string;
   city?: string;
+  zipCode?: string;
   type?: string;
+  sortBy?: "value-high" | "value-low" | "filed-newest" | "filed-oldest";
 };
 
 const permits = mockPermits as Permit[];
@@ -15,13 +17,32 @@ export async function getPermits(filters?: PermitFilters) {
     return permits;
   }
 
-  return permits.filter((permit) => {
+  const filtered = permits.filter((permit) => {
     const matchSearch =
       !filters.search || permit.address.toLowerCase().includes(filters.search.toLowerCase());
     const matchCity = !filters.city || permit.city === filters.city;
+    const matchZipCode = !filters.zipCode || permit.zipCode.startsWith(filters.zipCode);
     const matchType = !filters.type || permit.permitType === filters.type;
 
-    return matchSearch && matchCity && matchType;
+    return matchSearch && matchCity && matchZipCode && matchType;
+  });
+
+  if (!filters.sortBy) {
+    return filtered;
+  }
+
+  return [...filtered].sort((a, b) => {
+    if (filters.sortBy === "value-high") {
+      return b.estimatedValue - a.estimatedValue;
+    }
+    if (filters.sortBy === "value-low") {
+      return a.estimatedValue - b.estimatedValue;
+    }
+    if (filters.sortBy === "filed-oldest") {
+      return new Date(a.filedDate).getTime() - new Date(b.filedDate).getTime();
+    }
+
+    return new Date(b.filedDate).getTime() - new Date(a.filedDate).getTime();
   });
 }
 
@@ -39,10 +60,10 @@ export function formatCurrency(value: number) {
 
 export function getPermitStats(items: Permit[]) {
   const weekAgo = subDays(new Date(), 7);
-  const totalThisWeek = items.filter((permit) => isAfter(parseISO(permit.filedDate), weekAgo)).length;
+  const totalThisWeek = items.filter((permit) => isDateAfter(permit.filedDate, weekAgo)).length;
   const totalValue = items.reduce((sum, permit) => sum + permit.estimatedValue, 0);
   const newValueThisWeek = items
-    .filter((permit) => isAfter(parseISO(permit.filedDate), weekAgo))
+    .filter((permit) => isDateAfter(permit.filedDate, weekAgo))
     .reduce((sum, permit) => sum + permit.estimatedValue, 0);
 
   return {

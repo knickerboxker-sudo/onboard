@@ -34,8 +34,10 @@ export default async function DashboardPage() {
       <StatsOverview permits={permits} />
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Recent permits</h2>
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">Top 10</span>
+          <h2 className="text-xl font-semibold text-gray-900">Recently filed permits</h2>
+          <Link href="/permits" className="text-sm font-medium text-blue-600 hover:underline">
+            Search and sort all permits
+          </Link>
         </div>
         <PermitTable permits={permits.slice(0, 10)} />
       </section>
