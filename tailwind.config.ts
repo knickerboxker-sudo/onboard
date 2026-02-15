@@ -5,6 +5,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        "trade-bg": "#0f0f0f",
+        "trade-surface": "#1a1a1a",
+        "trade-border": "#2a2a2a",
+        "trade-text": "#e5e5e5",
+        "trade-muted": "#a3a3a3",
+        "trade-accent": "#3b82f6",
+        "trade-success": "#10b981",
+        "trade-danger": "#ef4444",
+        "trade-neutral": "#6366f1",
         base: "#fefefe",
         card: "#fefefe",
         "card-hover": "#f3f6fb",
