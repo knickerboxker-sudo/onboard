@@ -1,11 +1,11 @@
 {
-  "name": "Onboard - Local Business Investment Matchmaking",
-  "short_name": "Onboard",
-  "description": "Connect local investors with brick-and-mortar businesses seeking funding.",
+  "name": "Trading Copilot - AI-Powered Trading Journal",
+  "short_name": "Trading Copilot",
+  "description": "AI-powered trading copilot for analysis, journaling, and decision support.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#0f172a",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
   "icons": [
     {
       "src": "/sortir-logo-192.png",
