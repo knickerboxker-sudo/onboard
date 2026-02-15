@@ -2,30 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const NAV_ITEMS = [
-  { id: 'chat', label: 'Chat' },
-  { id: 'positions', label: 'Positions' },
-  { id: 'journal', label: 'Journal' },
-  { id: 'patterns', label: 'Patterns' },
-];
+const NAV_ITEMS = [{ id: 'chat', label: 'Chat' }];
 
 const STRATEGY_TYPES = ['momentum', 'breakout', 'swing', 'scalp', 'options', 'other'];
-
-const SYSTEM_PROMPT = `You are an advanced trading copilot. Your role is to work alongside active traders in real-time, maintaining deep context about their positions, strategies, and evolving thinking.
-
-When a trader discusses a stock:
-1. Use web_search to find current price, charts, and recent news
-2. Ask if they want you to analyze the chart visually
-3. If entering a trade, log: ticker, entry price, position size, timeframe, thesis, conviction level, stop loss, targets
-4. For active positions, reference back to their original thesis and track any changes in thinking
-5. Discuss options strategies when relevant (covered calls, protective puts, spreads) with calculations
-6. Search for material news that impacts their thesis vs noise
-7. Help plan exits before emotions run high
-8. Over time, identify patterns in their trading behavior
-
-Be concise and actionable. Use trader language naturally (support/resistance, breakout, theta, IV). Challenge assumptions constructively. Be a sounding board, not a yes-man.
-
-When appropriate, fetch stock charts, current prices, and news using web_search and web_fetch tools.`;
 
 const baseStorage = {
   async get(key) {
@@ -268,19 +247,15 @@ export default function TradingCopilotApp() {
     [computePatterns, watchlist],
   );
 
-  const callAnthropic = useCallback(
+  const callCopilot = useCallback(
     async (userText, allMessages) => {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: userText.length > 240 ? 2000 : 1000,
-          system: SYSTEM_PROMPT,
-          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          message: userText,
           messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
@@ -290,10 +265,8 @@ export default function TradingCopilotApp() {
       }
 
       const data = await response.json();
-      const blocks = data.content || [];
-      const usedSearch = blocks.some((block) => block.type === 'tool_use');
-      setSearchingWeb(usedSearch);
-      return blocks.filter((block) => block.type === 'text').map((block) => block.text).join('\n\n');
+      setSearchingWeb(false);
+      return data.text;
     },
     [],
   );
@@ -318,7 +291,7 @@ export default function TradingCopilotApp() {
     setLoading(true);
     try {
       const nextMessages = [...messages, userMessage];
-      const aiText = await callAnthropic(trimmed, nextMessages);
+      const aiText = await callCopilot(trimmed, nextMessages);
       const aiMessage = {
         id: Date.now() + 1,
         role: 'assistant',
@@ -343,7 +316,7 @@ export default function TradingCopilotApp() {
       setLoading(false);
       setSearchingWeb(false);
     }
-  }, [callAnthropic, input, loading, maybeAutoLogTrade, messages, searchingWeb]);
+  }, [callCopilot, input, loading, maybeAutoLogTrade, messages, searchingWeb]);
 
   const filteredTrades = useMemo(() => {
     return trades.filter((trade) => {
@@ -359,8 +332,8 @@ export default function TradingCopilotApp() {
 
   return (
     <div className="min-h-screen bg-trade-bg text-trade-text">
-      <div className="mx-auto flex w-full max-w-7xl gap-6 px-4 py-6">
-        <aside className="h-screen w-60 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-3">
+      <div className="mx-auto flex w-full max-w-4xl gap-6 px-4 py-6">
+        <aside className="hidden h-screen w-60 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-3">
           <h1 className="mb-4 text-lg font-semibold">Trading Copilot</h1>
           <nav className="space-y-1" aria-label="Main navigation">
             {NAV_ITEMS.map((item) => (
@@ -637,7 +610,7 @@ export default function TradingCopilotApp() {
           )}
         </main>
 
-        <aside className="hidden w-80 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-4 xl:block">
+        <aside className="hidden w-80 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-4">
           <h2 className="mb-3 text-sm font-semibold text-trade-muted">Session context</h2>
           <div className="space-y-2 text-sm">
             <p>Open positions: {activePositions.length}</p>
