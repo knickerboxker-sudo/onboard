@@ -2,15 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const NAV_ITEMS = [
-  { id: 'chat', label: 'Chat', icon: '💬' },
-  { id: 'positions', label: 'Positions', icon: '📊' },
-  { id: 'journal', label: 'Journal', icon: '📓' },
-  { id: 'patterns', label: 'Patterns', icon: '🔍' },
-];
-
-const STRATEGY_TYPES = ['momentum', 'breakout', 'swing', 'scalp', 'options', 'other'];
-
 const baseStorage = {
   async get(key) {
     if (typeof window === 'undefined' || !window.storage?.get) {
@@ -35,56 +26,19 @@ const baseStorage = {
       return false;
     }
   },
-  async remove(key) {
-    if (typeof window === 'undefined' || !window.storage?.delete) {
-      return false;
-    }
-    try {
-      await window.storage.delete(key, { shared: false });
-      return true;
-    } catch (error) {
-      console.error('Storage remove failed:', error);
-      return false;
-    }
-  },
 };
-
-const toCurrency = (n) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(
-    Number.isFinite(n) ? n : 0,
-  );
-
-const toPercent = (n) => `${(Number.isFinite(n) ? n : 0).toFixed(2)}%`;
-
-const dayDiff = (isoDate) => Math.max(1, Math.ceil((Date.now() - new Date(isoDate).getTime()) / 86400000));
 
 export default function TradingCopilotApp() {
   const [messages, setMessages] = useState([]);
   const [trades, setTrades] = useState([]);
   const [patterns, setPatterns] = useState({});
   const [watchlist, setWatchlist] = useState([]);
-  const [currentView, setCurrentView] = useState('chat');
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchingWeb, setSearchingWeb] = useState(false);
   const [error, setError] = useState('');
-  const [journalFilter, setJournalFilter] = useState({ ticker: '', strategy: 'all', outcome: 'all' });
-  const [expandedTradeId, setExpandedTradeId] = useState(null);
 
   const messageEndRef = useRef(null);
-
-  const activePositions = useMemo(
-    () =>
-      trades
-        .filter((trade) => !trade.exitDate)
-        .map((trade) => {
-          const currentPrice = trade.currentPrice ?? trade.entryPrice;
-          const shares = Number(trade.positionSize) || 0;
-          const unrealizedPL = (currentPrice - trade.entryPrice) * shares;
-          return { ...trade, currentPrice, unrealizedPL, daysHeld: dayDiff(trade.entryDate) };
-        }),
-    [trades],
-  );
 
   const persistCollection = useCallback(async (prefix, items) => {
     const indexKey = `${prefix}:index`;
@@ -152,11 +106,6 @@ export default function TradingCopilotApp() {
 
   useEffect(() => {
     persistCollection('trades', trades);
-    Promise.all(
-      trades
-        .filter((trade) => !trade.exitDate)
-        .map((trade) => baseStorage.set(`positions:${trade.ticker.toUpperCase()}`, JSON.stringify(trade))),
-    );
   }, [trades, persistCollection]);
 
   useEffect(() => {
@@ -167,33 +116,22 @@ export default function TradingCopilotApp() {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  const computePatterns = useCallback((nextTrades) => {
-    if (!nextTrades.length) return;
-    const closed = nextTrades.filter((t) => t.exitDate && Number.isFinite(t.profitLossPercent));
-    if (!closed.length) return;
-    const wins = closed.filter((t) => (t.profitLossPercent ?? 0) > 0).length;
-    const avgHold = closed.reduce((acc, t) => acc + dayDiff(t.entryDate), 0) / closed.length;
-    const avgReturn = closed.reduce((acc, t) => acc + (t.profitLossPercent ?? 0), 0) / closed.length;
-    const next = {
-      performance: {
-        winRate: Number(((wins / closed.length) * 100).toFixed(1)),
-        avgHoldDays: Number(avgHold.toFixed(1)),
-        avgReturn: Number(avgReturn.toFixed(2)),
-      },
-      watchlist,
-    };
-    setPatterns(next);
-  }, [watchlist]);
-
-  const updateTrade = useCallback(
-    (id, updates) => {
-      setTrades((prev) => {
-        const next = prev.map((trade) => (trade.id === id ? { ...trade, ...updates } : trade));
-        computePatterns(next);
-        return next;
+  const computePatterns = useCallback(
+    (nextTrades) => {
+      if (!nextTrades.length) return;
+      const closed = nextTrades.filter((t) => t.exitDate && Number.isFinite(t.profitLossPercent));
+      if (!closed.length) return;
+      const wins = closed.filter((t) => (t.profitLossPercent ?? 0) > 0).length;
+      const avgReturn = closed.reduce((acc, t) => acc + (t.profitLossPercent ?? 0), 0) / closed.length;
+      setPatterns({
+        performance: {
+          winRate: Number(((wins / closed.length) * 100).toFixed(1)),
+          avgReturn: Number(avgReturn.toFixed(2)),
+        },
+        watchlist,
       });
     },
-    [computePatterns],
+    [watchlist],
   );
 
   const maybeAutoLogTrade = useCallback(
@@ -210,16 +148,10 @@ export default function TradingCopilotApp() {
           entryDate: new Date().toISOString(),
           exitDate: null,
           positionSize: 100,
-          thesis: 'Pending thesis details',
-          conviction: 'medium',
           strategyType: 'other',
-          stopLoss: 0,
-          targets: [],
           conversationIds: [messageId],
-          notes: '',
           profitLoss: null,
           profitLossPercent: null,
-          currentPrice: entryPrice,
         };
         setTrades((prev) => [trade, ...prev]);
         if (!watchlist.includes(ticker)) {
@@ -252,29 +184,26 @@ export default function TradingCopilotApp() {
     [computePatterns, watchlist],
   );
 
-  const callCopilot = useCallback(
-    async (userText, allMessages) => {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userText,
-          messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
-        }),
-      });
+  const callCopilot = useCallback(async (userText, allMessages) => {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userText,
+        messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`AI request failed with status ${response.status}`);
-      }
+    if (!response.ok) {
+      throw new Error(`AI request failed with status ${response.status}`);
+    }
 
-      const data = await response.json();
-      setSearchingWeb(false);
-      return data.text;
-    },
-    [],
-  );
+    const data = await response.json();
+    setSearchingWeb(false);
+    return data.text;
+  }, []);
 
   const sendMessage = useCallback(async () => {
     const trimmed = input.trim();
@@ -300,7 +229,7 @@ export default function TradingCopilotApp() {
       const aiMessage = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: aiText || 'No analysis returned. Try asking with a ticker and setup details.',
+        content: aiText || 'No analysis returned. Try asking with more context.',
         timestamp: Date.now(),
         metadata: { searchingWeb },
       };
@@ -311,8 +240,7 @@ export default function TradingCopilotApp() {
       const fallback = {
         id: Date.now() + 2,
         role: 'assistant',
-        content:
-          'Network or API issue detected. I can still help you log the trade manually in Positions or Journal while we retry.',
+        content: 'Network or API issue detected. I can still help you think through your next trade and journal it once reconnected.',
         timestamp: Date.now(),
         metadata: { error: true },
       };
@@ -323,413 +251,112 @@ export default function TradingCopilotApp() {
     }
   }, [callCopilot, input, loading, maybeAutoLogTrade, messages, searchingWeb]);
 
-  const filteredTrades = useMemo(() => {
-    return trades.filter((trade) => {
-      const tickerOk = !journalFilter.ticker || trade.ticker.toLowerCase().includes(journalFilter.ticker.toLowerCase());
-      const strategyOk = journalFilter.strategy === 'all' || trade.strategyType === journalFilter.strategy;
-      const outcomeOk =
-        journalFilter.outcome === 'all' ||
-        (journalFilter.outcome === 'win' && (trade.profitLoss ?? 0) > 0) ||
-        (journalFilter.outcome === 'loss' && (trade.profitLoss ?? 0) <= 0);
-      return tickerOk && strategyOk && outcomeOk;
-    });
-  }, [journalFilter, trades]);
+  const stats = useMemo(() => {
+    const openPositions = trades.filter((trade) => !trade.exitDate).length;
+    return {
+      messageCount: messages.length,
+      openPositions,
+      watchlistSize: watchlist.length,
+    };
+  }, [messages.length, trades, watchlist.length]);
 
   return (
-    <div className="min-h-screen bg-trade-bg text-trade-text pb-16 md:pb-0">
-      <div className="mx-auto flex w-full max-w-4xl gap-6 px-4 py-4 md:py-6">
-        <aside className="hidden md:block h-screen w-60 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-3">
-          <h1 className="mb-4 text-lg font-semibold">Trading Copilot</h1>
-          <nav className="space-y-1" aria-label="Main navigation">
-            {NAV_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setCurrentView(item.id)}
-                className={`w-full rounded-md border-l-2 px-3 py-2 text-left text-sm transition ${
-                  currentView === item.id
-                    ? 'border-trade-accent bg-black/20 text-trade-text'
-                    : 'border-transparent text-trade-muted hover:bg-black/20 hover:text-trade-text'
+    <div className="min-h-screen bg-trade-bg px-3 py-4 text-trade-text sm:px-4">
+      <div className="mx-auto flex h-[calc(100vh-2rem)] w-full max-w-3xl flex-col rounded-2xl border border-trade-border bg-trade-surface/95 shadow-2xl">
+        <header className="border-b border-trade-border px-4 py-4 sm:px-6">
+          <h1 className="text-lg font-semibold tracking-tight">Trading Copilot</h1>
+          <p className="mt-1 text-sm text-trade-muted">A single conversation that remembers your trades, ideas, and decision patterns.</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-trade-muted">
+            <span className="rounded-full border border-trade-border px-2.5 py-1">{stats.messageCount} messages</span>
+            <span className="rounded-full border border-trade-border px-2.5 py-1">{stats.openPositions} open positions</span>
+            <span className="rounded-full border border-trade-border px-2.5 py-1">{stats.watchlistSize} watchlist symbols</span>
+          </div>
+        </header>
+
+        {error ? (
+          <div className="mx-4 mt-4 rounded-lg border border-trade-danger/40 bg-trade-danger/10 px-3 py-2 text-sm text-trade-danger sm:mx-6">
+            {error}
+          </div>
+        ) : null}
+
+        <section className="flex min-h-0 flex-1 flex-col px-4 pb-4 pt-4 sm:px-6">
+          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+            {messages.length === 0 && !loading ? (
+              <div className="rounded-xl border border-trade-border bg-black/10 p-4 sm:p-5">
+                <h2 className="text-base font-medium">Start your reflection</h2>
+                <p className="mt-2 text-sm leading-6 text-trade-muted">
+                  Describe your current position, reasoning, risk tolerance, or what happened in today&apos;s session. I will keep context over time and help with structure, discipline, and review.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {[
+                    'Review my last two losing trades',
+                    'I went long TSLA at 250 because momentum looked strong',
+                    'Help me define a better exit plan',
+                  ].map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => setInput(prompt)}
+                      className="rounded-full border border-trade-border px-3 py-1.5 text-xs text-trade-muted transition hover:border-trade-accent hover:text-trade-text"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {messages.map((message) => (
+              <article
+                key={message.id}
+                className={`max-w-[92%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 sm:max-w-[82%] ${
+                  message.role === 'user'
+                    ? 'ml-auto border border-trade-accent/40 bg-trade-accent/10'
+                    : 'border border-trade-border bg-black/20'
                 }`}
               >
-                {item.icon} {item.label}
-              </button>
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              </article>
             ))}
-          </nav>
 
-          <div className="mt-6 space-y-2">
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentView('chat');
-                setInput('Log new trade: ');
+            {loading ? (
+              <div className="inline-flex rounded-2xl border border-trade-border bg-black/20 px-3.5 py-2.5 text-sm text-trade-muted">
+                Thinking...
+              </div>
+            ) : null}
+            <div ref={messageEndRef} />
+          </div>
+
+          <form
+            className="mt-4 flex items-end gap-2 border-t border-trade-border pt-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              sendMessage();
+            }}
+          >
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
+                  sendMessage();
+                }
               }}
-              className="w-full rounded-md bg-trade-accent px-3 py-2 text-sm font-medium text-white hover:opacity-90"
-            >
-              Log new trade
-            </button>
+              rows={1}
+              placeholder="Describe a trade, decision, concern, or plan..."
+              className="max-h-28 min-h-[44px] flex-1 resize-y rounded-xl border border-trade-border bg-black/20 px-3 py-2 text-sm text-trade-text outline-none transition focus:border-trade-accent"
+            />
             <button
-              type="button"
-              onClick={() => {
-                setCurrentView('chat');
-                setInput('Update position: ');
-              }}
-              className="w-full rounded-md border border-trade-border px-3 py-2 text-sm hover:bg-black/20"
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="h-11 rounded-xl bg-trade-accent px-4 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Update position
+              Send
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentView('chat');
-                setInput(`Check watchlist: ${watchlist.join(', ')}`);
-              }}
-              className="w-full rounded-md border border-trade-border px-3 py-2 text-sm hover:bg-black/20"
-            >
-              Check watchlist
-            </button>
-          </div>
-        </aside>
-
-        <main className="min-w-0 flex-1 rounded-lg border border-trade-border bg-trade-surface p-3 md:p-4">
-          {/* Mobile header */}
-          <div className="mb-3 flex items-center justify-between md:hidden">
-            <h1 className="text-base font-semibold">Trading Copilot</h1>
-            <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => { setCurrentView('chat'); setInput('Log new trade: '); }}
-                className="rounded-md bg-trade-accent px-2.5 py-1.5 text-xs font-medium text-white"
-              >
-                + Trade
-              </button>
-            </div>
-          </div>
-
-          {error ? (
-            <div className="mb-3 rounded-md border border-trade-danger/40 bg-trade-danger/10 px-3 py-2 text-sm text-trade-danger">
-              {error}
-            </div>
-          ) : null}
-
-          {currentView === 'chat' && (
-            <section className="flex h-full flex-col">
-              <div className="flex-1 space-y-3 overflow-y-auto pr-1">
-                {messages.length === 0 && !loading && (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <p className="text-lg font-semibold text-trade-text">Welcome to Trading Copilot</p>
-                    <p className="mt-1 text-sm text-trade-muted max-w-md">
-                      Ask about setups, support/resistance levels, P/E ratios, breakouts, or log a trade to get started.
-                    </p>
-                    <div className="mt-4 flex flex-wrap justify-center gap-2">
-                      {[
-                        'Analyze AAPL support levels',
-                        'What is NVDA P/E ratio?',
-                        'Log new trade: bought TSLA at $250',
-                      ].map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          type="button"
-                          onClick={() => setInput(suggestion)}
-                          className="rounded-full border border-trade-border px-3 py-1.5 text-xs text-trade-muted hover:bg-black/20 hover:text-trade-text transition"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <article
-                      className={`max-w-[85%] md:max-w-3xl rounded-lg border px-3 py-2 text-sm leading-6 ${
-                        message.role === 'user'
-                          ? 'border-trade-border bg-black/30 text-trade-text'
-                          : 'border-trade-border bg-black/10 text-trade-text'
-                      }`}
-                    >
-                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                      <p className="mt-1 text-xs text-trade-muted">{new Date(message.timestamp).toLocaleString()}</p>
-                    </article>
-                  </div>
-                ))}
-                {loading ? (
-                  <div className="rounded-md border border-trade-border bg-black/10 px-3 py-2 text-sm text-trade-muted">
-                    Analyzing...
-                  </div>
-                ) : null}
-                {searchingWeb ? (
-                  <div className="text-xs text-trade-muted">Searching web and news sources for current market context.</div>
-                ) : null}
-                <div ref={messageEndRef} />
-              </div>
-
-              <div className="mt-3 flex items-center gap-2 border-t border-trade-border pt-3">
-                <label htmlFor="message-input" className="sr-only">
-                  Ask trading copilot
-                </label>
-                <input
-                  id="message-input"
-                  aria-label="Ask trading copilot"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage();
-                    }
-                  }}
-                  className="flex-1 rounded-md border border-trade-border bg-black/20 px-3 py-2 text-sm outline-none ring-trade-accent focus:ring-2"
-                  placeholder="Ask about setups, levels, exits..."
-                />
-                <button
-                  type="button"
-                  onClick={sendMessage}
-                  className="rounded-md bg-trade-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-                >
-                  Send
-                </button>
-              </div>
-            </section>
-          )}
-
-          {currentView === 'positions' && (
-            <section>
-              <h2 className="mb-3 text-lg font-semibold">Active Positions</h2>
-              {/* Desktop table */}
-              <div className="hidden md:block overflow-hidden rounded-lg border border-trade-border">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-black/20 text-left text-trade-muted">
-                    <tr>
-                      <th className="px-3 py-2">Ticker</th>
-                      <th className="px-3 py-2">Entry</th>
-                      <th className="px-3 py-2">Current</th>
-                      <th className="px-3 py-2">Unrealized P/L</th>
-                      <th className="px-3 py-2">Entry Date</th>
-                      <th className="px-3 py-2">Conviction</th>
-                      <th className="px-3 py-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activePositions.map((position, idx) => (
-                      <tr key={position.id} className={idx % 2 ? 'bg-black/10' : 'bg-transparent'}>
-                        <td className="px-3 py-2 font-medium">{position.ticker}</td>
-                        <td className="px-3 py-2">{toCurrency(position.entryPrice)}</td>
-                        <td className="px-3 py-2">{toCurrency(position.currentPrice)}</td>
-                        <td
-                          className={`px-3 py-2 font-medium ${
-                            position.unrealizedPL >= 0 ? 'text-trade-success' : 'text-trade-danger'
-                          }`}
-                        >
-                          {toCurrency(position.unrealizedPL)}
-                        </td>
-                        <td className="px-3 py-2">{new Date(position.entryDate).toLocaleDateString()}</td>
-                        <td className="px-3 py-2 uppercase">{position.conviction}</td>
-                        <td className="px-3 py-2">
-                          <button
-                            type="button"
-                            onClick={() => updateTrade(position.id, { exitDate: new Date().toISOString(), exitPrice: position.currentPrice })}
-                            className="rounded-md border border-trade-border px-2 py-1 text-xs hover:bg-black/20"
-                          >
-                            Mark closed
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {!activePositions.length ? <p className="p-4 text-sm text-trade-muted">No open positions yet.</p> : null}
-              </div>
-              {/* Mobile cards */}
-              <div className="space-y-2 md:hidden">
-                {activePositions.map((position) => (
-                  <div key={position.id} className="rounded-lg border border-trade-border bg-black/10 p-3">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-base">{position.ticker}</p>
-                      <p
-                        className={`text-sm font-medium ${
-                          position.unrealizedPL >= 0 ? 'text-trade-success' : 'text-trade-danger'
-                        }`}
-                      >
-                        {toCurrency(position.unrealizedPL)}
-                      </p>
-                    </div>
-                    <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-trade-muted">
-                      <p>Entry: {toCurrency(position.entryPrice)}</p>
-                      <p>Current: {toCurrency(position.currentPrice)}</p>
-                      <p>Date: {new Date(position.entryDate).toLocaleDateString()}</p>
-                      <p className="uppercase">Conviction: {position.conviction}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => updateTrade(position.id, { exitDate: new Date().toISOString(), exitPrice: position.currentPrice })}
-                      className="mt-2 w-full rounded-md border border-trade-border px-2 py-1.5 text-xs hover:bg-black/20"
-                    >
-                      Mark closed
-                    </button>
-                  </div>
-                ))}
-                {!activePositions.length ? <p className="p-4 text-sm text-trade-muted">No open positions yet.</p> : null}
-              </div>
-            </section>
-          )}
-
-          {currentView === 'journal' && (
-            <section>
-              <h2 className="mb-3 text-lg font-semibold">Trade Journal</h2>
-              <div className="mb-3 grid gap-2 grid-cols-1 sm:grid-cols-3">
-                <input
-                  value={journalFilter.ticker}
-                  onChange={(e) => setJournalFilter((prev) => ({ ...prev, ticker: e.target.value }))}
-                  placeholder="Filter by ticker"
-                  className="rounded-md border border-trade-border bg-black/20 px-3 py-2 text-sm"
-                />
-                <select
-                  value={journalFilter.strategy}
-                  onChange={(e) => setJournalFilter((prev) => ({ ...prev, strategy: e.target.value }))}
-                  className="rounded-md border border-trade-border bg-black/20 px-3 py-2 text-sm"
-                >
-                  <option value="all">All strategies</option>
-                  {STRATEGY_TYPES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={journalFilter.outcome}
-                  onChange={(e) => setJournalFilter((prev) => ({ ...prev, outcome: e.target.value }))}
-                  className="rounded-md border border-trade-border bg-black/20 px-3 py-2 text-sm"
-                >
-                  <option value="all">All outcomes</option>
-                  <option value="win">Wins</option>
-                  <option value="loss">Losses</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                {filteredTrades.map((trade) => (
-                  <article key={trade.id} className="rounded-lg border border-trade-border bg-black/10 p-3">
-                    <button
-                      type="button"
-                      onClick={() => setExpandedTradeId((prev) => (prev === trade.id ? null : trade.id))}
-                      className="flex w-full items-center justify-between text-left"
-                    >
-                      <div>
-                        <p className="font-medium">{trade.ticker}</p>
-                        <p className="text-xs text-trade-muted">
-                          {new Date(trade.entryDate).toLocaleString()} • {trade.strategyType}
-                        </p>
-                      </div>
-                      <p className={`text-sm font-medium ${(trade.profitLoss ?? 0) >= 0 ? 'text-trade-success' : 'text-trade-danger'}`}>
-                        {trade.exitDate ? toPercent(trade.profitLossPercent ?? 0) : 'Open'}
-                      </p>
-                    </button>
-
-                    {expandedTradeId === trade.id ? (
-                      <div className="mt-3 space-y-2 border-t border-trade-border pt-3 text-sm">
-                        <p>Thesis: {trade.thesis || 'No thesis captured yet.'}</p>
-                        <p>
-                          Entry/Exit: {toCurrency(trade.entryPrice)} /{' '}
-                          {trade.exitDate ? toCurrency(trade.exitPrice ?? 0) : 'Open'}
-                        </p>
-                        <textarea
-                          aria-label={`Notes for ${trade.ticker}`}
-                          value={trade.notes || ''}
-                          onChange={(e) => updateTrade(trade.id, { notes: e.target.value })}
-                          className="w-full rounded-md border border-trade-border bg-black/20 px-3 py-2 text-sm"
-                          placeholder="Lessons learned, execution notes, emotional context..."
-                        />
-                      </div>
-                    ) : null}
-                  </article>
-                ))}
-                {!filteredTrades.length ? <p className="p-4 text-sm text-trade-muted">No trades logged yet.</p> : null}
-              </div>
-            </section>
-          )}
-
-          {currentView === 'patterns' && (
-            <section className="space-y-3">
-              <h2 className="text-lg font-semibold">Learning and Patterns</h2>
-              <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
-                <div className="rounded-lg border border-trade-border bg-black/10 p-3">
-                  <p className="text-xs text-trade-muted">Win rate</p>
-                  <p className="text-xl font-semibold">{patterns.performance?.winRate ?? 0}%</p>
-                </div>
-                <div className="rounded-lg border border-trade-border bg-black/10 p-3">
-                  <p className="text-xs text-trade-muted">Average hold time</p>
-                  <p className="text-xl font-semibold">{patterns.performance?.avgHoldDays ?? 0} days</p>
-                </div>
-                <div className="rounded-lg border border-trade-border bg-black/10 p-3">
-                  <p className="text-xs text-trade-muted">Average return</p>
-                  <p className="text-xl font-semibold">{patterns.performance?.avgReturn ?? 0}%</p>
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-trade-border bg-black/10 p-3 text-sm">
-                <p className="font-medium">Behavioral insights</p>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-trade-muted">
-                  <li>
-                    {patterns.performance?.avgReturn < 0
-                      ? 'Recent average return is negative. Tighten entry criteria and pre-define invalidation levels.'
-                      : 'Positive expectancy detected. Continue documenting what confirms your entries.'}
-                  </li>
-                  <li>
-                    {patterns.performance?.avgHoldDays < 2
-                      ? 'You often exit quickly. Validate if momentum exits are process-driven or emotion-driven.'
-                      : 'Hold time is consistent with swing-style management.'}
-                  </li>
-                </ul>
-              </div>
-
-              {watchlist.length > 0 && (
-                <div className="rounded-lg border border-trade-border bg-black/10 p-3 text-sm">
-                  <p className="font-medium mb-2">Watchlist</p>
-                  <div className="flex flex-wrap gap-2">
-                    {watchlist.map((ticker) => (
-                      <span key={ticker} className="rounded-full border border-trade-border px-3 py-1 text-xs text-trade-text">
-                        {ticker}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
-        </main>
-
-        <aside className="hidden lg:block w-80 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-4">
-          <h2 className="mb-3 text-sm font-semibold text-trade-muted">Session context</h2>
-          <div className="space-y-2 text-sm">
-            <p>Open positions: {activePositions.length}</p>
-            <p>Total trades logged: {trades.length}</p>
-            <p>Watchlist: {watchlist.join(', ') || 'None yet'}</p>
-          </div>
-          <div className="mt-4 rounded-md border border-trade-border bg-black/10 p-3 text-xs text-trade-muted">
-            Ask about support/resistance levels, P/E ratios, breakout patterns, or chart analysis.
-          </div>
-        </aside>
+          </form>
+        </section>
       </div>
-
-      {/* Mobile bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-trade-border bg-trade-surface md:hidden safe-area-bottom" aria-label="Mobile navigation">
-        <div className="flex items-center justify-around">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setCurrentView(item.id)}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-xs transition ${
-                currentView === item.id ? 'text-trade-accent' : 'text-trade-muted'
-              }`}
-            >
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 }
