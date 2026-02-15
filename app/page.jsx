@@ -419,12 +419,12 @@ export default function TradingCopilotApp() {
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <p className="text-lg font-semibold text-trade-text">Welcome to Trading Copilot</p>
                     <p className="mt-1 text-sm text-trade-muted max-w-md">
-                      Ask about setups, support/resistance levels, PE ratios, breakouts, or log a trade to get started.
+                      Ask about setups, support/resistance levels, P/E ratios, breakouts, or log a trade to get started.
                     </p>
                     <div className="mt-4 flex flex-wrap justify-center gap-2">
                       {[
                         'Analyze AAPL support levels',
-                        'What is NVDA PE ratio?',
+                        'What is NVDA P/E ratio?',
                         'Log new trade: bought TSLA at $250',
                       ].map((suggestion) => (
                         <button
@@ -707,7 +707,7 @@ export default function TradingCopilotApp() {
             <p>Watchlist: {watchlist.join(', ') || 'None yet'}</p>
           </div>
           <div className="mt-4 rounded-md border border-trade-border bg-black/10 p-3 text-xs text-trade-muted">
-            Ask about support/resistance levels, PE ratios, breakout patterns, or chart analysis.
+            Ask about support/resistance levels, P/E ratios, breakout patterns, or chart analysis.
           </div>
         </aside>
       </div>
