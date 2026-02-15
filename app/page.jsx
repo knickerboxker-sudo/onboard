@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const NAV_ITEMS = [{ id: 'chat', label: 'Chat' }];
+const NAV_ITEMS = [
+  { id: 'chat', label: 'Chat', icon: '💬' },
+  { id: 'positions', label: 'Positions', icon: '📊' },
+  { id: 'journal', label: 'Journal', icon: '📓' },
+  { id: 'patterns', label: 'Patterns', icon: '🔍' },
+];
 
 const STRATEGY_TYPES = ['momentum', 'breakout', 'swing', 'scalp', 'options', 'other'];
 
@@ -331,9 +336,9 @@ export default function TradingCopilotApp() {
   }, [journalFilter, trades]);
 
   return (
-    <div className="min-h-screen bg-trade-bg text-trade-text">
-      <div className="mx-auto flex w-full max-w-4xl gap-6 px-4 py-6">
-        <aside className="hidden h-screen w-60 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-3">
+    <div className="min-h-screen bg-trade-bg text-trade-text pb-16 md:pb-0">
+      <div className="mx-auto flex w-full max-w-4xl gap-6 px-4 py-4 md:py-6">
+        <aside className="hidden md:block h-screen w-60 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-3">
           <h1 className="mb-4 text-lg font-semibold">Trading Copilot</h1>
           <nav className="space-y-1" aria-label="Main navigation">
             {NAV_ITEMS.map((item) => (
@@ -347,7 +352,7 @@ export default function TradingCopilotApp() {
                     : 'border-transparent text-trade-muted hover:bg-black/20 hover:text-trade-text'
                 }`}
               >
-                {item.label}
+                {item.icon} {item.label}
               </button>
             ))}
           </nav>
@@ -386,7 +391,21 @@ export default function TradingCopilotApp() {
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 rounded-lg border border-trade-border bg-trade-surface p-4">
+        <main className="min-w-0 flex-1 rounded-lg border border-trade-border bg-trade-surface p-3 md:p-4">
+          {/* Mobile header */}
+          <div className="mb-3 flex items-center justify-between md:hidden">
+            <h1 className="text-base font-semibold">Trading Copilot</h1>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => { setCurrentView('chat'); setInput('Log new trade: '); }}
+                className="rounded-md bg-trade-accent px-2.5 py-1.5 text-xs font-medium text-white"
+              >
+                + Trade
+              </button>
+            </div>
+          </div>
+
           {error ? (
             <div className="mb-3 rounded-md border border-trade-danger/40 bg-trade-danger/10 px-3 py-2 text-sm text-trade-danger">
               {error}
@@ -396,16 +415,40 @@ export default function TradingCopilotApp() {
           {currentView === 'chat' && (
             <section className="flex h-full flex-col">
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+                {messages.length === 0 && !loading && (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <p className="text-lg font-semibold text-trade-text">Welcome to Trading Copilot</p>
+                    <p className="mt-1 text-sm text-trade-muted max-w-md">
+                      Ask about setups, support/resistance levels, PE ratios, breakouts, or log a trade to get started.
+                    </p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      {[
+                        'Analyze AAPL support levels',
+                        'What is NVDA PE ratio?',
+                        'Log new trade: bought TSLA at $250',
+                      ].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => setInput(suggestion)}
+                          className="rounded-full border border-trade-border px-3 py-1.5 text-xs text-trade-muted hover:bg-black/20 hover:text-trade-text transition"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {messages.map((message) => (
                   <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <article
-                      className={`max-w-3xl rounded-lg border px-3 py-2 text-sm leading-6 ${
+                      className={`max-w-[85%] md:max-w-3xl rounded-lg border px-3 py-2 text-sm leading-6 ${
                         message.role === 'user'
                           ? 'border-trade-border bg-black/30 text-trade-text'
                           : 'border-trade-border bg-black/10 text-trade-text'
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
                       <p className="mt-1 text-xs text-trade-muted">{new Date(message.timestamp).toLocaleString()}</p>
                     </article>
                   </div>
@@ -437,7 +480,7 @@ export default function TradingCopilotApp() {
                     }
                   }}
                   className="flex-1 rounded-md border border-trade-border bg-black/20 px-3 py-2 text-sm outline-none ring-trade-accent focus:ring-2"
-                  placeholder="Ask about setups, updates, exits, or chart analysis..."
+                  placeholder="Ask about setups, levels, exits..."
                 />
                 <button
                   type="button"
@@ -453,7 +496,8 @@ export default function TradingCopilotApp() {
           {currentView === 'positions' && (
             <section>
               <h2 className="mb-3 text-lg font-semibold">Active Positions</h2>
-              <div className="overflow-hidden rounded-lg border border-trade-border">
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-hidden rounded-lg border border-trade-border">
                 <table className="min-w-full text-sm">
                   <thead className="bg-black/20 text-left text-trade-muted">
                     <tr>
@@ -496,13 +540,44 @@ export default function TradingCopilotApp() {
                 </table>
                 {!activePositions.length ? <p className="p-4 text-sm text-trade-muted">No open positions yet.</p> : null}
               </div>
+              {/* Mobile cards */}
+              <div className="space-y-2 md:hidden">
+                {activePositions.map((position) => (
+                  <div key={position.id} className="rounded-lg border border-trade-border bg-black/10 p-3">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-base">{position.ticker}</p>
+                      <p
+                        className={`text-sm font-medium ${
+                          position.unrealizedPL >= 0 ? 'text-trade-success' : 'text-trade-danger'
+                        }`}
+                      >
+                        {toCurrency(position.unrealizedPL)}
+                      </p>
+                    </div>
+                    <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-trade-muted">
+                      <p>Entry: {toCurrency(position.entryPrice)}</p>
+                      <p>Current: {toCurrency(position.currentPrice)}</p>
+                      <p>Date: {new Date(position.entryDate).toLocaleDateString()}</p>
+                      <p className="uppercase">Conviction: {position.conviction}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => updateTrade(position.id, { exitDate: new Date().toISOString(), exitPrice: position.currentPrice })}
+                      className="mt-2 w-full rounded-md border border-trade-border px-2 py-1.5 text-xs hover:bg-black/20"
+                    >
+                      Mark closed
+                    </button>
+                  </div>
+                ))}
+                {!activePositions.length ? <p className="p-4 text-sm text-trade-muted">No open positions yet.</p> : null}
+              </div>
             </section>
           )}
 
           {currentView === 'journal' && (
             <section>
               <h2 className="mb-3 text-lg font-semibold">Trade Journal</h2>
-              <div className="mb-3 grid gap-2 md:grid-cols-3">
+              <div className="mb-3 grid gap-2 grid-cols-1 sm:grid-cols-3">
                 <input
                   value={journalFilter.ticker}
                   onChange={(e) => setJournalFilter((prev) => ({ ...prev, ticker: e.target.value }))}
@@ -569,6 +644,7 @@ export default function TradingCopilotApp() {
                     ) : null}
                   </article>
                 ))}
+                {!filteredTrades.length ? <p className="p-4 text-sm text-trade-muted">No trades logged yet.</p> : null}
               </div>
             </section>
           )}
@@ -576,7 +652,7 @@ export default function TradingCopilotApp() {
           {currentView === 'patterns' && (
             <section className="space-y-3">
               <h2 className="text-lg font-semibold">Learning and Patterns</h2>
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
                 <div className="rounded-lg border border-trade-border bg-black/10 p-3">
                   <p className="text-xs text-trade-muted">Win rate</p>
                   <p className="text-xl font-semibold">{patterns.performance?.winRate ?? 0}%</p>
@@ -606,11 +682,24 @@ export default function TradingCopilotApp() {
                   </li>
                 </ul>
               </div>
+
+              {watchlist.length > 0 && (
+                <div className="rounded-lg border border-trade-border bg-black/10 p-3 text-sm">
+                  <p className="font-medium mb-2">Watchlist</p>
+                  <div className="flex flex-wrap gap-2">
+                    {watchlist.map((ticker) => (
+                      <span key={ticker} className="rounded-full border border-trade-border px-3 py-1 text-xs text-trade-text">
+                        {ticker}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
           )}
         </main>
 
-        <aside className="hidden w-80 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-4">
+        <aside className="hidden lg:block w-80 shrink-0 rounded-lg border border-trade-border bg-trade-surface p-4">
           <h2 className="mb-3 text-sm font-semibold text-trade-muted">Session context</h2>
           <div className="space-y-2 text-sm">
             <p>Open positions: {activePositions.length}</p>
@@ -618,10 +707,29 @@ export default function TradingCopilotApp() {
             <p>Watchlist: {watchlist.join(', ') || 'None yet'}</p>
           </div>
           <div className="mt-4 rounded-md border border-trade-border bg-black/10 p-3 text-xs text-trade-muted">
-            Ask for chart analysis directly: &quot;Show me NVDA chart and key levels&quot;.
+            Ask about support/resistance levels, PE ratios, breakout patterns, or chart analysis.
           </div>
         </aside>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-trade-border bg-trade-surface md:hidden safe-area-bottom" aria-label="Mobile navigation">
+        <div className="flex items-center justify-around">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setCurrentView(item.id)}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-xs transition ${
+                currentView === item.id ? 'text-trade-accent' : 'text-trade-muted'
+              }`}
+            >
+              <span className="text-base">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }
