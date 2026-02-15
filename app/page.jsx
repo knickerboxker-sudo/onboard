@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const baseStorage = {
   async get(key) {
@@ -251,27 +251,9 @@ export default function TradingCopilotApp() {
     }
   }, [callCopilot, input, loading, maybeAutoLogTrade, messages, searchingWeb]);
 
-  const stats = useMemo(() => {
-    const openPositions = trades.filter((trade) => !trade.exitDate).length;
-    return {
-      messageCount: messages.length,
-      openPositions,
-      watchlistSize: watchlist.length,
-    };
-  }, [messages.length, trades, watchlist.length]);
-
   return (
-    <div className="min-h-screen bg-trade-bg px-3 py-4 text-trade-text sm:px-4">
-      <div className="mx-auto flex h-[calc(100vh-2rem)] w-full max-w-3xl flex-col rounded-2xl border border-trade-border bg-trade-surface/95 shadow-2xl">
-        <header className="border-b border-trade-border px-4 py-4 sm:px-6">
-          <h1 className="text-lg font-semibold tracking-tight">Trading Copilot</h1>
-          <p className="mt-1 text-sm text-trade-muted">A single conversation that remembers your trades, ideas, and decision patterns.</p>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs text-trade-muted">
-            <span className="rounded-full border border-trade-border px-2.5 py-1">{stats.messageCount} messages</span>
-            <span className="rounded-full border border-trade-border px-2.5 py-1">{stats.openPositions} open positions</span>
-            <span className="rounded-full border border-trade-border px-2.5 py-1">{stats.watchlistSize} watchlist symbols</span>
-          </div>
-        </header>
+    <div className="h-[100dvh] bg-trade-bg text-trade-text">
+      <div className="mx-auto flex h-full w-full max-w-3xl flex-col bg-trade-surface/95">
 
         {error ? (
           <div className="mx-4 mt-4 rounded-lg border border-trade-danger/40 bg-trade-danger/10 px-3 py-2 text-sm text-trade-danger sm:mx-6">
@@ -279,32 +261,8 @@ export default function TradingCopilotApp() {
           </div>
         ) : null}
 
-        <section className="flex min-h-0 flex-1 flex-col px-4 pb-4 pt-4 sm:px-6">
-          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
-            {messages.length === 0 && !loading ? (
-              <div className="rounded-xl border border-trade-border bg-black/10 p-4 sm:p-5">
-                <h2 className="text-base font-medium">Start your reflection</h2>
-                <p className="mt-2 text-sm leading-6 text-trade-muted">
-                  Describe your current position, reasoning, risk tolerance, or what happened in today&apos;s session. I will keep context over time and help with structure, discipline, and review.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {[
-                    'Review my last two losing trades',
-                    'I went long TSLA at 250 because momentum looked strong',
-                    'Help me define a better exit plan',
-                  ].map((prompt) => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      onClick={() => setInput(prompt)}
-                      className="rounded-full border border-trade-border px-3 py-1.5 text-xs text-trade-muted transition hover:border-trade-accent hover:text-trade-text"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+        <section className="flex min-h-0 flex-1 flex-col px-3 pt-3 sm:px-4">
+          <div className="flex-1 space-y-4 overflow-y-auto pb-4">
 
             {messages.map((message) => (
               <article
@@ -328,7 +286,7 @@ export default function TradingCopilotApp() {
           </div>
 
           <form
-            className="mt-4 flex items-end gap-2 border-t border-trade-border pt-3"
+            className="sticky bottom-0 flex items-end gap-2 border-t border-trade-border bg-trade-surface/95 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3"
             onSubmit={(event) => {
               event.preventDefault();
               sendMessage();
@@ -344,8 +302,7 @@ export default function TradingCopilotApp() {
                 }
               }}
               rows={1}
-              placeholder="Describe a trade, decision, concern, or plan..."
-              className="max-h-28 min-h-[44px] flex-1 resize-y rounded-xl border border-trade-border bg-black/20 px-3 py-2 text-sm text-trade-text outline-none transition focus:border-trade-accent"
+              className="max-h-28 min-h-[44px] flex-1 resize-y rounded-xl border border-trade-border bg-black/20 px-3 py-2 text-sm leading-6 text-trade-text outline-none transition focus:border-trade-accent"
             />
             <button
               type="submit"
