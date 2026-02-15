@@ -51,6 +51,7 @@ describe('POST /api/chat', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
     const [, options] = fetch.mock.calls[0];
     const payload = JSON.parse(options.body);
+    expect(payload.messages[0].role).toBe('system');
     expect(payload.messages.at(-1)).toMatchObject({
       role: 'user',
       content: 'How should I size this trade?',

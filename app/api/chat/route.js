@@ -23,7 +23,7 @@ export async function POST(request) {
   const body = await request.json().catch(() => null);
   const message = body?.message?.trim();
   const history = toCohereMessages(body?.messages);
-  const lastMessage = history[history.length - 1];
+  const lastMessage = history.at(-1);
   const includeMessage =
     lastMessage?.role !== 'user' || (lastMessage?.content || '').trim() !== message;
 
