@@ -1,4 +1,4 @@
-export type PartnershipType = "cross-promotion" | "product-bundle" | "event-collab" | "wholesale";
+export type PartnershipType = "cross-promotion" | "product-bundle" | "event-collab" | "wholesale" | "social-media-collab";
 
 export type BusinessRecord = {
   id: string;

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType } from "@/lib/types";
 
-const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale"];
+const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
 
 export default function OnboardingPage() {
   const supabase = useMemo(() => createClient(), []);
