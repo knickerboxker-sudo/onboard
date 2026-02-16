@@ -79,28 +79,18 @@ export async function POST(request: Request) {
     }
 
     // Increment city count
-    await supabase.rpc("increment_city_count", { city_name: city }).catch(() => {
-      // If RPC doesn't exist, manually update
-      return supabase
-        .from("city_launch_status")
-        .update({ current_count: supabase.rpc ? undefined : 0 })
-        .eq("city", city);
-    });
-
-    // Simple fallback: update city count with a direct increment
-    await supabase
+    const { data: cityData } = await supabase
       .from("city_launch_status")
       .select("current_count")
       .eq("city", city)
-      .single()
-      .then(async ({ data }) => {
-        if (data) {
-          await supabase
-            .from("city_launch_status")
-            .update({ current_count: data.current_count + 1 })
-            .eq("city", city);
-        }
-      });
+      .single();
+
+    if (cityData) {
+      await supabase
+        .from("city_launch_status")
+        .update({ current_count: cityData.current_count + 1 })
+        .eq("city", city);
+    }
 
     // If referred, increment referrer's count
     if (referred_by) {
