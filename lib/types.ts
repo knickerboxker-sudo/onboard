@@ -145,7 +145,8 @@ export type TierLimits = {
   canSeeProfileViews?: number;
   prioritySearch: boolean;
   advancedAnalytics: boolean;
-  partnershipTemplates: boolean | number;
+  /** Number of partnership templates available. 0 = none, Infinity = unlimited. */
+  partnershipTemplates: number;
   boostProfile?: boolean;
   exportData?: boolean;
   removeBranding?: boolean;

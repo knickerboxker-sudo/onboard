@@ -345,7 +345,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     canSeeWhoLiked: true,
     prioritySearch: true,
     advancedAnalytics: true,
-    partnershipTemplates: true,
+    partnershipTemplates: Infinity,
     boostProfile: false,
   },
   premium: {
@@ -353,7 +353,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     canSeeWhoLiked: true,
     prioritySearch: true,
     advancedAnalytics: true,
-    partnershipTemplates: true,
+    partnershipTemplates: Infinity,
     boostProfile: true,
   },
 };
