@@ -341,7 +341,7 @@ export default function SwipePage() {
         {!isLoading && !activeCard && !error && !swipeLimitReached ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">
             <h3 className="text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
-            <p className="mt-2 text-sm text-slate-600">Try a wider radius, update your filters, or invite more local businesses to PartnerSwipe.</p>
+            <p className="mt-2 text-sm text-slate-600">Try a wider radius, update your filters, or invite more local businesses to Sortir.</p>
           </div>
         ) : null}
       </div>
