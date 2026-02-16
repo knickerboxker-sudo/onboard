@@ -3,26 +3,24 @@ import Image from "next/image";
 
 const footerLinks = {
   Product: [
-    { label: "Features", href: "/#features" },
     { label: "How it works", href: "/#how-it-works" },
-    { label: "Pricing", href: "/#pricing" },
+    { label: "Launch Progress", href: "/coming-soon" },
     { label: "Success Stories", href: "/success-stories" },
+    { label: "Dashboard Preview", href: "/dashboard-preview" },
   ],
   Company: [
     { label: "About", href: "/about" },
     { label: "Contact", href: "mailto:hello@sortir.app" },
-    { label: "Careers", href: "/careers" },
   ],
   Legal: [
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
   ],
 };
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-slate-200/60 pt-12 pb-10">
+    <footer className="mt-16 border-t border-neutral-200 pt-12 pb-10">
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Link className="flex items-center gap-2.5" href="/">
@@ -33,20 +31,20 @@ export default function Footer() {
               height={28}
               className="h-7 w-7 rounded-lg object-contain"
             />
-            <span className="text-lg font-bold tracking-tight text-slate-900">Sortir</span>
+            <span className="text-lg font-bold tracking-tight text-neutral-900">Sortir</span>
           </Link>
-          <p className="mt-3 text-sm leading-relaxed text-slate-500">
+          <p className="mt-3 text-sm leading-relaxed text-neutral-500">
             Helping small businesses and solo entrepreneurs form real partnerships to grow together.
           </p>
         </div>
         {Object.entries(footerLinks).map(([heading, links]) => (
           <div key={heading}>
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">{heading}</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{heading}</p>
             <ul className="mt-4 space-y-2.5">
               {links.map((link) => (
                 <li key={link.label}>
                   <Link
-                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
+                    className="text-sm text-neutral-500 transition-colors hover:text-neutral-900"
                     href={link.href}
                   >
                     {link.label}
@@ -57,16 +55,16 @@ export default function Footer() {
           </div>
         ))}
       </div>
-      <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-slate-200/60 pt-6 text-sm text-slate-400 sm:flex-row">
+      <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-neutral-200 pt-6 text-sm text-neutral-400 sm:flex-row">
         <p>&copy; {new Date().getFullYear()} Sortir. All rights reserved.</p>
         <div className="flex gap-5">
-          <Link className="transition-colors hover:text-slate-600" href="/privacy">
+          <Link className="transition-colors hover:text-neutral-600" href="/privacy">
             Privacy
           </Link>
-          <Link className="transition-colors hover:text-slate-600" href="/terms">
+          <Link className="transition-colors hover:text-neutral-600" href="/terms">
             Terms
           </Link>
-          <Link className="transition-colors hover:text-slate-600" href="mailto:hello@sortir.app">
+          <Link className="transition-colors hover:text-neutral-600" href="mailto:hello@sortir.app">
             Contact
           </Link>
         </div>
