@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
@@ -86,9 +86,13 @@ export default function ReferPage() {
   });
 
   const referralCode = userBusiness ? (userBusiness.referral_code ?? generateReferralCode(userBusiness.id)) : "";
-  const referralLink = typeof window !== "undefined"
-    ? `${window.location.origin}/auth?ref=${referralCode}`
-    : "";
+  const [referralLink, setReferralLink] = useState("");
+
+  useEffect(() => {
+    if (referralCode) {
+      setReferralLink(`${window.location.origin}/auth?ref=${referralCode}`);
+    }
+  }, [referralCode]);
 
   const successfulReferrals = referrals.filter((r) => r.status === "active_partnership").length;
   const signedUpCount = referrals.filter((r) => r.status !== "invited").length;
