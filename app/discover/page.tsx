@@ -266,7 +266,7 @@ export default function DiscoverPage() {
   function saveCurrentSearch() {
     if (!savedSearchName.trim()) return;
     const search: SavedSearch = {
-      id: Math.random().toString(36).substring(2, 10),
+      id: crypto.randomUUID(),
       name: savedSearchName.trim(),
       filters: { ...filters },
     };
