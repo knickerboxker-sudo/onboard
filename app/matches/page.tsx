@@ -225,6 +225,9 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
         <Link className="btn-muted" href={`/partnership-builder?matchId=${match.id}`}>
           Build partnership
         </Link>
+        <Link className="btn-muted" href={`/agreement?matchId=${match.id}`}>
+          Agreement
+        </Link>
         {!match.partnership && (
           <button
             className="btn-muted"
