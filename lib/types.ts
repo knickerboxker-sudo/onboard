@@ -243,3 +243,16 @@ export type PartnershipHealthScore = {
     max: number;
   }[];
 };
+
+// Referral types
+export type ReferralStatus = 'invited' | 'signed_up' | 'first_match' | 'active_partnership';
+
+export type ReferralRecord = {
+  id: string;
+  referrer_business_id: string;
+  referred_email: string;
+  referred_business_id: string | null;
+  status: ReferralStatus;
+  reward_earned: boolean;
+  created_at: string;
+};
