@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Handshake, MapPin, MessageCircle, Store, TrendingUp, Users } from "lucide-react";
+import { BarChart3, FileText, Handshake, MapPin, MessageCircle, ShieldCheck, Store, TrendingUp, Users } from "lucide-react";
 
 const features = [
   {
@@ -32,6 +32,21 @@ const features = [
     title: "Grow together",
     description: "Sell each other's products in-store, promote on each other's social media, and create collaboration products and services.",
   },
+  {
+    icon: ShieldCheck,
+    title: "Verified businesses",
+    description: "Every business on PartnerSwipe can earn trust badges through verification — business license, storefront photos, and successful partnership track record.",
+  },
+  {
+    icon: BarChart3,
+    title: "Track partnership ROI",
+    description: "Measure the real value of your partnerships with built-in ROI tracking — revenue generated, customers acquired, and performance benchmarks.",
+  },
+  {
+    icon: FileText,
+    title: "Ready-to-use partnership templates",
+    description: "Get started quickly with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
+  },
 ];
 
 const collaborationTypes = [
@@ -41,6 +56,9 @@ const collaborationTypes = [
   "Bundle complementary offerings",
   "Co-host local events & pop-ups",
   "Share customer referrals",
+  "Track partnership ROI and revenue",
+  "Use pre-built partnership templates",
+  "Earn trust badges through verification",
 ];
 
 export default function Home() {
@@ -88,6 +106,19 @@ export default function Home() {
           </Link>
           <Link className="btn-muted" href="/dashboard">
             View dashboard
+          </Link>
+        </div>
+      </div>
+
+      <div className="glass rounded-3xl p-8">
+        <h2 className="text-xl font-semibold text-slate-900">Success stories</h2>
+        <p className="mt-2 text-sm text-slate-600">Real partnerships formed on PartnerSwipe — updated as businesses complete collaborations and share their results.</p>
+        <div className="mt-5 rounded-xl border border-slate-100 bg-white px-6 py-8 text-center text-sm text-slate-500">
+          Partnership stories will appear here as businesses complete collaborations. Be one of the first!
+        </div>
+        <div className="mt-6">
+          <Link className="btn-primary" href="/auth">
+            Start your first partnership
           </Link>
         </div>
       </div>

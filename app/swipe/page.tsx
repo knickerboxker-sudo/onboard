@@ -4,8 +4,8 @@ import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-mo
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { buildMatchPair, filterBusinessesForSwipe } from "@/lib/matching";
-import type { BusinessRecord, SwipeDirection, SwipeFilters } from "@/lib/types";
+import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers } from "@/lib/matching";
+import type { BusinessRecord, SwipeDirection, SwipeFilters, TrustBadge } from "@/lib/types";
 
 const defaultFilters: SwipeFilters = {
   radiusMiles: 25,
@@ -15,13 +15,44 @@ const defaultFilters: SwipeFilters = {
 const SWIPE_CONFLICT_COLUMNS = "swiper_business_id,swiped_business_id";
 const MATCH_CONFLICT_COLUMNS = "business_1_id,business_2_id";
 
+const BADGE_STYLES: Record<TrustBadge["type"], string> = {
+  verified: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  established: "border-amber-100 bg-amber-50 text-amber-700",
+  top_partner: "border-violet-100 bg-violet-50 text-violet-700",
+  fast_responder: "border-sky-100 bg-sky-50 text-sky-700",
+};
+
+function scoreColor(score: number): string {
+  if (score >= 80) return "bg-emerald-500";
+  if (score >= 50) return "bg-amber-500";
+  return "bg-slate-400";
+}
+
+function ActivityIndicator({ business }: { business: BusinessRecord }) {
+  if (business.last_active_at) {
+    const diffMs = Date.now() - new Date(business.last_active_at).getTime();
+    if (diffMs < 60 * 60 * 1000) {
+      return <span className="text-xs font-medium text-emerald-600">● Active now</span>;
+    }
+  }
+  if (business.avg_response_time_minutes != null) {
+    const hours = Math.max(1, Math.round(business.avg_response_time_minutes / 60));
+    return <span className="text-xs text-slate-500">Responds in ~{hours}h</span>;
+  }
+  return null;
+}
+
 function SwipeCard({
   business,
   onSwipe,
+  currentBusiness,
 }: {
   business: BusinessRecord & { distanceMiles: number | null };
   onSwipe: (direction: SwipeDirection) => void;
+  currentBusiness: BusinessRecord;
 }) {
+  const badges = getTrustBadges(business);
+  const matchScore = complementarityScore(currentBusiness.business_type, business.business_type);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 0, 220], [-7, 0, 7]);
   const likeOpacity = useTransform(x, [40, 140], [0, 1]);
@@ -73,6 +104,33 @@ function SwipeCard({
         ))}
       </div>
 
+      {badges.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {badges.map((badge) => (
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${BADGE_STYLES[badge.type]}`}
+              key={badge.type}
+              title={badge.description}
+            >
+              {badge.label}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-3 flex items-center gap-3">
+        <div className="flex-1">
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>Match Quality</span>
+            <span className="font-medium text-slate-700">{matchScore}%</span>
+          </div>
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+            <div className={`h-full rounded-full ${scoreColor(matchScore)}`} style={{ width: `${matchScore}%` }} />
+          </div>
+        </div>
+        <ActivityIndicator business={business} />
+      </div>
+
       <div className="mt-4 flex gap-3">
         <button className="btn-muted flex-1" onClick={() => onSwipe("left")} type="button">
           Pass
@@ -90,6 +148,8 @@ export default function SwipePage() {
   const [filters, setFilters] = useState<SwipeFilters>(defaultFilters);
   const [position, setPosition] = useState(0);
   const [matchName, setMatchName] = useState<string | null>(null);
+  const [icebreaker, setIcebreaker] = useState<string | null>(null);
+  const [swipeLimitReached, setSwipeLimitReached] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const { data, isLoading, refetch, error } = useQuery({
@@ -142,6 +202,11 @@ export default function SwipePage() {
   const handleSwipe = async (direction: SwipeDirection) => {
     if (!data || !activeCard) return;
 
+    if (!canSwipe(data.currentBusiness)) {
+      setSwipeLimitReached(true);
+      return;
+    }
+
     const { error: swipeError } = await supabase.from("swipes").upsert(
       {
         swiper_business_id: data.currentBusiness.id,
@@ -155,6 +220,7 @@ export default function SwipePage() {
       return;
     }
     setActionError(null);
+    // Server-side: increment daily_swipes_used for the current business
 
     if (direction === "right") {
       const { data: reverseSwipe, error: reverseSwipeError } = await supabase
@@ -183,6 +249,13 @@ export default function SwipePage() {
           return;
         }
         setMatchName(activeCard.name);
+        const prompts = getIcebreakers(
+          data.currentBusiness.partnership_types ?? [],
+          activeCard.partnership_types ?? [],
+        );
+        if (prompts.length > 0) {
+          setIcebreaker(prompts[Math.floor(Math.random() * prompts.length)].prompt);
+        }
       }
     }
 
@@ -227,9 +300,10 @@ export default function SwipePage() {
         {!isLoading && error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error.message}</p> : null}
 
         <AnimatePresence mode="wait">
-          {!isLoading && activeCard ? (
+          {!isLoading && activeCard && !swipeLimitReached ? (
             <SwipeCard
               business={activeCard}
+              currentBusiness={data!.currentBusiness}
               key={activeCard.id}
               onSwipe={(direction) => {
                 handleSwipe(direction).catch((error: unknown) =>
@@ -241,9 +315,16 @@ export default function SwipePage() {
             />
           ) : null}
         </AnimatePresence>
+
+        {!isLoading && swipeLimitReached ? (
+          <div className="glass max-w-md rounded-3xl p-8 text-center">
+            <h3 className="text-xl font-semibold text-slate-900">Daily swipe limit reached</h3>
+            <p className="mt-2 text-sm text-slate-600">Upgrade to Pro for unlimited swipes.</p>
+          </div>
+        ) : null}
         {actionError ? <p className="fixed bottom-6 left-6 z-40 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{actionError}</p> : null}
 
-        {!isLoading && !activeCard && !error ? (
+        {!isLoading && !activeCard && !error && !swipeLimitReached ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">
             <h3 className="text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
             <p className="mt-2 text-sm text-slate-600">Try a wider radius, update your filters, or invite more local businesses to PartnerSwipe.</p>
@@ -255,12 +336,32 @@ export default function SwipePage() {
         {matchName ? (
           <motion.div
             animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-6 right-6 z-40 rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-card"
+            className="fixed bottom-6 right-6 z-40 max-w-sm rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-card"
             exit={{ opacity: 0, y: 12 }}
             initial={{ opacity: 0, y: 12 }}
           >
             <p className="text-sm font-semibold text-emerald-700">It&apos;s a match with {matchName}</p>
-            <button className="mt-1 text-xs text-slate-500 underline" onClick={() => setMatchName(null)} type="button">
+            {icebreaker ? (
+              <div className="mt-2">
+                <p className="text-xs text-slate-500">Suggested icebreaker:</p>
+                <p className="mt-1 text-xs italic text-slate-700">&ldquo;{icebreaker}&rdquo;</p>
+                <button
+                  className="mt-1.5 rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100"
+                  onClick={() => { navigator.clipboard.writeText(icebreaker).catch(() => { /* clipboard not available */ }); }}
+                  type="button"
+                >
+                  Copy icebreaker
+                </button>
+              </div>
+            ) : null}
+            <button
+              className="mt-1 text-xs text-slate-500 underline"
+              onClick={() => {
+                setMatchName(null);
+                setIcebreaker(null);
+              }}
+              type="button"
+            >
               Dismiss
             </button>
           </motion.div>

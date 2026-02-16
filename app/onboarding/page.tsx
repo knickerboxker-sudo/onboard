@@ -27,6 +27,20 @@ export default function OnboardingPage() {
   const [socialLinks, setSocialLinks] = useState("");
   const [photos, setPhotos] = useState("");
 
+  // Social proof
+  const [followerCount, setFollowerCount] = useState("");
+  const [emailListSize, setEmailListSize] = useState("");
+  const [monthlyFootTraffic, setMonthlyFootTraffic] = useState("");
+
+  // Customer demographics
+  const [targetAgeMin, setTargetAgeMin] = useState("");
+  const [targetAgeMax, setTargetAgeMax] = useState("");
+  const [targetIncomeBracket, setTargetIncomeBracket] = useState("");
+  const [customerInterests, setCustomerInterests] = useState("");
+
+  // Years in operation
+  const [yearsInOperation, setYearsInOperation] = useState("");
+
   const submitProfile = async (event: FormEvent) => {
     event.preventDefault();
     setSaving(true);
@@ -66,6 +80,17 @@ export default function OnboardingPage() {
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean),
+      follower_count: followerCount ? Number(followerCount) : null,
+      email_list_size: emailListSize ? Number(emailListSize) : null,
+      monthly_foot_traffic: monthlyFootTraffic ? Number(monthlyFootTraffic) : null,
+      target_age_min: targetAgeMin ? Number(targetAgeMin) : null,
+      target_age_max: targetAgeMax ? Number(targetAgeMax) : null,
+      target_income_bracket: targetIncomeBracket || null,
+      customer_interests: customerInterests
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      years_in_operation: yearsInOperation ? Number(yearsInOperation) : null,
     };
 
     const { error } = await supabase.from("businesses").upsert(payload, { onConflict: "owner_id" });
@@ -151,22 +176,79 @@ export default function OnboardingPage() {
         ) : null}
 
         {step === 3 ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="label">Operating hours</label>
-              <input className="input" onChange={(event) => setHours(event.target.value)} value={hours} />
-            </div>
-            <div>
-              <label className="label">Website</label>
-              <input className="input" onChange={(event) => setWebsite(event.target.value)} placeholder="https://" value={website} />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="label">Social links (comma separated)</label>
-              <input className="input" onChange={(event) => setSocialLinks(event.target.value)} value={socialLinks} />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="label">Photo URLs (comma separated)</label>
-              <input className="input" onChange={(event) => setPhotos(event.target.value)} value={photos} />
+          <div className="mt-6 space-y-6">
+            {/* Social proof */}
+            <fieldset>
+              <legend className="label">Social proof</legend>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="label">Follower count</label>
+                  <input className="input" inputMode="numeric" onChange={(event) => setFollowerCount(event.target.value)} placeholder="e.g. 5000" value={followerCount} />
+                </div>
+                <div>
+                  <label className="label">Email list size</label>
+                  <input className="input" inputMode="numeric" onChange={(event) => setEmailListSize(event.target.value)} placeholder="e.g. 2000" value={emailListSize} />
+                </div>
+                <div>
+                  <label className="label">Monthly foot traffic</label>
+                  <input className="input" inputMode="numeric" onChange={(event) => setMonthlyFootTraffic(event.target.value)} placeholder="e.g. 10000" value={monthlyFootTraffic} />
+                </div>
+              </div>
+            </fieldset>
+
+            {/* Customer demographics */}
+            <fieldset>
+              <legend className="label">Customer demographics</legend>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="label">Target age (min)</label>
+                  <input className="input" inputMode="numeric" onChange={(event) => setTargetAgeMin(event.target.value)} placeholder="e.g. 18" value={targetAgeMin} />
+                </div>
+                <div>
+                  <label className="label">Target age (max)</label>
+                  <input className="input" inputMode="numeric" onChange={(event) => setTargetAgeMax(event.target.value)} placeholder="e.g. 45" value={targetAgeMax} />
+                </div>
+                <div>
+                  <label className="label">Income bracket</label>
+                  <select className="input" onChange={(event) => setTargetIncomeBracket(event.target.value)} value={targetIncomeBracket}>
+                    <option value="">Select...</option>
+                    <option value="under-25k">Under $25k</option>
+                    <option value="25k-50k">$25k – $50k</option>
+                    <option value="50k-75k">$50k – $75k</option>
+                    <option value="75k-100k">$75k – $100k</option>
+                    <option value="100k-150k">$100k – $150k</option>
+                    <option value="150k+">$150k+</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Customer interests (comma separated)</label>
+                  <input className="input" onChange={(event) => setCustomerInterests(event.target.value)} value={customerInterests} />
+                </div>
+              </div>
+            </fieldset>
+
+            {/* Operations */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="label">Years in operation</label>
+                <input className="input" inputMode="numeric" onChange={(event) => setYearsInOperation(event.target.value)} value={yearsInOperation} />
+              </div>
+              <div>
+                <label className="label">Operating hours</label>
+                <input className="input" onChange={(event) => setHours(event.target.value)} value={hours} />
+              </div>
+              <div>
+                <label className="label">Website</label>
+                <input className="input" onChange={(event) => setWebsite(event.target.value)} placeholder="https://" value={website} />
+              </div>
+              <div>
+                <label className="label">Social links (comma separated)</label>
+                <input className="input" onChange={(event) => setSocialLinks(event.target.value)} value={socialLinks} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="label">Photo URLs (comma separated)</label>
+                <input className="input" onChange={(event) => setPhotos(event.target.value)} value={photos} />
+              </div>
             </div>
           </div>
         ) : null}
@@ -179,6 +261,31 @@ export default function OnboardingPage() {
             </p>
             <p className="mt-1">{address}</p>
             <p className="mt-2 text-slate-600">{description || "No description provided."}</p>
+            {(followerCount || emailListSize || monthlyFootTraffic) && (
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                <p className="font-medium text-slate-900">Social proof</p>
+                {followerCount && <p className="mt-1">Followers: {Number(followerCount).toLocaleString()}</p>}
+                {emailListSize && <p className="mt-1">Email list: {Number(emailListSize).toLocaleString()}</p>}
+                {monthlyFootTraffic && <p className="mt-1">Monthly foot traffic: {Number(monthlyFootTraffic).toLocaleString()}</p>}
+              </div>
+            )}
+            {(targetAgeMin || targetAgeMax || targetIncomeBracket || customerInterests) && (
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                <p className="font-medium text-slate-900">Customer demographics</p>
+                {(targetAgeMin || targetAgeMax) && (
+                  <p className="mt-1">
+                    Target age: {targetAgeMin || "—"} – {targetAgeMax || "—"}
+                  </p>
+                )}
+                {targetIncomeBracket && <p className="mt-1">Income bracket: {targetIncomeBracket}</p>}
+                {customerInterests && <p className="mt-1">Interests: {customerInterests}</p>}
+              </div>
+            )}
+            {yearsInOperation && (
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                <p className="mt-1">Years in operation: {yearsInOperation}</p>
+              </div>
+            )}
           </div>
         ) : null}
 
@@ -188,15 +295,22 @@ export default function OnboardingPage() {
           <button className="btn-muted" disabled={step === 1} onClick={previousStep} type="button">
             Back
           </button>
-          {step < 4 ? (
-            <button className="btn-primary" onClick={nextStep} type="button">
-              Continue
-            </button>
-          ) : (
-            <button className="btn-primary" disabled={saving} type="submit">
-              {saving ? "Saving profile..." : "Finish onboarding"}
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {step === 4 ? (
+              <button className="btn-muted" onClick={() => router.push("/swipe")} type="button">
+                Skip for now
+              </button>
+            ) : null}
+            {step < 4 ? (
+              <button className="btn-primary" onClick={nextStep} type="button">
+                Continue
+              </button>
+            ) : (
+              <button className="btn-primary" disabled={saving} type="submit">
+                {saving ? "Saving profile..." : "Finish onboarding"}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>

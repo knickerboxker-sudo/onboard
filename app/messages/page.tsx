@@ -4,6 +4,8 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getIcebreakers } from "@/lib/matching";
+import type { IcebreakerPrompt } from "@/lib/types";
 import { Send } from "lucide-react";
 
 type MatchWithPartner = {
@@ -12,6 +14,9 @@ type MatchWithPartner = {
   partnerName: string;
   partnerType: string;
   partnerBusinessId: string;
+  partnershipTypes: string[];
+  lastActiveAt: string | null;
+  avgResponseTimeMinutes: number | null;
 };
 
 type Message = {
@@ -44,7 +49,7 @@ export default function MessagesPage() {
 
       const { data: business } = await supabase
         .from("businesses")
-        .select("id")
+        .select("id, partnership_types")
         .eq("owner_id", user.id)
         .single();
       if (!business) throw new Error("Please complete onboarding first.");
@@ -56,7 +61,7 @@ export default function MessagesPage() {
         .order("matched_at", { ascending: false });
 
       if (matchesError) throw new Error(matchesError.message);
-      if (!matches || matches.length === 0) return { businessId: business.id, matches: [] as MatchWithPartner[] };
+      if (!matches || matches.length === 0) return { businessId: business.id, businessPartnershipTypes: business.partnership_types ?? [], matches: [] as MatchWithPartner[] };
 
       const partnerIds = matches.map((m: { business_1_id: string; business_2_id: string }) =>
         m.business_1_id === business.id ? m.business_2_id : m.business_1_id,
@@ -64,11 +69,11 @@ export default function MessagesPage() {
 
       const { data: partners } = await supabase
         .from("businesses")
-        .select("id, name, business_type")
+        .select("id, name, business_type, partnership_types, last_active_at, avg_response_time_minutes")
         .in("id", partnerIds);
 
       const partnerMap = new Map(
-        (partners ?? []).map((p: { id: string; name: string; business_type: string }) => [p.id, p]),
+        (partners ?? []).map((p: { id: string; name: string; business_type: string; partnership_types: string[] | null; last_active_at: string | null; avg_response_time_minutes: number | null }) => [p.id, p]),
       );
 
       const enriched: MatchWithPartner[] = matches.map((m: { id: string; matched_at: string; business_1_id: string; business_2_id: string }) => {
@@ -80,10 +85,13 @@ export default function MessagesPage() {
           partnerName: partner?.name ?? "Unknown",
           partnerType: partner?.business_type ?? "",
           partnerBusinessId: partnerId,
+          partnershipTypes: partner?.partnership_types ?? [],
+          lastActiveAt: partner?.last_active_at ?? null,
+          avgResponseTimeMinutes: partner?.avg_response_time_minutes ?? null,
         };
       });
 
-      return { businessId: business.id, matches: enriched };
+      return { businessId: business.id, businessPartnershipTypes: business.partnership_types ?? [], matches: enriched };
     },
   });
 
@@ -171,6 +179,18 @@ export default function MessagesPage() {
               <p className="text-xs text-slate-500">
                 Matched {activeMatch ? new Date(activeMatch.matched_at).toLocaleDateString() : ""}
               </p>
+              {activeMatch && (() => {
+                const lastActive = activeMatch.lastActiveAt ? new Date(activeMatch.lastActiveAt) : null;
+                const isActiveNow = lastActive && (Date.now() - lastActive.getTime()) < 60 * 60 * 1000;
+                if (isActiveNow) {
+                  return <p className="mt-1 text-xs font-medium text-green-600">● Active now</p>;
+                }
+                if (activeMatch.avgResponseTimeMinutes != null) {
+                  const hours = Math.max(1, Math.round(activeMatch.avgResponseTimeMinutes / 60));
+                  return <p className="mt-1 text-xs text-slate-400">Usually responds within {hours}h</p>;
+                }
+                return null;
+              })()}
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto p-5" style={{ maxHeight: "calc(100vh - 340px)" }}>
@@ -197,7 +217,30 @@ export default function MessagesPage() {
                   );
                 })
               ) : (
-                <p className="text-center text-sm text-slate-500">No messages yet. Start the conversation!</p>
+                <div className="flex flex-col items-center gap-3 py-6">
+                  <p className="text-center text-sm text-slate-500">No messages yet. Start the conversation!</p>
+                  {activeMatch && (() => {
+                    const icebreakers: IcebreakerPrompt[] = getIcebreakers(
+                      matchesData?.businessPartnershipTypes ?? [],
+                      activeMatch.partnershipTypes,
+                    );
+                    if (icebreakers.length === 0) return null;
+                    return (
+                      <div className="mt-2 flex flex-wrap justify-center gap-2">
+                        {icebreakers.slice(0, 3).map((icebreaker) => (
+                          <button
+                            key={icebreaker.id}
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                            onClick={() => setNewMessage(icebreaker.prompt)}
+                          >
+                            {icebreaker.prompt}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
               )}
             </div>
 
