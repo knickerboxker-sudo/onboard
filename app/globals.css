@@ -4,16 +4,20 @@
 
 :root {
   color-scheme: light;
+  --sortir-cream: 247 247 242;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply text-slate-900 antialiased;
   min-height: 100vh;
-  background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 45%), radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 38%);
+  background-color: rgb(var(--sortir-cream));
+  background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.11), transparent 46%), radial-gradient(circle at top left, rgba(14, 165, 233, 0.09), transparent 40%);
 }
 
 .glass {
-  @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-card;
+  @apply backdrop-blur-xl shadow-card;
+  background-color: rgb(var(--sortir-cream) / 0.84);
+  border: 1px solid rgb(255 255 255 / 0.72);
 }
 
 .input {

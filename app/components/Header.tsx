@@ -28,7 +28,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="mb-8 flex items-center justify-between gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 shadow-soft backdrop-blur-xl">
+    <header className="glass mb-8 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 shadow-soft">
       <Link className="flex items-center gap-2.5" href="/">
         <Image
           src="/sortir-logo.png"
