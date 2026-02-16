@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowRight } from "lucide-react";
-import NotificationBell from "./NotificationBell";
+import { ArrowRight, Menu, X } from "lucide-react";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -30,49 +30,88 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="glass mb-8 flex items-center justify-between gap-3 rounded-2xl px-5 py-3.5 shadow-soft">
-      <Link className="flex items-center gap-2.5" href="/">
-        <Image
-          src="/sortir-logo.png"
-          alt="Sortir"
-          width={32}
-          height={32}
-          className="h-8 w-8 rounded-lg object-contain"
-          priority
-        />
-        <span className="text-lg font-bold tracking-tight text-slate-900">Sortir</span>
-      </Link>
-      <nav className="flex items-center gap-1 text-sm">
+    <header className="mb-8 flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-5 py-3.5 shadow-sm">
+      <div className="flex items-center gap-3">
+        <Link className="flex items-center gap-2.5" href="/">
+          <Image
+            src="/sortir-logo.png"
+            alt="Sortir"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-lg object-contain"
+            priority
+          />
+          <span className="text-lg font-bold tracking-tight text-neutral-900">Sortir</span>
+        </Link>
+        <span className="badge-primary hidden sm:inline-flex">Pre-Launch</span>
+      </div>
+
+      {/* Desktop nav */}
+      <nav className="hidden items-center gap-1 text-sm sm:flex">
+        <Link className="rounded-lg px-3 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/">
+          Home
+        </Link>
+        <Link className="rounded-lg px-3 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/coming-soon">
+          Launch Progress
+        </Link>
+        <Link className="rounded-lg px-3 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/success-stories">
+          Success Stories
+        </Link>
         {isLoggedIn && (
           <>
-            <Link className="hidden rounded-lg px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:inline-flex" href="/dashboard">
+            <Link className="rounded-lg px-3 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/dashboard">
               Dashboard
             </Link>
-            <Link className="hidden rounded-lg px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:inline-flex" href="/matches">
-              Matches
-            </Link>
-            <Link className="hidden rounded-lg px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:inline-flex" href="/messages">
-              Messages
-            </Link>
-            <Link className="hidden rounded-lg px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:inline-flex" href="/settings">
-              Settings
-            </Link>
-            <NotificationBell />
           </>
         )}
-        {!isLoggedIn && (
-          <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900" href="/auth">
-            Sign in
-          </Link>
-        )}
         <Link
-          className="group inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition-all hover:-translate-y-0.5 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/20"
-          href={isLoggedIn ? "/swipe" : "/auth"}
+          className="btn-primary ml-2"
+          href="/join"
         >
-          {isLoggedIn ? "Start matching" : "Get started"}
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          Join Waitlist
+          <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </nav>
+
+      {/* Mobile menu button */}
+      <button
+        className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 sm:hidden"
+        onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+        aria-label="Toggle menu"
+      >
+        {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
+
+      {/* Mobile nav */}
+      {menuOpen && (
+        <div className="absolute left-4 right-4 top-20 z-50 rounded-xl border border-neutral-200 bg-white p-4 shadow-lg sm:hidden">
+          <nav className="flex flex-col gap-1">
+            <Link className="rounded-lg px-3 py-2.5 font-medium text-neutral-700 hover:bg-neutral-100" href="/" onClick={() => setMenuOpen(false)}>
+              Home
+            </Link>
+            <Link className="rounded-lg px-3 py-2.5 font-medium text-neutral-700 hover:bg-neutral-100" href="/coming-soon" onClick={() => setMenuOpen(false)}>
+              Launch Progress
+            </Link>
+            <Link className="rounded-lg px-3 py-2.5 font-medium text-neutral-700 hover:bg-neutral-100" href="/success-stories" onClick={() => setMenuOpen(false)}>
+              Success Stories
+            </Link>
+            {isLoggedIn && (
+              <Link className="rounded-lg px-3 py-2.5 font-medium text-neutral-700 hover:bg-neutral-100" href="/dashboard" onClick={() => setMenuOpen(false)}>
+                Dashboard
+              </Link>
+            )}
+            <Link
+              className="btn-primary mt-2 w-full"
+              href="/join"
+              onClick={() => setMenuOpen(false)}
+            >
+              Join Waitlist
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
