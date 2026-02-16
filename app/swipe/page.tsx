@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers } from "@/lib/matching";
@@ -199,6 +199,28 @@ export default function SwipePage() {
   });
 
   const activeCard = data?.candidates[position] ?? null;
+
+  // Track profile views (debounced, once per card)
+  const viewedCardsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!activeCard || !data?.currentBusiness) return;
+    if (viewedCardsRef.current.has(activeCard.id)) return;
+    viewedCardsRef.current.add(activeCard.id);
+
+    const timer = setTimeout(() => {
+      supabase
+        .from("profile_views")
+        .insert({
+          viewer_business_id: data.currentBusiness.id,
+          viewed_business_id: activeCard.id,
+        })
+        .then(() => {
+          // fire-and-forget
+        });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [activeCard, data?.currentBusiness, supabase]);
 
   const handleSwipe = async (direction: SwipeDirection) => {
     if (!data || !activeCard) return;
