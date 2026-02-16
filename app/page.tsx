@@ -73,8 +73,8 @@ export default function Home() {
     <LandingAnimations>
       {/* Hero Section */}
       <section className="glass rounded-3xl p-6 sm:p-10">
-        <p className="mb-3 whitespace-nowrap text-sm font-medium uppercase tracking-[0.18em] text-sky-700">
-          Connect · Collaborate · Promote
+        <p className="mb-3 whitespace-nowrap text-[0.58rem] font-medium uppercase tracking-[0.12em] text-sky-700 sm:text-sm sm:tracking-[0.18em]">
+          Connect • Collaborate • Promote
         </p>
         <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
           Small businesses grow stronger&nbsp;together.
@@ -99,7 +99,7 @@ export default function Home() {
             className="glass group rounded-2xl p-5 transition-shadow duration-200 hover:shadow-card-hover"
             key={feature.title}
           >
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 transition-colors duration-200 group-hover:bg-sky-100">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center text-sky-600">
               <feature.icon className="h-5 w-5" />
             </div>
             <h3 className="text-sm font-semibold text-slate-900">{feature.title}</h3>
