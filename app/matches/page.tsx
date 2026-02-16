@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export default function MatchesPage() {
@@ -40,6 +41,11 @@ export default function MatchesPage() {
           data.map((match: { id: string; matched_at: string }) => (
             <li className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700" key={match.id}>
               Match ID {match.id.slice(0, 8)} · connected {new Date(match.matched_at).toLocaleDateString()}
+              <div className="mt-2">
+                <Link className="btn-muted" href={`/partnership-builder?matchId=${match.id}`}>
+                  Build your partnership
+                </Link>
+              </div>
             </li>
           ))
         ) : (
