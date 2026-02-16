@@ -227,9 +227,25 @@ describe("trust badges", () => {
 });
 
 describe("subscription tier limits", () => {
-  it("free tier has 5 daily swipes", () => {
-    expect(TIER_LIMITS.free.dailySwipes).toBe(5);
+  it("free tier has 3 daily swipes", () => {
+    expect(TIER_LIMITS.free.dailySwipes).toBe(3);
     expect(TIER_LIMITS.free.canSeeWhoLiked).toBe(false);
+  });
+
+  it("starter tier has 15 daily swipes", () => {
+    expect(TIER_LIMITS.starter.dailySwipes).toBe(15);
+    expect(TIER_LIMITS.starter.canSeeWhoLiked).toBe(false);
+  });
+
+  it("professional tier has unlimited swipes", () => {
+    expect(TIER_LIMITS.professional.dailySwipes).toBe(Infinity);
+    expect(TIER_LIMITS.professional.canSeeWhoLiked).toBe(true);
+  });
+
+  it("business tier has unlimited swipes with boost", () => {
+    expect(TIER_LIMITS.business.dailySwipes).toBe(Infinity);
+    expect(TIER_LIMITS.business.canSeeWhoLiked).toBe(true);
+    expect(TIER_LIMITS.business.boostProfile).toBe(true);
   });
 
   it("pro tier has unlimited swipes", () => {
@@ -251,7 +267,7 @@ describe("subscription tier limits", () => {
     const business: BusinessRecord = {
       ...origin,
       subscription_tier: "free",
-      daily_swipes_used: 5,
+      daily_swipes_used: 3,
       last_swipe_reset_at: today,
     };
     expect(canSwipe(business)).toBe(false);
@@ -261,7 +277,7 @@ describe("subscription tier limits", () => {
     const business: BusinessRecord = {
       ...origin,
       subscription_tier: "free",
-      daily_swipes_used: 5,
+      daily_swipes_used: 3,
       last_swipe_reset_at: "2020-01-01",
     };
     expect(canSwipe(business)).toBe(true);
