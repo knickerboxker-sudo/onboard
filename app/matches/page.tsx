@@ -79,7 +79,7 @@ export default function MatchesPage() {
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Link className="btn-muted" href={`/messages`}>
+                <Link className="btn-muted" href={`/messages?matchId=${match.id}`}>
                   Send message
                 </Link>
                 <Link className="btn-muted" href={`/partnership-builder?matchId=${match.id}`}>

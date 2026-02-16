@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Send } from "lucide-react";
 
@@ -24,8 +25,14 @@ type Message = {
 export default function MessagesPage() {
   const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+
+  useEffect(() => {
+    const matchId = searchParams.get("matchId");
+    if (matchId) setActiveMatchId(matchId);
+  }, [searchParams]);
 
   const { data: matchesData, isLoading: matchesLoading, error: matchesError } = useQuery({
     queryKey: ["message-matches"],
@@ -182,7 +189,7 @@ export default function MessagesPage() {
                         }`}
                       >
                         <p>{msg.content}</p>
-                        <p className={`mt-1 text-xs ${isMine ? "text-slate-400" : "text-slate-400"}`}>
+                        <p className="mt-1 text-xs text-slate-400">
                           {new Date(msg.sent_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
