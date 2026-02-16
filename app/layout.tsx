@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "PartnerSwipe",
-  description: "Local business matchmaking for partnerships and cross-promotion.",
+  description: "Connect local businesses for collaboration, cross-promotion, and community partnerships.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +18,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link className="text-lg font-semibold tracking-tight text-slate-900" href="/">
                 PartnerSwipe
               </Link>
-              <nav className="flex items-center gap-2 text-sm">
+              <nav className="flex items-center gap-1 text-sm">
+                <Link className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100" href="/dashboard">
+                  Dashboard
+                </Link>
+                <Link className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100" href="/matches">
+                  Matches
+                </Link>
+                <Link className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100" href="/messages">
+                  Messages
+                </Link>
                 <Link className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100" href="/auth">
                   Sign in
                 </Link>
