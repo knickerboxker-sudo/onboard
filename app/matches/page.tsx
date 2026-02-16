@@ -130,7 +130,7 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
       const { error } = await supabase.from("partnerships").insert({
         match_id: match.id,
         partnership_type: partnershipType,
-        start_date: new Date().toISOString(),
+        start_date: new Date().toISOString().split("T")[0],
         status: "active",
         revenue_generated: 0,
         customers_acquired: 0,
