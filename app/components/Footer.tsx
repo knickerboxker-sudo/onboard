@@ -20,7 +20,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-slate-200/60 pt-10 pb-8">
+    <footer className="mt-16 border-t border-slate-200/60 pt-10 pb-10">
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="text-sm font-semibold text-slate-900">Sortir</p>
