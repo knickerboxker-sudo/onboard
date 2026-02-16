@@ -134,7 +134,7 @@ export default function Home() {
         <p className="mt-2 text-sm text-slate-600">
           Real collaborations between local businesses — a coffee shop partnering with a bakery, a gym teaming up with a meal-prep service. Your story could be next.
         </p>
-        <div className="mt-5 rounded-xl border border-slate-100 bg-white px-6 py-8 text-center text-sm text-slate-500">
+        <div className="mt-5 rounded-xl border border-white/70 bg-[rgb(247,247,242)] px-6 py-8 text-center text-sm text-slate-500">
           Partnership stories will appear here as businesses complete collaborations. Be one of the first!
         </div>
         <div className="mt-6">
