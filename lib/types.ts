@@ -31,9 +31,12 @@ export type BusinessRecord = {
   years_in_operation?: number | null;
   successful_partnerships_count?: number;
   // Subscription
-  subscription_tier?: "free" | "pro" | "premium";
+  subscription_tier?: "free" | "starter" | "professional" | "business" | "pro" | "premium";
   daily_swipes_used?: number;
   last_swipe_reset_at?: string | null;
+  // Stripe
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
   // Activity
   last_active_at?: string | null;
   avg_response_time_minutes?: number | null;
@@ -134,15 +137,20 @@ export type SavedAssessmentRecord = {
 };
 
 // Subscription tiers
-export type SubscriptionTier = "free" | "pro" | "premium";
+export type SubscriptionTier = "free" | "starter" | "professional" | "business" | "pro" | "premium";
 
 export type TierLimits = {
   dailySwipes: number;
   canSeeWhoLiked: boolean;
+  canSeeProfileViews?: number;
   prioritySearch: boolean;
   advancedAnalytics: boolean;
-  partnershipTemplates: boolean;
-  boostProfile: boolean;
+  partnershipTemplates: boolean | number;
+  boostProfile?: boolean;
+  exportData?: boolean;
+  removeBranding?: boolean;
+  featuredInDiscovery?: boolean;
+  dedicatedSupport?: boolean;
 };
 
 // Partnership templates for post-match guidance
