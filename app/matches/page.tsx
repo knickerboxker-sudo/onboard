@@ -55,10 +55,12 @@ const REPORT_REASONS = [
 ];
 
 const STATUS_COLORS: Record<PartnershipStatus, string> = {
+  pending: "bg-indigo-50 text-indigo-700",
   active: "bg-green-50 text-green-700",
   paused: "bg-amber-50 text-amber-700",
   completed: "bg-blue-50 text-blue-700",
   cancelled: "bg-slate-100 text-slate-500",
+  archived: "bg-slate-50 text-slate-500",
 };
 
 function StarRating({
@@ -483,7 +485,6 @@ export default function MatchesPage() {
       <p className="mt-1 text-sm text-slate-500">
         Each match is a business that wants to collaborate with you — promote each other&apos;s products, cross-market locally, or co-brand together. Start a conversation to explore what&apos;s possible.
       </p>
-      {/* TODO: Partnership state — surface pending/active/archived partnership status per match */}
       <ul className="mt-5 space-y-3">
         {data?.length ? (
           data.map((match: MatchWithPartner) => (

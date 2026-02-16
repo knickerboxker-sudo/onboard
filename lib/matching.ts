@@ -1,4 +1,4 @@
-import type { BusinessRecord, SwipeFilters, TrustBadge, TierLimits, SubscriptionTier, IcebreakerPrompt, PartnershipType, PartnershipTemplate } from "@/lib/types";
+import type { BusinessRecord, SwipeFilters, TrustBadge, TierLimits, SubscriptionTier, IcebreakerPrompt, PartnershipType, PartnershipTemplate, CollaborationIntent } from "@/lib/types";
 
 const EARTH_RADIUS_MILES = 3958.8;
 
@@ -57,23 +57,97 @@ export function filterBusinessesForSwipe(
 
 // --- Enhanced Matching: Complementarity Scoring ---
 
-// TODO: Match scoring — expand complementary pairs from partner data and allow
-// businesses to declare collaboration intent (sell / promote / supply / co-brand)
-// to improve match quality beyond category compatibility alone.
-
 /** Known complementary business type pairs that score highly together. */
 const COMPLEMENTARY_PAIRS: [string, string][] = [
+  // Food & Beverage
   ["cafe", "bakery"],
-  ["gym", "juice bar"],
-  ["bookstore", "coffee shop"],
-  ["florist", "event planner"],
-  ["salon", "spa"],
   ["restaurant", "brewery"],
+  ["restaurant", "winery"],
+  ["restaurant", "farm"],
+  ["coffee shop", "bakery"],
+  ["coffee shop", "bookstore"],
+  ["juice bar", "gym"],
+  ["juice bar", "yoga studio"],
+  ["ice cream shop", "candy store"],
+  ["catering", "event planner"],
+  ["food truck", "brewery"],
+  // Health & Wellness
+  ["gym", "juice bar"],
+  ["gym", "supplement store"],
+  ["gym", "physical therapy"],
   ["yoga studio", "health food store"],
-  ["pet store", "dog groomer"],
+  ["yoga studio", "meditation center"],
+  ["salon", "spa"],
+  ["salon", "nail studio"],
+  ["spa", "hotel"],
+  ["dentist", "orthodontist"],
+  // Retail & Fashion
   ["clothing boutique", "jewelry store"],
+  ["clothing boutique", "tailor"],
+  ["shoe store", "clothing boutique"],
+  ["vintage shop", "furniture store"],
+  ["gift shop", "florist"],
+  // Home & Services
+  ["florist", "event planner"],
+  ["florist", "wedding venue"],
+  ["interior designer", "furniture store"],
+  ["real estate", "mortgage broker"],
+  ["real estate", "interior designer"],
+  ["hardware store", "contractor"],
+  ["landscaper", "garden center"],
+  // Creative & Media
   ["photography studio", "event planner"],
+  ["photography studio", "wedding venue"],
+  ["graphic designer", "print shop"],
+  ["web designer", "marketing agency"],
+  ["music school", "instrument store"],
+  ["art gallery", "frame shop"],
+  // Kids & Family
+  ["toy store", "children's clothing"],
+  ["daycare", "pediatrician"],
+  ["tutoring center", "bookstore"],
+  // Pets
+  ["pet store", "dog groomer"],
+  ["pet store", "veterinarian"],
+  ["dog groomer", "veterinarian"],
+  // Professional
+  ["accountant", "attorney"],
+  ["coworking space", "coffee shop"],
+  ["coworking space", "print shop"],
+  // Auto
+  ["auto repair", "car wash"],
+  ["auto repair", "tire shop"],
+  ["car dealership", "auto insurance"],
 ];
+
+/** Complementary collaboration intent pairs that enhance partnership potential. */
+const COMPLEMENTARY_INTENTS: [CollaborationIntent, CollaborationIntent][] = [
+  ["sell", "promote"],
+  ["supply", "sell"],
+  ["co-brand", "co-brand"],
+  ["promote", "refer"],
+  ["supply", "co-brand"],
+];
+
+/**
+ * Scores how complementary two sets of collaboration intents are.
+ * Returns 0-30 bonus points for matching intent alignment.
+ */
+export function collaborationIntentScore(intentsA: string[], intentsB: string[]): number {
+  if (intentsA.length === 0 || intentsB.length === 0) return 0;
+
+  let matchCount = 0;
+  for (const a of intentsA) {
+    for (const b of intentsB) {
+      const isMatch = COMPLEMENTARY_INTENTS.some(
+        ([x, y]) => (a === x && b === y) || (a === y && b === x),
+      );
+      if (isMatch) matchCount++;
+    }
+  }
+
+  return Math.min(matchCount * 10, 30);
+}
 
 /**
  * Scores how complementary two business types are.
@@ -147,6 +221,10 @@ export function matchQualityScore(
 ): number {
   const complementarity = complementarityScore(origin.business_type, candidate.business_type);
   const audienceOverlap = audienceOverlapScore(origin, candidate);
+  const intentBonus = collaborationIntentScore(
+    origin.collaboration_intents ?? [],
+    candidate.collaboration_intents ?? [],
+  );
 
   // Distance score (closer = higher)
   let distanceScore = 50;
@@ -167,7 +245,8 @@ export function matchQualityScore(
         audienceOverlap * 0.25 +
         distanceScore * 0.25 +
         historyBonus +
-        verifiedBonus,
+        verifiedBonus +
+        intentBonus * 0.15,
     ),
     100,
   );
@@ -276,6 +355,33 @@ export function getIcebreakers(originTypes: string[], candidateTypes: string[]):
   const overlap = originTypes.filter((t) => candidateTypes.includes(t));
   const types = overlap.length > 0 ? overlap : originTypes;
   return ICEBREAKER_PROMPTS.filter((p) => types.includes(p.partnershipType));
+}
+
+/**
+ * Generate a contextual icebreaker prompt based on two businesses' types.
+ * Returns a personalized suggestion when possible, or null otherwise.
+ */
+export function getContextualIcebreaker(
+  originType: string,
+  candidateType: string,
+  candidateName: string,
+): string | null {
+  const a = originType.toLowerCase().trim();
+  const b = candidateType.toLowerCase().trim();
+
+  const isComplementary = COMPLEMENTARY_PAIRS.some(
+    ([x, y]) => (a.includes(x) && b.includes(y)) || (a.includes(y) && b.includes(x)),
+  );
+
+  if (!isComplementary) return null;
+
+  const templates = [
+    `I think ${a} and ${b} make a perfect pairing! Would ${candidateName} be interested in exploring a partnership?`,
+    `Our ${a} customers would love what you offer at ${candidateName}. Want to brainstorm a collaboration?`,
+    `I've been thinking about how a ${a} × ${b} partnership could benefit our shared audience. Interested in chatting?`,
+  ];
+
+  return templates[Math.floor(Math.random() * templates.length)];
 }
 
 // --- Post-Match: Partnership Templates ---

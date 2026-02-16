@@ -3,9 +3,16 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { PartnershipType } from "@/lib/types";
+import type { PartnershipType, CollaborationIntent } from "@/lib/types";
 
 const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
+const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
+  { value: "sell", label: "Sell my products through a partner" },
+  { value: "promote", label: "Cross-promote with another business" },
+  { value: "supply", label: "Supply products or services" },
+  { value: "co-brand", label: "Co-brand a product or experience" },
+  { value: "refer", label: "Refer customers to each other" },
+];
 
 export default function OnboardingPage() {
   const supabase = useMemo(() => createClient(), []);
@@ -22,6 +29,7 @@ export default function OnboardingPage() {
   const [description, setDescription] = useState("");
   const [products, setProducts] = useState("");
   const [partnerships, setPartnerships] = useState<string[]>([]);
+  const [collaborationIntents, setCollaborationIntents] = useState<string[]>([]);
   const [hours, setHours] = useState("");
   const [website, setWebsite] = useState("");
   const [socialLinks, setSocialLinks] = useState("");
@@ -40,6 +48,25 @@ export default function OnboardingPage() {
 
   // Years in operation
   const [yearsInOperation, setYearsInOperation] = useState("");
+
+  const isStep1Valid = businessName.trim() !== "" && businessType.trim() !== "" && address.trim() !== "";
+
+  const completenessFields = [
+    businessName, businessType, address, description, products,
+    followerCount, emailListSize, yearsInOperation,
+  ];
+  const filledFields = completenessFields.filter((f) => f.trim() !== "").length;
+  const completeness = Math.round((filledFields / completenessFields.length) * 100);
+
+  const nextStep = () => {
+    if (step === 1 && !isStep1Valid) {
+      setErrorMessage("Please fill in business name, category, and address before continuing.");
+      return;
+    }
+    setErrorMessage(null);
+    setStep((value) => Math.min(value + 1, 4));
+  };
+  const previousStep = () => setStep((value) => Math.max(value - 1, 1));
 
   const submitProfile = async (event: FormEvent) => {
     event.preventDefault();
@@ -70,6 +97,7 @@ export default function OnboardingPage() {
         .map((item) => item.trim())
         .filter(Boolean),
       partnership_types: partnerships,
+      collaboration_intents: collaborationIntents,
       photos: photos
         .split(",")
         .map((item) => item.trim())
@@ -104,16 +132,21 @@ export default function OnboardingPage() {
     router.push("/swipe");
   };
 
-  const nextStep = () => setStep((value) => Math.min(value + 1, 4));
-  const previousStep = () => setStep((value) => Math.max(value - 1, 1));
-
   return (
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Onboarding step {step} of 4</p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">Set up your business profile</h1>
         <p className="mt-1 text-sm text-slate-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
-        {/* TODO: Business profile completeness — validate required fields (name, category, location) before allowing step progression, and show a completeness indicator. */}
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>Profile completeness</span>
+            <span className="font-medium text-slate-700">{completeness}%</span>
+          </div>
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+            <div className={`h-full rounded-full transition-all ${completeness >= 75 ? "bg-emerald-500" : completeness >= 50 ? "bg-amber-500" : "bg-slate-400"}`} style={{ width: `${completeness}%` }} />
+          </div>
+        </div>
 
         {step === 1 ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -169,6 +202,30 @@ export default function OnboardingPage() {
                         type="checkbox"
                       />
                       {option}
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend className="label">How do you want to collaborate?</legend>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {collaborationIntentOptions.map((option) => {
+                  const checked = collaborationIntents.includes(option.value);
+                  return (
+                    <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option.value}>
+                      <input
+                        checked={checked}
+                        onChange={(event) => {
+                          if (event.target.checked) {
+                            setCollaborationIntents((previous) => [...previous, option.value]);
+                          } else {
+                            setCollaborationIntents((previous) => previous.filter((item) => item !== option.value));
+                          }
+                        }}
+                        type="checkbox"
+                      />
+                      {option.label}
                     </label>
                   );
                 })}
