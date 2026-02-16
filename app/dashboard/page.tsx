@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getTrustBadges } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge } from "@/lib/types";
+import Link from "next/link";
 import {
   Activity,
   Award,
@@ -355,6 +356,10 @@ export default function DashboardPage() {
             No verifications submitted yet.
           </p>
         )}
+
+        <Link href="/verify" className="btn-primary mt-4 inline-block">
+          Submit Verification
+        </Link>
       </div>
     </div>
   );
