@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -27,7 +27,7 @@ type Message = {
   sent_at: string;
 };
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -268,5 +268,13 @@ export default function MessagesPage() {
         )}
       </div>
     </section>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="glass rounded-3xl p-6">Loading conversations…</div>}>
+      <MessagesPageContent />
+    </Suspense>
   );
 }

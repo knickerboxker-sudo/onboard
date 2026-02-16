@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useCallback, useMemo, useState } from "react";
+import { Suspense, type ChangeEvent, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { assessPartnershipEquity, fairnessCheck, negotiationStarter, type ContributionInput } from "@/lib/partnership";
 import { calculatePartnershipROI, PARTNERSHIP_TEMPLATES, getTemplatesForType, type ROIInput } from "@/lib/matching";
@@ -88,7 +88,7 @@ function ContributionForm({
   );
 }
 
-export default function PartnershipBuilderPage() {
+function PartnershipBuilderPageContent() {
   const searchParams = useSearchParams();
   const matchId = searchParams.get("matchId");
 
@@ -360,5 +360,13 @@ export default function PartnershipBuilderPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function PartnershipBuilderPage() {
+  return (
+    <Suspense fallback={<section className="space-y-6"><div className="glass rounded-3xl p-6">Loading partnership builder…</div></section>}>
+      <PartnershipBuilderPageContent />
+    </Suspense>
   );
 }
