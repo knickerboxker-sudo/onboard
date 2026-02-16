@@ -1,16 +1,391 @@
 "use client";
 
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getTrustBadges } from "@/lib/matching";
+import type { BusinessRecord, TrustBadge, PartnershipType, PartnershipStatus } from "@/lib/types";
+import { BadgeCheck, Star, Flag, ChevronDown } from "lucide-react";
+
+type PartnerBusiness = {
+  id: string;
+  name: string;
+  business_type: string;
+  verified?: boolean;
+  years_in_operation?: number | null;
+  successful_partnerships_count?: number;
+  avg_response_time_minutes?: number | null;
+};
+
+type PartnershipInfo = {
+  id: string;
+  status: PartnershipStatus;
+  partnership_type: string;
+};
+
+type ReviewInfo = {
+  id: string;
+  rating: number;
+  comment: string | null;
+};
 
 type MatchWithPartner = {
   id: string;
   matched_at: string;
-  partnerName: string;
-  partnerType: string;
+  partner: PartnerBusiness;
+  partnership: PartnershipInfo | null;
+  review: ReviewInfo | null;
+  myBusinessId: string;
 };
+
+const PARTNERSHIP_TYPES: { value: PartnershipType; label: string }[] = [
+  { value: "cross-promotion", label: "Cross Promotion" },
+  { value: "product-bundle", label: "Product Bundle" },
+  { value: "event-collab", label: "Event Collaboration" },
+  { value: "wholesale", label: "Wholesale" },
+  { value: "social-media-collab", label: "Social Media Collab" },
+];
+
+const REPORT_REASONS = [
+  { value: "inappropriate", label: "Inappropriate behavior" },
+  { value: "spam", label: "Spam" },
+  { value: "fake_business", label: "Fake business" },
+  { value: "other", label: "Other" },
+];
+
+const STATUS_COLORS: Record<PartnershipStatus, string> = {
+  active: "bg-green-50 text-green-700",
+  paused: "bg-amber-50 text-amber-700",
+  completed: "bg-blue-50 text-blue-700",
+  cancelled: "bg-slate-100 text-slate-500",
+};
+
+function StarRating({
+  value,
+  onChange,
+  readonly = false,
+}: {
+  value: number;
+  onChange?: (v: number) => void;
+  readonly?: boolean;
+}) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          disabled={readonly}
+          className={readonly ? "cursor-default" : "cursor-pointer"}
+          onClick={() => onChange?.(star)}
+          aria-label={`${star} star${star > 1 ? "s" : ""}`}
+        >
+          <Star
+            className={`h-4 w-4 ${star <= value ? "fill-amber-400 text-amber-400" : "text-slate-300"}`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function TrustBadges({ partner }: { partner: PartnerBusiness }) {
+  const badges = getTrustBadges(partner as BusinessRecord);
+  if (badges.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {badges.map((badge: TrustBadge) => (
+        <span
+          key={badge.type}
+          className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800"
+          title={badge.description}
+        >
+          <BadgeCheck className="h-3 w-3" />
+          {badge.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function MatchCard({ match }: { match: MatchWithPartner }) {
+  const supabase = useMemo(() => createClient(), []);
+  const queryClient = useQueryClient();
+
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportReason, setReportReason] = useState("inappropriate");
+  const [reportDetails, setReportDetails] = useState("");
+  const [alsoBlock, setAlsoBlock] = useState(false);
+
+  const [showPartnershipForm, setShowPartnershipForm] = useState(false);
+  const [partnershipType, setPartnershipType] = useState<PartnershipType>("cross-promotion");
+
+  const startPartnership = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("partnerships").insert({
+        match_id: match.id,
+        partnership_type: partnershipType,
+        start_date: new Date().toISOString(),
+        status: "active",
+        revenue_generated: 0,
+        customers_acquired: 0,
+      });
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
+      setShowPartnershipForm(false);
+    },
+  });
+
+  const submitReview = useMutation({
+    mutationFn: async () => {
+      if (!match.partnership) return;
+      const { error } = await supabase.from("reviews").insert({
+        partnership_id: match.partnership.id,
+        reviewer_business_id: match.myBusinessId,
+        reviewed_business_id: match.partner.id,
+        rating: reviewRating,
+        comment: reviewComment || null,
+      });
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
+      setShowReviewForm(false);
+      setReviewComment("");
+    },
+  });
+
+  const submitReport = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("reports").insert({
+        reporter_business_id: match.myBusinessId,
+        reported_business_id: match.partner.id,
+        reason: reportReason,
+        details: reportDetails || null,
+        status: "pending",
+        is_block: alsoBlock,
+      });
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      setShowReportForm(false);
+      setReportDetails("");
+      setAlsoBlock(false);
+    },
+  });
+
+  return (
+    <li className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-semibold text-slate-900">{match.partner.name}</p>
+          <p className="mt-0.5 text-xs text-slate-500">
+            {match.partner.business_type} · matched{" "}
+            {new Date(match.matched_at).toLocaleDateString()}
+          </p>
+        </div>
+        {match.partnership && (
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[match.partnership.status]}`}
+          >
+            {match.partnership.status}
+          </span>
+        )}
+      </div>
+
+      {/* Trust badges */}
+      <div className="mt-2">
+        <TrustBadges partner={match.partner} />
+      </div>
+
+      {/* Existing review */}
+      {match.review && (
+        <div className="mt-2 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
+          <StarRating value={match.review.rating} readonly />
+          {match.review.comment && (
+            <p className="text-xs text-slate-600">{match.review.comment}</p>
+          )}
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link className="btn-muted" href={`/messages?matchId=${match.id}`}>
+          Send message
+        </Link>
+        <Link className="btn-muted" href={`/partnership-builder?matchId=${match.id}`}>
+          Build partnership
+        </Link>
+        {!match.partnership && (
+          <button
+            className="btn-muted"
+            onClick={() => setShowPartnershipForm((v) => !v)}
+          >
+            Start Partnership
+            <ChevronDown className="ml-1 inline h-3 w-3" />
+          </button>
+        )}
+        {match.partnership?.status === "completed" && !match.review && (
+          <button
+            className="btn-muted"
+            onClick={() => setShowReviewForm((v) => !v)}
+          >
+            Leave Review
+          </button>
+        )}
+      </div>
+
+      {/* Start partnership form */}
+      {showPartnershipForm && (
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <label className="block text-xs font-medium text-slate-700">
+            Partnership Type
+          </label>
+          <select
+            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            value={partnershipType}
+            onChange={(e) => setPartnershipType(e.target.value as PartnershipType)}
+          >
+            {PARTNERSHIP_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+          <div className="mt-2 flex gap-2">
+            <button
+              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              disabled={startPartnership.isPending}
+              onClick={() => startPartnership.mutate()}
+            >
+              {startPartnership.isPending ? "Starting…" : "Confirm"}
+            </button>
+            <button
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              onClick={() => setShowPartnershipForm(false)}
+            >
+              Cancel
+            </button>
+          </div>
+          {startPartnership.isError && (
+            <p className="mt-1 text-xs text-red-600">{startPartnership.error.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* Review form */}
+      {showReviewForm && (
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <label className="block text-xs font-medium text-slate-700">Rating</label>
+          <div className="mt-1">
+            <StarRating value={reviewRating} onChange={setReviewRating} />
+          </div>
+          <label className="mt-2 block text-xs font-medium text-slate-700">
+            Comment (optional)
+          </label>
+          <textarea
+            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            rows={2}
+            value={reviewComment}
+            onChange={(e) => setReviewComment(e.target.value)}
+            placeholder="How was your partnership experience?"
+          />
+          <div className="mt-2 flex gap-2">
+            <button
+              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              disabled={submitReview.isPending}
+              onClick={() => submitReview.mutate()}
+            >
+              {submitReview.isPending ? "Submitting…" : "Submit Review"}
+            </button>
+            <button
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              onClick={() => setShowReviewForm(false)}
+            >
+              Cancel
+            </button>
+          </div>
+          {submitReview.isError && (
+            <p className="mt-1 text-xs text-red-600">{submitReview.error.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* Report button */}
+      <div className="mt-3 border-t border-slate-100 pt-2">
+        <button
+          className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500"
+          onClick={() => setShowReportForm((v) => !v)}
+        >
+          <Flag className="h-3 w-3" />
+          Report
+        </button>
+      </div>
+
+      {/* Report form */}
+      {showReportForm && (
+        <div className="mt-2 rounded-lg border border-red-100 bg-red-50 p-3">
+          <label className="block text-xs font-medium text-slate-700">Reason</label>
+          <select
+            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value)}
+          >
+            {REPORT_REASONS.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+          <label className="mt-2 block text-xs font-medium text-slate-700">
+            Details (optional)
+          </label>
+          <textarea
+            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            rows={2}
+            value={reportDetails}
+            onChange={(e) => setReportDetails(e.target.value)}
+            placeholder="Provide additional context…"
+          />
+          <label className="mt-2 flex items-center gap-2 text-xs text-slate-700">
+            <input
+              type="checkbox"
+              checked={alsoBlock}
+              onChange={(e) => setAlsoBlock(e.target.checked)}
+              className="rounded border-slate-300"
+            />
+            Also block this business
+          </label>
+          <div className="mt-2 flex gap-2">
+            <button
+              className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              disabled={submitReport.isPending}
+              onClick={() => submitReport.mutate()}
+            >
+              {submitReport.isPending ? "Submitting…" : "Submit Report"}
+            </button>
+            <button
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              onClick={() => setShowReportForm(false)}
+            >
+              Cancel
+            </button>
+          </div>
+          {submitReport.isError && (
+            <p className="mt-1 text-xs text-red-600">{submitReport.error.message}</p>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}
 
 export default function MatchesPage() {
   const supabase = useMemo(() => createClient(), []);
@@ -41,21 +416,59 @@ export default function MatchesPage() {
 
       const { data: partners } = await supabase
         .from("businesses")
-        .select("id, name, business_type")
+        .select("id, name, business_type, verified, years_in_operation, successful_partnerships_count, avg_response_time_minutes")
         .in("id", partnerIds);
 
       const partnerMap = new Map(
-        (partners ?? []).map((p: { id: string; name: string; business_type: string }) => [p.id, p]),
+        (partners ?? []).map((p: PartnerBusiness) => [p.id, p]),
       );
+
+      const matchIds = matches.map((m: { id: string }) => m.id);
+
+      const { data: partnerships } = await supabase
+        .from("partnerships")
+        .select("id, match_id, status, partnership_type")
+        .in("match_id", matchIds);
+
+      const partnershipMap = new Map(
+        (partnerships ?? []).map((p: { id: string; match_id: string; status: PartnershipStatus; partnership_type: string }) => [
+          p.match_id,
+          { id: p.id, status: p.status, partnership_type: p.partnership_type } as PartnershipInfo,
+        ]),
+      );
+
+      const completedPartnershipIds = (partnerships ?? [])
+        .filter((p: { status: string }) => p.status === "completed")
+        .map((p: { id: string }) => p.id);
+
+      let reviewMap = new Map<string, ReviewInfo>();
+      if (completedPartnershipIds.length > 0) {
+        const { data: reviews } = await supabase
+          .from("reviews")
+          .select("id, partnership_id, rating, comment")
+          .eq("reviewer_business_id", business.id)
+          .in("partnership_id", completedPartnershipIds);
+
+        reviewMap = new Map(
+          (reviews ?? []).map((r: { id: string; partnership_id: string; rating: number; comment: string | null }) => [
+            r.partnership_id,
+            { id: r.id, rating: r.rating, comment: r.comment } as ReviewInfo,
+          ]),
+        );
+      }
 
       return matches.map((match: { id: string; matched_at: string; business_1_id: string; business_2_id: string }) => {
         const partnerId = match.business_1_id === business.id ? match.business_2_id : match.business_1_id;
         const partner = partnerMap.get(partnerId);
+        const partnership = partnershipMap.get(match.id) ?? null;
+        const review = partnership ? reviewMap.get(partnership.id) ?? null : null;
         return {
           id: match.id,
           matched_at: match.matched_at,
-          partnerName: partner?.name ?? "Unknown Business",
-          partnerType: partner?.business_type ?? "",
+          partner: partner ?? { id: partnerId, name: "Unknown Business", business_type: "" },
+          partnership,
+          review,
+          myBusinessId: business.id,
         } as MatchWithPartner;
       });
     },
@@ -71,22 +484,7 @@ export default function MatchesPage() {
       <ul className="mt-5 space-y-3">
         {data?.length ? (
           data.map((match: MatchWithPartner) => (
-            <li className="rounded-xl border border-slate-200 bg-white px-4 py-3" key={match.id}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{match.partnerName}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">{match.partnerType} · matched {new Date(match.matched_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link className="btn-muted" href={`/messages?matchId=${match.id}`}>
-                  Send message
-                </Link>
-                <Link className="btn-muted" href={`/partnership-builder?matchId=${match.id}`}>
-                  Build partnership
-                </Link>
-              </div>
-            </li>
+            <MatchCard key={match.id} match={match} />
           ))
         ) : (
           <li className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">No matches yet. Start swiping to build your local network.</li>
