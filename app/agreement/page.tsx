@@ -4,6 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { PARTNERSHIP_TEMPLATES } from "@/lib/matching";
 import type { PartnershipType } from "@/lib/types";
@@ -213,6 +214,9 @@ function AgreementForm() {
         <p className="mt-1 text-sm text-slate-500">
           Generate a partnership agreement between matched businesses.
         </p>
+        <Link href={`/partnership-agreement${matchId ? `?matchId=${matchId}` : ""}`} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:text-sky-700">
+          Try the new Agreement Builder <ArrowRight className="h-3 w-3" />
+        </Link>
         <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
           This is a template for discussion purposes. Consult legal counsel before executing.
         </p>

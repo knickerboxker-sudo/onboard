@@ -181,3 +181,39 @@ export type NotificationPreferences = {
   push: boolean;
   in_app: boolean;
 };
+
+// Partnership agreement types
+export type AgreementStatus = 'draft' | 'pending_review' | 'approved' | 'signed' | 'expired';
+
+export type AgreementClause = {
+  id: string;
+  title: string;
+  content: string;
+  isCustom: boolean;
+};
+
+export type AgreementContent = {
+  clauses: AgreementClause[];
+  revenueSplitA: number;
+  revenueSplitB: number;
+  startDate: string;
+  endDate: string;
+  customTerms: string;
+  signatureA: string;
+  signatureB: string;
+};
+
+export type PartnershipAgreementRecord = {
+  id: string;
+  match_id: string | null;
+  partnership_id: string | null;
+  creator_business_id: string;
+  partner_business_id: string | null;
+  title: string;
+  partnership_type: string;
+  status: AgreementStatus;
+  content: AgreementContent;
+  version: number;
+  created_at: string;
+  updated_at: string;
+};
