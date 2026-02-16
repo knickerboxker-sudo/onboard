@@ -64,9 +64,9 @@ const collaborationTypes = [
 export default function Home() {
   return (
     <section className="space-y-8">
-      <div className="glass rounded-3xl p-8">
+      <div className="glass rounded-3xl p-6 sm:p-8">
         <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">PartnerSwipe</p>
-        <h1 className="mb-4 text-4xl font-semibold tracking-tight text-slate-900">Connect with local businesses. Collaborate and grow together.</h1>
+        <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Connect with local businesses. Collaborate and grow together.</h1>
         <p className="max-w-2xl text-slate-600">
           PartnerSwipe connects small business owners and solo entrepreneurs in their community to collaborate — sell each other&apos;s products, cross-promote on social media, create joint offerings, and build lasting local partnerships.
         </p>
@@ -90,7 +90,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="glass rounded-3xl p-8">
+      <div className="glass rounded-3xl p-6 sm:p-8">
         <h2 className="text-xl font-semibold text-slate-900">Ways to collaborate</h2>
         <p className="mt-2 text-sm text-slate-600">PartnerSwipe makes it easy to find the right local partners and build real business relationships.</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -110,7 +110,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="glass rounded-3xl p-8">
+      <div className="glass rounded-3xl p-6 sm:p-8">
         <h2 className="text-xl font-semibold text-slate-900">Success stories</h2>
         <p className="mt-2 text-sm text-slate-600">Real partnerships formed on PartnerSwipe — updated as businesses complete collaborations and share their results.</p>
         <div className="mt-5 rounded-xl border border-slate-100 bg-white px-6 py-8 text-center text-sm text-slate-500">
