@@ -25,7 +25,7 @@ const item = {
 export function LandingAnimations({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      className="space-y-10"
+      className="space-y-16"
       variants={container}
       initial="hidden"
       animate="show"
