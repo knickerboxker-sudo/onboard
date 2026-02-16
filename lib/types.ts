@@ -161,3 +161,98 @@ export type IcebreakerPrompt = {
   partnershipType: PartnershipType;
   prompt: string;
 };
+
+// Notification types
+export type NotificationType = 'match' | 'message' | 'partnership_update' | 'verification' | 'system';
+
+export type NotificationRecord = {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link: string | null;
+  read: boolean;
+  created_at: string;
+};
+
+export type NotificationPreferences = {
+  email: boolean;
+  push: boolean;
+  in_app: boolean;
+};
+
+// Partnership agreement types
+export type AgreementStatus = 'draft' | 'pending_review' | 'approved' | 'signed' | 'expired';
+
+export type AgreementClause = {
+  id: string;
+  title: string;
+  content: string;
+  isCustom: boolean;
+};
+
+export type AgreementContent = {
+  clauses: AgreementClause[];
+  revenueSplitA: number;
+  revenueSplitB: number;
+  startDate: string;
+  endDate: string;
+  customTerms: string;
+  signatureA: string;
+  signatureB: string;
+};
+
+export type PartnershipAgreementRecord = {
+  id: string;
+  match_id: string | null;
+  partnership_id: string | null;
+  creator_business_id: string;
+  partner_business_id: string | null;
+  title: string;
+  partnership_type: string;
+  status: AgreementStatus;
+  content: AgreementContent;
+  version: number;
+  created_at: string;
+  updated_at: string;
+};
+
+// Partnership milestone types
+export type MilestoneType = 'first_sale' | 'revenue_threshold' | 'customer_goal' | 'duration_milestone' | 'custom';
+
+export type PartnershipMilestoneRecord = {
+  id: string;
+  partnership_id: string;
+  type: MilestoneType;
+  title: string;
+  description: string | null;
+  target_value: number;
+  current_value: number;
+  completed_at: string | null;
+  celebrated: boolean;
+  created_at: string;
+};
+
+export type PartnershipHealthScore = {
+  score: number;
+  level: 'healthy' | 'moderate' | 'needs_attention';
+  factors: {
+    label: string;
+    value: number;
+    max: number;
+  }[];
+};
+
+// Referral types
+export type ReferralStatus = 'invited' | 'signed_up' | 'first_match' | 'active_partnership';
+
+export type ReferralRecord = {
+  id: string;
+  referrer_business_id: string;
+  referred_email: string;
+  referred_business_id: string | null;
+  status: ReferralStatus;
+  reward_earned: boolean;
+  created_at: string;
+};

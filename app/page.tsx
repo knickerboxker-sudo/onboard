@@ -132,58 +132,97 @@ export default function Home() {
   return (
     <LandingAnimations>
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-16 sm:px-12 sm:py-24">
+      <section className="hero-section relative overflow-hidden rounded-3xl px-6 py-16 ring-1 ring-slate-100 sm:px-12 sm:py-24">
         {/* Decorative background elements */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
-          <div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-sky-400/20 to-transparent" />
+          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-sky-200/30 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
         </div>
 
-        <div className="relative z-10">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-sky-300">
-            <Sparkles className="h-3.5 w-3.5" />
-            Connect • Collaborate • Promote
-          </div>
-          <h1 className="mb-6 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Small businesses grow{" "}
-            <span className="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">
-              stronger together.
-            </span>
-          </h1>
-          <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300">
-            Sortir helps small businesses and solo entrepreneurs form real
-            partnerships — sell each other&apos;s products, cross-promote
-            locally, and build cooperative networks that compete with the big
-            guys.
-          </p>
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <Link
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-lg shadow-white/10 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/20"
-              href="/auth"
-            >
-              Get started free
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-600 px-6 py-3.5 text-sm font-semibold text-slate-300 transition-all hover:border-slate-500 hover:bg-slate-800 hover:text-white"
-              href="/swipe"
-            >
-              Preview swipe stack
-            </Link>
+        <div className="relative z-10 flex flex-col items-center lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+          <div className="max-w-2xl">
+            <div className="hero-badge mb-6">
+              <Sparkles className="h-3.5 w-3.5" />
+              Connect • Collaborate • Promote
+            </div>
+            <h1 className="mb-6 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+              Your neighborhood businesses,{" "}
+              <span className="bg-gradient-to-r from-sky-500 to-indigo-500 bg-clip-text text-transparent">
+                stronger together.
+              </span>
+            </h1>
+            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-600">
+              Sortir helps you find your perfect local partner — cross-promote,
+              share customers, and build cooperative networks that help every
+              small business on the block thrive.
+            </p>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <Link
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:-translate-y-0.5 hover:bg-slate-700 hover:shadow-xl hover:shadow-slate-900/20"
+                href="/auth"
+              >
+                Get started free
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              <Link
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3.5 text-sm font-semibold text-slate-700 transition-all hover:border-slate-400 hover:bg-white hover:text-slate-900"
+                href="/swipe"
+              >
+                Preview swipe stack
+              </Link>
+            </div>
           </div>
 
-          {/* Social proof stats */}
-          <div className="mt-16 grid grid-cols-2 gap-8 border-t border-slate-700/50 pt-10 sm:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm text-slate-400">{stat.label}</p>
-              </div>
-            ))}
+          {/* Hero SVG illustration */}
+          <div className="mt-12 flex-shrink-0 lg:mt-0">
+            <svg
+              width="320"
+              height="240"
+              viewBox="0 0 320 240"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full max-w-xs lg:max-w-sm"
+              aria-hidden="true"
+            >
+              {/* Left business card */}
+              <rect x="20" y="50" width="120" height="80" rx="12" fill="white" stroke="#0ea5e9" strokeWidth="2" />
+              <rect x="36" y="66" width="40" height="6" rx="3" fill="#0ea5e9" opacity="0.7" />
+              <rect x="36" y="78" width="60" height="4" rx="2" fill="#94a3b8" opacity="0.5" />
+              <rect x="36" y="88" width="50" height="4" rx="2" fill="#94a3b8" opacity="0.5" />
+              <rect x="36" y="98" width="70" height="4" rx="2" fill="#94a3b8" opacity="0.3" />
+              <circle cx="116" cy="74" r="10" fill="#f0f9ff" stroke="#0ea5e9" strokeWidth="1.5" />
+              <path d="M113 74l2 2 4-4" stroke="#0ea5e9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+
+              {/* Right business card */}
+              <rect x="180" y="110" width="120" height="80" rx="12" fill="white" stroke="#6366f1" strokeWidth="2" />
+              <rect x="196" y="126" width="40" height="6" rx="3" fill="#6366f1" opacity="0.7" />
+              <rect x="196" y="138" width="60" height="4" rx="2" fill="#94a3b8" opacity="0.5" />
+              <rect x="196" y="148" width="50" height="4" rx="2" fill="#94a3b8" opacity="0.5" />
+              <rect x="196" y="158" width="70" height="4" rx="2" fill="#94a3b8" opacity="0.3" />
+              <circle cx="276" cy="134" r="10" fill="#eef2ff" stroke="#6366f1" strokeWidth="1.5" />
+              <path d="M273 134l2 2 4-4" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+
+              {/* Animated dashed connection lines */}
+              <path d="M140 90 C160 90, 160 150, 180 150" stroke="#0ea5e9" strokeWidth="2" strokeDasharray="6 4" fill="none" style={{ animation: "dash 1.5s linear infinite" }} />
+              <path d="M140 100 C170 100, 170 130, 180 130" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 4" fill="none" style={{ animation: "dash 1.5s linear infinite reverse" }} />
+
+              {/* Central handshake icon */}
+              <circle cx="160" cy="120" r="16" fill="white" stroke="#e2e8f0" strokeWidth="1.5" />
+              <path d="M152 120h4l2-3 3 6 3-6 2 3h4" stroke="#0ea5e9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
+        </div>
+
+        {/* Social proof stats */}
+        <div className="relative z-10 mt-16 grid grid-cols-2 gap-8 border-t border-slate-200 pt-10 sm:grid-cols-4">
+          {stats.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-sm text-slate-500">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -205,11 +244,11 @@ export default function Home() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <div
-              className="glass group rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+              className="group rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
               key={feature.title}
             >
-              <div className="feature-icon-bg mb-4">
-                <feature.icon className="h-5 w-5" />
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 to-indigo-50 shadow-sm ring-1 ring-sky-100/50 transition-all duration-300 group-hover:scale-110 group-hover:shadow-md">
+                <feature.icon className="h-6 w-6 text-sky-600" />
               </div>
               <h3 className="font-semibold text-slate-900">{feature.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">
@@ -297,32 +336,32 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-16 text-center sm:px-12">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50 via-white to-indigo-50 px-6 py-16 text-center ring-1 ring-sky-100/50 sm:px-12">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -right-20 top-0 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
-          <div className="absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl" />
+          <div className="absolute -right-20 top-0 h-64 w-64 rounded-full bg-sky-200/30 blur-3xl" />
+          <div className="absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-indigo-200/30 blur-3xl" />
         </div>
         <div className="relative z-10">
-          <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
+          <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl lg:text-4xl">
             Ready to find your perfect{" "}
-            <span className="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-sky-500 to-indigo-500 bg-clip-text text-transparent">
               business partner?
             </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-slate-300">
+          <p className="mx-auto mt-4 max-w-xl text-slate-600">
             Join thousands of local businesses already growing through
             partnerships on Sortir. It&apos;s free to get started.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-semibold text-slate-900 shadow-lg shadow-white/10 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/20"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:-translate-y-0.5 hover:bg-slate-700 hover:shadow-xl hover:shadow-slate-900/20"
               href="/auth"
             >
               Start your first partnership
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
-          <p className="mt-4 text-xs text-slate-500">
+          <p className="mt-4 text-xs text-slate-400">
             No credit card required • Free forever for basic features
           </p>
         </div>

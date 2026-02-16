@@ -92,5 +92,18 @@ body {
 }
 
 .testimonial-card {
-  @apply glass rounded-2xl p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1;
+  @apply rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #FFFEF9 0%, #F0F9FF 100%);
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -20;
+  }
 }
