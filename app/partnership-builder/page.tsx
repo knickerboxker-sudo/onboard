@@ -104,6 +104,7 @@ function PartnershipBuilderPageContent() {
   // ROI calculator state
   const [roiInput, setRoiInput] = useState<ROIInput>(initialROI);
   const [roiResult, setRoiResult] = useState<ReturnType<typeof calculatePartnershipROI> | null>(null);
+  const [hourlyRate, setHourlyRate] = useState(50);
 
   // Partnership templates state
   const [selectedType, setSelectedType] = useState<PartnershipType>("cross-promotion");
@@ -290,8 +291,12 @@ function PartnershipBuilderPageContent() {
             Partnership duration (months)
             <input className="input mt-1" min={1} onChange={updateROIField("partnershipDurationMonths")} type="number" value={roiInput.partnershipDurationMonths} />
           </label>
+          <label className="label">
+            Your hourly rate ($)
+            <input className="input mt-1" min={0} onChange={(event) => setHourlyRate(Number(event.target.value))} type="number" value={hourlyRate} />
+          </label>
         </div>
-        <button className="btn-primary mt-4" onClick={() => setRoiResult(calculatePartnershipROI(roiInput))} type="button">
+        <button className="btn-primary mt-4" onClick={() => setRoiResult(calculatePartnershipROI({ ...roiInput, hourlyRate }))} type="button">
           Calculate ROI
         </button>
         {roiResult ? (

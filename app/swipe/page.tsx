@@ -1,11 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers } from "@/lib/matching";
+import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers, getContextualIcebreaker } from "@/lib/matching";
 import type { BusinessRecord, SwipeDirection, SwipeFilters, TrustBadge } from "@/lib/types";
+import { MapPin } from "lucide-react";
 
 const defaultFilters: SwipeFilters = {
   radiusMiles: 25,
@@ -53,6 +54,27 @@ function SwipeCard({
 }) {
   const badges = getTrustBadges(business);
   const matchScore = complementarityScore(currentBusiness.business_type, business.business_type);
+  const [showIcebreakers, setShowIcebreakers] = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+
+  const icebreakerPrompts = useMemo(() => {
+    const prompts: string[] = [];
+    const contextual = getContextualIcebreaker(currentBusiness.business_type, business.business_type, business.name);
+    if (contextual) prompts.push(contextual);
+    const typed = getIcebreakers(currentBusiness.partnership_types ?? [], business.partnership_types ?? []);
+    for (const t of typed) {
+      if (prompts.length >= 3) break;
+      if (!prompts.includes(t.prompt)) prompts.push(t.prompt);
+    }
+    return prompts.slice(0, 3);
+  }, [currentBusiness.business_type, currentBusiness.partnership_types, business.business_type, business.partnership_types, business.name]);
+
+  const copyPrompt = (text: string, idx: number) => {
+    navigator.clipboard.writeText(text).catch(() => {});
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 1500);
+  };
+
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 0, 220], [-7, 0, 7]);
   const likeOpacity = useTransform(x, [40, 140], [0, 1]);
@@ -139,12 +161,58 @@ function SwipeCard({
           Interested
         </button>
       </div>
+
+      {icebreakerPrompts.length > 0 && (
+        <div className="mt-3">
+          <button
+            className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+            onClick={() => setShowIcebreakers((v) => !v)}
+            type="button"
+          >
+            <svg
+              className={`h-3.5 w-3.5 transition-transform ${showIcebreakers ? "rotate-90" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Message ideas
+          </button>
+          <AnimatePresence>
+            {showIcebreakers && (
+              <motion.div
+                animate={{ height: "auto", opacity: 1 }}
+                className="mt-2 flex flex-col gap-2 overflow-hidden"
+                exit={{ height: 0, opacity: 0 }}
+                initial={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {icebreakerPrompts.map((prompt, idx) => (
+                  <div className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2" key={idx}>
+                    <p className="flex-1 text-xs text-slate-600">&ldquo;{prompt}&rdquo;</p>
+                    <button
+                      className="shrink-0 rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500 shadow-sm hover:text-slate-700"
+                      onClick={() => copyPrompt(prompt, idx)}
+                      type="button"
+                    >
+                      {copiedIdx === idx ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </motion.div>
   );
 }
 
 export default function SwipePage() {
   const supabase = useMemo(() => createClient(), []);
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<SwipeFilters>(defaultFilters);
   const [position, setPosition] = useState(0);
   const [matchName, setMatchName] = useState<string | null>(null);
@@ -198,6 +266,28 @@ export default function SwipePage() {
   });
 
   const activeCard = data?.candidates[position] ?? null;
+
+  // Track profile views (debounced, once per card)
+  const viewedCardsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!activeCard || !data?.currentBusiness) return;
+    if (viewedCardsRef.current.has(activeCard.id)) return;
+    viewedCardsRef.current.add(activeCard.id);
+
+    const timer = setTimeout(() => {
+      supabase
+        .from("profile_views")
+        .insert({
+          viewer_business_id: data.currentBusiness.id,
+          viewed_business_id: activeCard.id,
+        })
+        .then(() => {
+          // fire-and-forget
+        });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [activeCard, data?.currentBusiness, supabase]);
 
   const handleSwipe = async (direction: SwipeDirection) => {
     if (!data || !activeCard) return;
@@ -263,12 +353,16 @@ export default function SwipePage() {
           return;
         }
         setMatchName(activeCard.name);
-        const prompts = getIcebreakers(
-          data.currentBusiness.partnership_types ?? [],
-          activeCard.partnership_types ?? [],
-        );
-        if (prompts.length > 0) {
-          setIcebreaker(prompts[Math.floor(Math.random() * prompts.length)].prompt);
+        try {
+          const prompts = getIcebreakers(
+            data.currentBusiness.partnership_types ?? [],
+            activeCard.partnership_types ?? [],
+          );
+          if (prompts.length > 0) {
+            setIcebreaker(prompts[Math.floor(Math.random() * prompts.length)].prompt);
+          }
+        } catch {
+          // icebreaker generation should not block match notification
         }
       }
     }
@@ -301,7 +395,11 @@ export default function SwipePage() {
           className="btn-muted mt-4 w-full"
           onClick={() => {
             setPosition(0);
-            void refetch();
+            setMatchName(null);
+            setIcebreaker(null);
+            setSwipeLimitReached(false);
+            setActionError(null);
+            void queryClient.invalidateQueries({ queryKey: ["swipe-data", filters] }).then(() => refetch());
           }}
           type="button"
         >
@@ -340,7 +438,8 @@ export default function SwipePage() {
 
         {!isLoading && !activeCard && !error && !swipeLimitReached ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">
-            <h3 className="text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
+            <MapPin className="mx-auto h-10 w-10 text-slate-300" />
+            <h3 className="mt-3 text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
             <p className="mt-2 text-sm text-slate-600">Try a wider radius, update your filters, or invite more local businesses to Sortir.</p>
           </div>
         ) : null}

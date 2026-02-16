@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getTrustBadges } from "@/lib/matching";
-import type { BusinessRecord, TrustBadge } from "@/lib/types";
+import type { BusinessRecord, TrustBadge, SavedAssessmentRecord } from "@/lib/types";
+import Link from "next/link";
 import {
   Activity,
   Award,
@@ -13,7 +14,9 @@ import {
   Eye,
   Handshake,
   MessageCircle,
+  Share2,
   Star,
+  Trash2,
   TrendingUp,
 } from "lucide-react";
 
@@ -33,6 +36,7 @@ type Verification = {
 
 export default function DashboardPage() {
   const supabase = useMemo(() => createClient(), []);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -67,6 +71,7 @@ export default function DashboardPage() {
         { data: partnerships },
         { data: verifications },
         { data: reviews },
+        { data: savedAssessments },
       ] = await Promise.all([
         supabase
           .from("swipes")
@@ -102,6 +107,11 @@ export default function DashboardPage() {
           .from("reviews")
           .select("rating")
           .eq("reviewed_business_id", bizId),
+        supabase
+          .from("saved_assessments")
+          .select("*")
+          .eq("creator_business_id", bizId)
+          .order("created_at", { ascending: false }),
       ]);
 
       const activePartnerships = (partnerships ?? []).filter(
@@ -142,12 +152,37 @@ export default function DashboardPage() {
         avgRating,
         recentPartnerships: (partnerships ?? []).slice(0, 5) as Partnership[],
         verifications: (verifications ?? []) as Verification[],
+        savedAssessments: (savedAssessments ?? []) as SavedAssessmentRecord[],
       };
     },
   });
 
+  const deleteAssessment = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("saved_assessments").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] }),
+  });
+
   if (isLoading)
-    return <div className="glass rounded-3xl p-6">Loading dashboard…</div>;
+    return (
+      <div className="space-y-4">
+        <div className="glass rounded-3xl p-6">
+          <div className="h-4 w-40 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="mt-2 h-6 w-56 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded bg-slate-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div className="glass rounded-2xl p-5" key={i}>
+              <div className="h-4 w-24 animate-skeleton-pulse rounded bg-slate-200" />
+              <div className="mt-3 h-8 w-16 animate-skeleton-pulse rounded bg-slate-200" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   if (error)
     return (
       <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -302,6 +337,96 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Saved Assessments */}
+      <div className="glass rounded-3xl p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Saved Assessments</h2>
+        {(data?.savedAssessments?.length ?? 0) > 0 ? (
+          <div className="mt-3 space-y-3">
+            {data?.savedAssessments.map((a) => (
+              <div
+                key={a.id}
+                className="rounded-xl border border-slate-100 bg-white/60 px-4 py-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">
+                      {a.scenario}
+                    </span>
+                    {a.shared_with_match && (
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                        <Share2 className="h-3 w-3" /> Shared
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {new Date(a.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span>A: {a.business_a_percent}%</span>
+                    <span>B: {a.business_b_percent}%</span>
+                  </div>
+                  <div className="mt-1 flex h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="bg-sky-500 transition-all"
+                      style={{ width: `${a.business_a_percent}%` }}
+                    />
+                    <div
+                      className="bg-indigo-400 transition-all"
+                      style={{ width: `${a.business_b_percent}%` }}
+                    />
+                  </div>
+                </div>
+
+                {a.proposed_split_a != null && (
+                  <p className="mt-2 text-xs text-slate-600">
+                    Proposed split: {a.proposed_split_a}% / {100 - a.proposed_split_a}%
+                  </p>
+                )}
+
+                {a.notes && (
+                  <p className="mt-1 text-xs text-slate-500">{a.notes}</p>
+                )}
+
+                <div className="mt-3 flex items-center gap-2">
+                  <Link
+                    href={`/partnership-builder?${new URLSearchParams({
+                      assessment: a.id,
+                      scenario: a.scenario,
+                      a: String(a.business_a_percent),
+                      b: String(a.business_b_percent),
+                      ...(a.proposed_split_a != null && { split: String(a.proposed_split_a) }),
+                      ...(a.match_id && { match: a.match_id }),
+                    }).toString()}`}
+                    className="rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-100"
+                  >
+                    View / Edit
+                  </Link>
+                  <button
+                    onClick={() => deleteAssessment.mutate(a.id)}
+                    disabled={deleteAssessment.isPending}
+                    className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                  >
+                    <Trash2 className="h-3 w-3" /> Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-3">
+            <p className="text-sm text-slate-500">
+              No saved assessments yet. Use the Partnership Builder to create one.
+            </p>
+            <Link href="/partnership-builder" className="btn-primary mt-3 inline-block">
+              Partnership Builder
+            </Link>
+          </div>
+        )}
+      </div>
+
       {/* Trust & Verification */}
       <div className="glass rounded-3xl p-6">
         <h2 className="text-lg font-semibold text-slate-900">
@@ -355,6 +480,10 @@ export default function DashboardPage() {
             No verifications submitted yet.
           </p>
         )}
+
+        <Link href="/verify" className="btn-primary mt-4 inline-block">
+          Submit Verification
+        </Link>
       </div>
     </div>
   );

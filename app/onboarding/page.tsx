@@ -1,9 +1,14 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
+import AddressAutocomplete from "@/app/components/AddressAutocomplete";
+import ImageUpload from "@/app/components/ImageUpload";
+
+const STORAGE_KEY = "sortir-onboarding-draft";
 
 const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
@@ -14,12 +19,101 @@ const collaborationIntentOptions: { value: CollaborationIntent; label: string }[
   { value: "refer", label: "Refer customers to each other" },
 ];
 
+const stepLabels = ["Basics", "Offerings", "Details", "Review"];
+
+const slideVariants = {
+  enter: (direction: number) => ({ x: direction > 0 ? 300 : -300, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction > 0 ? -300 : 300, opacity: 0 }),
+};
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="mt-1 text-xs text-red-600">{message}</p>;
+}
+
+function StepProgressBar({ step }: { step: number }) {
+  return (
+    <div className="mt-4 flex items-center justify-between">
+      {stepLabels.map((label, i) => {
+        const stepNum = i + 1;
+        const isActive = stepNum === step;
+        const isComplete = stepNum < step;
+        return (
+          <div key={label} className="flex flex-1 items-center">
+            <div className="flex flex-col items-center">
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
+                  isComplete
+                    ? "bg-emerald-500 text-white"
+                    : isActive
+                      ? "bg-slate-900 text-white shadow-lg"
+                      : "border border-slate-300 bg-white text-slate-400"
+                }`}
+              >
+                {isComplete ? "✓" : stepNum}
+              </div>
+              <span className={`mt-1 text-[10px] font-medium ${isActive ? "text-slate-900" : isComplete ? "text-emerald-600" : "text-slate-400"}`}>
+                {label}
+              </span>
+            </div>
+            {i < stepLabels.length - 1 && (
+              <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-slate-200"}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ReviewSection({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
+  return (
+    <div className="mt-4 rounded-2xl border border-slate-200/60 bg-white/60 p-4 backdrop-blur-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-slate-900">{title}</p>
+        <button type="button" onClick={onEdit} className="text-xs font-medium text-sky-600 hover:text-sky-800 transition-colors">
+          Edit
+        </button>
+      </div>
+      <div className="mt-2 text-sm text-slate-700">{children}</div>
+    </div>
+  );
+}
+
+interface DraftState {
+  businessName: string;
+  businessType: string;
+  address: string;
+  lat: string;
+  lng: string;
+  description: string;
+  products: string;
+  partnerships: string[];
+  collaborationIntents: string[];
+  hours: string;
+  website: string;
+  socialLinks: string;
+  photos: string[];
+  followerCount: string;
+  emailListSize: string;
+  monthlyFootTraffic: string;
+  targetAgeMin: string;
+  targetAgeMax: string;
+  targetIncomeBracket: string;
+  customerInterests: string;
+  yearsInOperation: string;
+  step: number;
+}
+
 export default function OnboardingPage() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState(1);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
@@ -33,7 +127,7 @@ export default function OnboardingPage() {
   const [hours, setHours] = useState("");
   const [website, setWebsite] = useState("");
   const [socialLinks, setSocialLinks] = useState("");
-  const [photos, setPhotos] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
 
   // Social proof
   const [followerCount, setFollowerCount] = useState("");
@@ -49,24 +143,114 @@ export default function OnboardingPage() {
   // Years in operation
   const [yearsInOperation, setYearsInOperation] = useState("");
 
+  // --- localStorage auto-save: restore on mount ---
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const draft: DraftState = JSON.parse(raw);
+        setBusinessName(draft.businessName ?? "");
+        setBusinessType(draft.businessType ?? "");
+        setAddress(draft.address ?? "");
+        setLat(draft.lat ?? "");
+        setLng(draft.lng ?? "");
+        setDescription(draft.description ?? "");
+        setProducts(draft.products ?? "");
+        setPartnerships(draft.partnerships ?? []);
+        setCollaborationIntents(draft.collaborationIntents ?? []);
+        setHours(draft.hours ?? "");
+        setWebsite(draft.website ?? "");
+        setSocialLinks(draft.socialLinks ?? "");
+        setPhotos(draft.photos ?? []);
+        setFollowerCount(draft.followerCount ?? "");
+        setEmailListSize(draft.emailListSize ?? "");
+        setMonthlyFootTraffic(draft.monthlyFootTraffic ?? "");
+        setTargetAgeMin(draft.targetAgeMin ?? "");
+        setTargetAgeMax(draft.targetAgeMax ?? "");
+        setTargetIncomeBracket(draft.targetIncomeBracket ?? "");
+        setCustomerInterests(draft.customerInterests ?? "");
+        setYearsInOperation(draft.yearsInOperation ?? "");
+        if (draft.step >= 1 && draft.step <= 4) setStep(draft.step);
+      }
+    } catch {
+      // ignore corrupt localStorage
+    }
+    setHydrated(true);
+  }, []);
+
+  // --- localStorage auto-save: debounced save ---
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveDraft = useCallback(() => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const draft: DraftState = {
+        businessName, businessType, address, lat, lng, description, products,
+        partnerships, collaborationIntents, hours, website, socialLinks, photos,
+        followerCount, emailListSize, monthlyFootTraffic,
+        targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
+        yearsInOperation, step,
+      };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(draft)); } catch { /* quota exceeded */ }
+    }, 400);
+  }, [
+    businessName, businessType, address, lat, lng, description, products,
+    partnerships, collaborationIntents, hours, website, socialLinks, photos,
+    followerCount, emailListSize, monthlyFootTraffic,
+    targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
+    yearsInOperation, step,
+  ]);
+
+  useEffect(() => {
+    if (hydrated) saveDraft();
+  }, [hydrated, saveDraft]);
+
+  // --- Inline validation ---
+  const validationErrors: Record<string, string> = {};
+  if (touched.businessName && !businessName.trim()) validationErrors.businessName = "Business name is required";
+  if (touched.businessType && !businessType.trim()) validationErrors.businessType = "Industry / category is required";
+  if (touched.address && !address.trim()) validationErrors.address = "Address is required";
+
+  const markTouched = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
+
   const isStep1Valid = businessName.trim() !== "" && businessType.trim() !== "" && address.trim() !== "";
 
-  const completenessFields = [
+  const completenessStringFields = [
     businessName, businessType, address, description, products,
-    followerCount, emailListSize, yearsInOperation,
+    followerCount, emailListSize, monthlyFootTraffic,
+    targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
+    yearsInOperation, hours, website, socialLinks,
   ];
-  const filledFields = completenessFields.filter((f) => f.trim() !== "").length;
-  const completeness = Math.round((filledFields / completenessFields.length) * 100);
+  const completenessArrayFields = [partnerships, collaborationIntents, photos];
+  const totalFields = completenessStringFields.length + completenessArrayFields.length;
+  const filledFields =
+    completenessStringFields.filter((f) => f.trim() !== "").length +
+    completenessArrayFields.filter((f) => f.length > 0).length;
+  const completeness = Math.round((filledFields / totalFields) * 100);
+
+  const goToStep = (target: number) => {
+    setDirection(target > step ? 1 : -1);
+    setErrorMessage(null);
+    setStep(target);
+  };
 
   const nextStep = () => {
-    if (step === 1 && !isStep1Valid) {
-      setErrorMessage("Please fill in business name, category, and address before continuing.");
-      return;
+    if (step === 1) {
+      setTouched({ businessName: true, businessType: true, address: true });
+      if (!isStep1Valid) {
+        setErrorMessage("Please fill in business name, category, and address before continuing.");
+        return;
+      }
     }
     setErrorMessage(null);
+    setDirection(1);
     setStep((value) => Math.min(value + 1, 4));
   };
-  const previousStep = () => setStep((value) => Math.max(value - 1, 1));
+
+  const previousStep = () => {
+    setDirection(-1);
+    setStep((value) => Math.max(value - 1, 1));
+  };
 
   const submitProfile = async (event: FormEvent) => {
     event.preventDefault();
@@ -98,10 +282,7 @@ export default function OnboardingPage() {
         .filter(Boolean),
       partnership_types: partnerships,
       collaboration_intents: collaborationIntents,
-      photos: photos
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
+      photos,
       operating_hours: hours,
       website,
       social_links: socialLinks
@@ -129,15 +310,19 @@ export default function OnboardingPage() {
       return;
     }
 
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
     router.push("/swipe");
   };
 
   return (
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Onboarding step {step} of 4</p>
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Step {step} of 4</p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">Set up your business profile</h1>
         <p className="mt-1 text-sm text-slate-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
+
+        <StepProgressBar step={step} />
+
         <div className="mt-3">
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span>Profile completeness</span>
@@ -148,205 +333,310 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {step === 1 ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="label">Business name</label>
-              <input className="input" onChange={(event) => setBusinessName(event.target.value)} required value={businessName} />
-            </div>
-            <div>
-              <label className="label">Industry / category</label>
-              <input className="input" onChange={(event) => setBusinessType(event.target.value)} required value={businessType} />
-            </div>
-            <div>
-              <label className="label">Address (Google Maps autocomplete ready)</label>
-              <input className="input" onChange={(event) => setAddress(event.target.value)} required value={address} />
-            </div>
-            <div>
-              <label className="label" htmlFor="business-latitude">Latitude</label>
-              <input className="input" id="business-latitude" inputMode="decimal" onChange={(event) => setLat(event.target.value)} value={lat} />
-            </div>
-            <div>
-              <label className="label" htmlFor="business-longitude">Longitude</label>
-              <input className="input" id="business-longitude" inputMode="decimal" onChange={(event) => setLng(event.target.value)} value={lng} />
-            </div>
-          </div>
-        ) : null}
-
-        {step === 2 ? (
-          <div className="mt-6 space-y-4">
-            <div>
-              <label className="label">Short business bio</label>
-              <textarea className="input min-h-[120px]" onChange={(event) => setDescription(event.target.value)} value={description} />
-            </div>
-            <div>
-              <label className="label">Products/services offered (comma separated)</label>
-              <textarea className="input min-h-[120px]" onChange={(event) => setProducts(event.target.value)} value={products} />
-            </div>
-            <fieldset>
-              <legend className="label">Partnership types you are seeking</legend>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {partnershipOptions.map((option) => {
-                  const checked = partnerships.includes(option);
-                  return (
-                    <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option}>
-                      <input
-                        checked={checked}
-                        onChange={(event) => {
-                          if (event.target.checked) {
-                            setPartnerships((previous) => [...previous, option]);
-                          } else {
-                            setPartnerships((previous) => previous.filter((item) => item !== option));
-                          }
-                        }}
-                        type="checkbox"
-                      />
-                      {option}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend className="label">How do you want to collaborate?</legend>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {collaborationIntentOptions.map((option) => {
-                  const checked = collaborationIntents.includes(option.value);
-                  return (
-                    <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option.value}>
-                      <input
-                        checked={checked}
-                        onChange={(event) => {
-                          if (event.target.checked) {
-                            setCollaborationIntents((previous) => [...previous, option.value]);
-                          } else {
-                            setCollaborationIntents((previous) => previous.filter((item) => item !== option.value));
-                          }
-                        }}
-                        type="checkbox"
-                      />
-                      {option.label}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-          </div>
-        ) : null}
-
-        {step === 3 ? (
-          <div className="mt-6 space-y-6">
-            {/* Social proof */}
-            <fieldset>
-              <legend className="label">Social proof</legend>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div>
-                  <label className="label">Follower count</label>
-                  <input className="input" inputMode="numeric" onChange={(event) => setFollowerCount(event.target.value)} placeholder="e.g. 5000" value={followerCount} />
+        <div className="relative mt-6 overflow-hidden">
+          <AnimatePresence mode="wait" custom={direction}>
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="label">Business name</label>
+                    <input
+                      className={`input ${validationErrors.businessName ? "border-red-400 focus:border-red-500 focus:ring-red-100" : ""}`}
+                      onChange={(event) => setBusinessName(event.target.value)}
+                      onBlur={() => markTouched("businessName")}
+                      required
+                      value={businessName}
+                    />
+                    <FieldError message={validationErrors.businessName} />
+                  </div>
+                  <div>
+                    <label className="label">Industry / category</label>
+                    <input
+                      className={`input ${validationErrors.businessType ? "border-red-400 focus:border-red-500 focus:ring-red-100" : ""}`}
+                      onChange={(event) => setBusinessType(event.target.value)}
+                      onBlur={() => markTouched("businessType")}
+                      required
+                      value={businessType}
+                    />
+                    <FieldError message={validationErrors.businessType} />
+                  </div>
+                  <div>
+                    <label className="label">Address</label>
+                    <AddressAutocomplete
+                      onSelect={({ address: addr, lat: latitude, lng: longitude }) => {
+                        setAddress(addr);
+                        setLat(String(latitude));
+                        setLng(String(longitude));
+                        markTouched("address");
+                      }}
+                      onChange={(val) => { setAddress(val); markTouched("address"); }}
+                      required
+                      value={address}
+                    />
+                    <FieldError message={validationErrors.address} />
+                  </div>
                 </div>
-                <div>
-                  <label className="label">Email list size</label>
-                  <input className="input" inputMode="numeric" onChange={(event) => setEmailListSize(event.target.value)} placeholder="e.g. 2000" value={emailListSize} />
-                </div>
-                <div>
-                  <label className="label">Monthly foot traffic</label>
-                  <input className="input" inputMode="numeric" onChange={(event) => setMonthlyFootTraffic(event.target.value)} placeholder="e.g. 10000" value={monthlyFootTraffic} />
-                </div>
-              </div>
-            </fieldset>
-
-            {/* Customer demographics */}
-            <fieldset>
-              <legend className="label">Customer demographics</legend>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="label">Target age (min)</label>
-                  <input className="input" inputMode="numeric" onChange={(event) => setTargetAgeMin(event.target.value)} placeholder="e.g. 18" value={targetAgeMin} />
-                </div>
-                <div>
-                  <label className="label">Target age (max)</label>
-                  <input className="input" inputMode="numeric" onChange={(event) => setTargetAgeMax(event.target.value)} placeholder="e.g. 45" value={targetAgeMax} />
-                </div>
-                <div>
-                  <label className="label">Income bracket</label>
-                  <select className="input" onChange={(event) => setTargetIncomeBracket(event.target.value)} value={targetIncomeBracket}>
-                    <option value="">Select...</option>
-                    <option value="under-25k">Under $25k</option>
-                    <option value="25k-50k">$25k – $50k</option>
-                    <option value="50k-75k">$50k – $75k</option>
-                    <option value="75k-100k">$75k – $100k</option>
-                    <option value="100k-150k">$100k – $150k</option>
-                    <option value="150k+">$150k+</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="label">Customer interests (comma separated)</label>
-                  <input className="input" onChange={(event) => setCustomerInterests(event.target.value)} value={customerInterests} />
-                </div>
-              </div>
-            </fieldset>
-
-            {/* Operations */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="label">Years in operation</label>
-                <input className="input" inputMode="numeric" onChange={(event) => setYearsInOperation(event.target.value)} value={yearsInOperation} />
-              </div>
-              <div>
-                <label className="label">Operating hours</label>
-                <input className="input" onChange={(event) => setHours(event.target.value)} value={hours} />
-              </div>
-              <div>
-                <label className="label">Website</label>
-                <input className="input" onChange={(event) => setWebsite(event.target.value)} placeholder="https://" value={website} />
-              </div>
-              <div>
-                <label className="label">Social links (comma separated)</label>
-                <input className="input" onChange={(event) => setSocialLinks(event.target.value)} value={socialLinks} />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="label">Photo URLs (comma separated)</label>
-                <input className="input" onChange={(event) => setPhotos(event.target.value)} value={photos} />
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {step === 4 ? (
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-            <p className="font-medium text-slate-900">Review</p>
-            <p className="mt-2">
-              {businessName} · {businessType}
-            </p>
-            <p className="mt-1">{address}</p>
-            <p className="mt-2 text-slate-600">{description || "No description provided."}</p>
-            {(followerCount || emailListSize || monthlyFootTraffic) && (
-              <div className="mt-3 border-t border-slate-100 pt-3">
-                <p className="font-medium text-slate-900">Social proof</p>
-                {followerCount && <p className="mt-1">Followers: {Number(followerCount).toLocaleString()}</p>}
-                {emailListSize && <p className="mt-1">Email list: {Number(emailListSize).toLocaleString()}</p>}
-                {monthlyFootTraffic && <p className="mt-1">Monthly foot traffic: {Number(monthlyFootTraffic).toLocaleString()}</p>}
-              </div>
+              </motion.div>
             )}
-            {(targetAgeMin || targetAgeMax || targetIncomeBracket || customerInterests) && (
-              <div className="mt-3 border-t border-slate-100 pt-3">
-                <p className="font-medium text-slate-900">Customer demographics</p>
-                {(targetAgeMin || targetAgeMax) && (
-                  <p className="mt-1">
-                    Target age: {targetAgeMin || "—"} – {targetAgeMax || "—"}
-                  </p>
-                )}
-                {targetIncomeBracket && <p className="mt-1">Income bracket: {targetIncomeBracket}</p>}
-                {customerInterests && <p className="mt-1">Interests: {customerInterests}</p>}
-              </div>
+
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div className="space-y-4">
+                  <div>
+                    <label className="label">Short business bio</label>
+                    <textarea className="input min-h-[120px]" onChange={(event) => setDescription(event.target.value)} value={description} />
+                  </div>
+                  <div>
+                    <label className="label">Products/services offered (comma separated)</label>
+                    <textarea className="input min-h-[120px]" onChange={(event) => setProducts(event.target.value)} value={products} />
+                  </div>
+                  <fieldset>
+                    <legend className="label">Partnership types you are seeking</legend>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {partnershipOptions.map((option) => {
+                        const checked = partnerships.includes(option);
+                        return (
+                          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option}>
+                            <input
+                              checked={checked}
+                              onChange={(event) => {
+                                if (event.target.checked) {
+                                  setPartnerships((previous) => [...previous, option]);
+                                } else {
+                                  setPartnerships((previous) => previous.filter((item) => item !== option));
+                                }
+                              }}
+                              type="checkbox"
+                            />
+                            {option}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                  <fieldset>
+                    <legend className="label">How do you want to collaborate?</legend>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {collaborationIntentOptions.map((option) => {
+                        const checked = collaborationIntents.includes(option.value);
+                        return (
+                          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option.value}>
+                            <input
+                              checked={checked}
+                              onChange={(event) => {
+                                if (event.target.checked) {
+                                  setCollaborationIntents((previous) => [...previous, option.value]);
+                                } else {
+                                  setCollaborationIntents((previous) => previous.filter((item) => item !== option.value));
+                                }
+                              }}
+                              type="checkbox"
+                            />
+                            {option.label}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                </div>
+              </motion.div>
             )}
-            {yearsInOperation && (
-              <div className="mt-3 border-t border-slate-100 pt-3">
-                <p className="mt-1">Years in operation: {yearsInOperation}</p>
-              </div>
+
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div className="space-y-6">
+                  {/* Social proof */}
+                  <fieldset>
+                    <legend className="label">Social proof</legend>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div>
+                        <label className="label">Follower count</label>
+                        <input className="input" inputMode="numeric" onChange={(event) => setFollowerCount(event.target.value)} placeholder="e.g. 5000" value={followerCount} />
+                      </div>
+                      <div>
+                        <label className="label">Email list size</label>
+                        <input className="input" inputMode="numeric" onChange={(event) => setEmailListSize(event.target.value)} placeholder="e.g. 2000" value={emailListSize} />
+                      </div>
+                      <div>
+                        <label className="label">Monthly foot traffic</label>
+                        <input className="input" inputMode="numeric" onChange={(event) => setMonthlyFootTraffic(event.target.value)} placeholder="e.g. 10000" value={monthlyFootTraffic} />
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  {/* Customer demographics */}
+                  <fieldset>
+                    <legend className="label">Customer demographics</legend>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="label">Target age (min)</label>
+                        <input className="input" inputMode="numeric" onChange={(event) => setTargetAgeMin(event.target.value)} placeholder="e.g. 18" value={targetAgeMin} />
+                      </div>
+                      <div>
+                        <label className="label">Target age (max)</label>
+                        <input className="input" inputMode="numeric" onChange={(event) => setTargetAgeMax(event.target.value)} placeholder="e.g. 45" value={targetAgeMax} />
+                      </div>
+                      <div>
+                        <label className="label">Income bracket</label>
+                        <select className="input" onChange={(event) => setTargetIncomeBracket(event.target.value)} value={targetIncomeBracket}>
+                          <option value="">Select...</option>
+                          <option value="under-25k">Under $25k</option>
+                          <option value="25k-50k">$25k – $50k</option>
+                          <option value="50k-75k">$50k – $75k</option>
+                          <option value="75k-100k">$75k – $100k</option>
+                          <option value="100k-150k">$100k – $150k</option>
+                          <option value="150k+">$150k+</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="label">Customer interests (comma separated)</label>
+                        <input className="input" onChange={(event) => setCustomerInterests(event.target.value)} value={customerInterests} />
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  {/* Operations */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="label">Years in operation</label>
+                      <input className="input" inputMode="numeric" onChange={(event) => setYearsInOperation(event.target.value)} value={yearsInOperation} />
+                    </div>
+                    <div>
+                      <label className="label">Operating hours</label>
+                      <input className="input" onChange={(event) => setHours(event.target.value)} value={hours} />
+                    </div>
+                    <div>
+                      <label className="label">Website</label>
+                      <input className="input" onChange={(event) => setWebsite(event.target.value)} placeholder="https://" value={website} />
+                    </div>
+                    <div>
+                      <label className="label">Social links (comma separated)</label>
+                      <input className="input" onChange={(event) => setSocialLinks(event.target.value)} value={socialLinks} />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <ImageUpload photos={photos} onChange={setPhotos} />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             )}
-          </div>
-        ) : null}
+
+            {step === 4 && (
+              <motion.div
+                key="step4"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div className="glass rounded-2xl p-5">
+                  <p className="text-lg font-semibold text-slate-900">Review your profile</p>
+                  <p className="mt-1 text-xs text-slate-500">Make sure everything looks good before finishing.</p>
+
+                  <ReviewSection title="Basic Info" onEdit={() => goToStep(1)}>
+                    <p className="font-medium text-slate-900">{businessName || "—"}</p>
+                    <p className="text-slate-500">{businessType || "—"}</p>
+                    <p className="mt-1">{address || "—"}</p>
+                  </ReviewSection>
+
+                  <ReviewSection title="Offerings & Partnerships" onEdit={() => goToStep(2)}>
+                    <p>{description || <span className="italic text-slate-400">No description provided.</span>}</p>
+                    {products && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {products.split(",").map((p) => p.trim()).filter(Boolean).map((p) => (
+                          <span key={p} className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-700">{p}</span>
+                        ))}
+                      </div>
+                    )}
+                    {partnerships.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {partnerships.map((p) => (
+                          <span key={p} className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">{p}</span>
+                        ))}
+                      </div>
+                    )}
+                    {collaborationIntents.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {collaborationIntents.map((c) => (
+                          <span key={c} className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+                            {collaborationIntentOptions.find((o) => o.value === c)?.label ?? c}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </ReviewSection>
+
+                  <ReviewSection title="Social Proof & Demographics" onEdit={() => goToStep(3)}>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {followerCount && (
+                        <div className="rounded-xl bg-slate-50 p-3 text-center">
+                          <p className="text-lg font-bold text-slate-900">{Number(followerCount).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Followers</p>
+                        </div>
+                      )}
+                      {emailListSize && (
+                        <div className="rounded-xl bg-slate-50 p-3 text-center">
+                          <p className="text-lg font-bold text-slate-900">{Number(emailListSize).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Email list</p>
+                        </div>
+                      )}
+                      {monthlyFootTraffic && (
+                        <div className="rounded-xl bg-slate-50 p-3 text-center">
+                          <p className="text-lg font-bold text-slate-900">{Number(monthlyFootTraffic).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Monthly traffic</p>
+                        </div>
+                      )}
+                    </div>
+                    {(targetAgeMin || targetAgeMax || targetIncomeBracket || customerInterests) && (
+                      <div className="mt-3 border-t border-slate-100 pt-3">
+                        {(targetAgeMin || targetAgeMax) && (
+                          <p>Target age: {targetAgeMin || "—"} – {targetAgeMax || "—"}</p>
+                        )}
+                        {targetIncomeBracket && <p className="mt-1">Income bracket: {targetIncomeBracket}</p>}
+                        {customerInterests && <p className="mt-1">Interests: {customerInterests}</p>}
+                      </div>
+                    )}
+                  </ReviewSection>
+
+                  {(yearsInOperation || hours || website || socialLinks) && (
+                    <ReviewSection title="Operations" onEdit={() => goToStep(3)}>
+                      {yearsInOperation && <p>Years in operation: {yearsInOperation}</p>}
+                      {hours && <p className="mt-1">Hours: {hours}</p>}
+                      {website && <p className="mt-1">Website: {website}</p>}
+                      {socialLinks && <p className="mt-1">Social: {socialLinks}</p>}
+                    </ReviewSection>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {errorMessage ? <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p> : null}
 
