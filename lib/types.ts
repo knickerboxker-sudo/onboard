@@ -217,3 +217,29 @@ export type PartnershipAgreementRecord = {
   created_at: string;
   updated_at: string;
 };
+
+// Partnership milestone types
+export type MilestoneType = 'first_sale' | 'revenue_threshold' | 'customer_goal' | 'duration_milestone' | 'custom';
+
+export type PartnershipMilestoneRecord = {
+  id: string;
+  partnership_id: string;
+  type: MilestoneType;
+  title: string;
+  description: string | null;
+  target_value: number;
+  current_value: number;
+  completed_at: string | null;
+  celebrated: boolean;
+  created_at: string;
+};
+
+export type PartnershipHealthScore = {
+  score: number;
+  level: 'healthy' | 'moderate' | 'needs_attention';
+  factors: {
+    label: string;
+    value: number;
+    max: number;
+  }[];
+};
