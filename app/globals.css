@@ -11,7 +11,10 @@ body {
   @apply text-slate-900 antialiased;
   min-height: 100vh;
   background-color: rgb(var(--sortir-cream));
-  background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.11), transparent 46%), radial-gradient(circle at top left, rgba(14, 165, 233, 0.09), transparent 40%);
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.08), transparent 50%),
+    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.06), transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(99, 102, 241, 0.04), transparent 50%);
 }
 
 .glass {
@@ -29,9 +32,65 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-700 hover:shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-lg;
 }
 
 .btn-muted {
-  @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100;
+  @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #0ea5e9 100%);
+}
+
+.hero-badge {
+  @apply inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-sky-700;
+}
+
+.stat-card {
+  @apply flex flex-col items-center text-center;
+}
+
+.stat-number {
+  @apply text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl;
+}
+
+.stat-label {
+  @apply mt-1 text-sm text-slate-500;
+}
+
+.step-connector {
+  @apply hidden sm:block absolute top-6 left-full w-full h-px bg-gradient-to-r from-sky-200 to-transparent;
+}
+
+.feature-icon-bg {
+  @apply flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 to-indigo-50 text-sky-600 shadow-sm ring-1 ring-sky-100/50 transition-all duration-300 group-hover:shadow-md group-hover:scale-110;
+}
+
+.section-label {
+  @apply inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-sky-700;
+}
+
+.testimonial-card {
+  @apply glass rounded-2xl p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1;
 }
