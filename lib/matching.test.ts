@@ -8,8 +8,10 @@ import {
   getTrustBadges,
   canSwipe,
   getIcebreakers,
+  getContextualIcebreaker,
   getTemplatesForType,
   calculatePartnershipROI,
+  collaborationIntentScore,
   TIER_LIMITS,
   PARTNERSHIP_TEMPLATES,
   ICEBREAKER_PROMPTS,
@@ -84,6 +86,14 @@ describe("complementarity scoring", () => {
     expect(complementarityScore("cafe", "bakery")).toBe(95);
     expect(complementarityScore("Bakery", "Cafe")).toBe(95);
     expect(complementarityScore("gym", "juice bar")).toBe(95);
+  });
+
+  it("scores expanded complementary pairs high", () => {
+    expect(complementarityScore("restaurant", "winery")).toBe(95);
+    expect(complementarityScore("real estate", "mortgage broker")).toBe(95);
+    expect(complementarityScore("auto repair", "car wash")).toBe(95);
+    expect(complementarityScore("coworking space", "coffee shop")).toBe(95);
+    expect(complementarityScore("pet store", "veterinarian")).toBe(95);
   });
 
   it("scores unrelated types at moderate level", () => {
@@ -352,5 +362,71 @@ describe("ROI calculator", () => {
       partnershipDurationMonths: 1,
     });
     expect(result.costPerCustomer).toBe(0);
+  });
+});
+
+describe("collaboration intent scoring", () => {
+  it("returns 0 when either side has no intents", () => {
+    expect(collaborationIntentScore([], ["sell"])).toBe(0);
+    expect(collaborationIntentScore(["sell"], [])).toBe(0);
+    expect(collaborationIntentScore([], [])).toBe(0);
+  });
+
+  it("scores complementary intents positively", () => {
+    const score = collaborationIntentScore(["sell"], ["promote"]);
+    expect(score).toBeGreaterThan(0);
+  });
+
+  it("scores co-brand with co-brand positively", () => {
+    const score = collaborationIntentScore(["co-brand"], ["co-brand"]);
+    expect(score).toBeGreaterThan(0);
+  });
+
+  it("caps at 30 maximum", () => {
+    const score = collaborationIntentScore(
+      ["sell", "promote", "supply", "co-brand", "refer"],
+      ["sell", "promote", "supply", "co-brand", "refer"],
+    );
+    expect(score).toBeLessThanOrEqual(30);
+  });
+
+  it("returns 0 for non-complementary intents", () => {
+    const score = collaborationIntentScore(["sell"], ["sell"]);
+    expect(score).toBe(0);
+  });
+});
+
+describe("match quality score with collaboration intents", () => {
+  it("scores higher when collaboration intents align", () => {
+    const candidateBase: BusinessRecord = {
+      ...origin,
+      id: "b",
+      business_type: "Bakery",
+    };
+    const candidateWithIntents: BusinessRecord = {
+      ...candidateBase,
+      collaboration_intents: ["promote"],
+    };
+    const originWithIntents: BusinessRecord = {
+      ...origin,
+      collaboration_intents: ["sell"],
+    };
+    const scoreWithout = matchQualityScore(origin, candidateBase, 5);
+    const scoreWith = matchQualityScore(originWithIntents, candidateWithIntents, 5);
+    expect(scoreWith).toBeGreaterThanOrEqual(scoreWithout);
+  });
+});
+
+describe("contextual icebreaker", () => {
+  it("returns a non-null prompt for complementary types", () => {
+    const result = getContextualIcebreaker("cafe", "bakery", "Sweet Treats");
+    expect(result).not.toBeNull();
+    expect(typeof result).toBe("string");
+    expect(result!.length).toBeGreaterThan(20);
+  });
+
+  it("returns null for non-complementary types", () => {
+    const result = getContextualIcebreaker("plumber", "dentist", "Smiles Dental");
+    expect(result).toBeNull();
   });
 });

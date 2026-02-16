@@ -1,5 +1,6 @@
-// TODO: Partnership logic — support notes, promotion links, and lightweight
-// terms per partnership. Track pending → active → archived state transitions.
+// Partnership logic: supports equity assessment, fairness checks, and
+// negotiation starters. Partnership lifecycle is managed via status field
+// with states: pending → active → paused → completed/cancelled/archived.
 
 export type ContributionInput = {
   followers: number;

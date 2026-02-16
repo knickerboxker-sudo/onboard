@@ -104,14 +104,17 @@ export default function DashboardPage() {
           .eq("reviewed_business_id", bizId),
       ]);
 
-      // TODO: Partnership logic — add "pending" state tracking so businesses
-      // can see inbound partnership requests and approve/reject them.
-      // TODO: Add "archived" partnership state for historical record-keeping.
       const activePartnerships = (partnerships ?? []).filter(
         (p: Partnership) => p.status === "active",
       );
       const completedPartnerships = (partnerships ?? []).filter(
         (p: Partnership) => p.status === "completed",
+      );
+      const pendingPartnerships = (partnerships ?? []).filter(
+        (p: Partnership) => p.status === "pending",
+      );
+      const archivedPartnerships = (partnerships ?? []).filter(
+        (p: Partnership) => p.status === "archived",
       );
       const totalRevenue = (partnerships ?? []).reduce(
         (sum: number, p: Partnership) => sum + (Number(p.revenue_generated) || 0),
@@ -133,6 +136,8 @@ export default function DashboardPage() {
         profileViewCount: profileViewCount ?? 0,
         activePartnerships: activePartnerships.length,
         completedPartnerships: completedPartnerships.length,
+        pendingPartnerships: pendingPartnerships.length,
+        archivedPartnerships: archivedPartnerships.length,
         totalRevenue,
         avgRating,
         recentPartnerships: (partnerships ?? []).slice(0, 5) as Partnership[],
@@ -159,8 +164,10 @@ export default function DashboardPage() {
     { label: "Matches", value: data?.matchCount, icon: Handshake },
     { label: "Messages Sent", value: data?.sentCount, icon: MessageCircle },
     { label: "Messages Received", value: data?.receivedCount, icon: MessageCircle },
+    { label: "Pending Partnerships", value: data?.pendingPartnerships, icon: Handshake },
     { label: "Active Partnerships", value: data?.activePartnerships, icon: TrendingUp },
     { label: "Completed Partnerships", value: data?.completedPartnerships, icon: Award },
+    { label: "Archived Partnerships", value: data?.archivedPartnerships, icon: Award },
     {
       label: "Total Revenue",
       value: `$${(data?.totalRevenue ?? 0).toLocaleString()}`,
@@ -175,10 +182,12 @@ export default function DashboardPage() {
   ];
 
   const statusColor: Record<string, string> = {
+    pending: "bg-indigo-100 text-indigo-800",
     active: "bg-green-100 text-green-800",
     completed: "bg-blue-100 text-blue-800",
     paused: "bg-yellow-100 text-yellow-800",
     cancelled: "bg-red-100 text-red-800",
+    archived: "bg-slate-100 text-slate-600",
   };
 
   const verificationLabel: Record<string, string> = {

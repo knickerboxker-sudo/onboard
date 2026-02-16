@@ -1,5 +1,7 @@
 export type PartnershipType = "cross-promotion" | "product-bundle" | "event-collab" | "wholesale" | "social-media-collab";
 
+export type CollaborationIntent = "sell" | "promote" | "supply" | "co-brand" | "refer";
+
 export type BusinessRecord = {
   id: string;
   owner_id: string;
@@ -11,6 +13,7 @@ export type BusinessRecord = {
   lng: number | null;
   photos: string[] | null;
   partnership_types: string[] | null;
+  collaboration_intents?: string[] | null;
   products: string[] | null;
   operating_hours?: string | null;
   website?: string | null;
@@ -46,9 +49,7 @@ export type SwipeFilters = {
 };
 
 // Partnership outcome tracking
-// TODO: Add "pending" and "archived" to PartnershipStatus to support
-// the full partnership lifecycle (pending → active → archived/cancelled).
-export type PartnershipStatus = "active" | "paused" | "completed" | "cancelled";
+export type PartnershipStatus = "pending" | "active" | "paused" | "completed" | "cancelled" | "archived";
 
 export type PartnershipRecord = {
   id: string;

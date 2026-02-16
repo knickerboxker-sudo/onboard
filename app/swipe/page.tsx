@@ -220,7 +220,21 @@ export default function SwipePage() {
       return;
     }
     setActionError(null);
-    // Server-side: increment daily_swipes_used for the current business
+
+    // Increment daily swipe count for rate limiting
+    const today = new Date().toISOString().split("T")[0];
+    const lastReset = data.currentBusiness.last_swipe_reset_at?.split("T")[0] ?? "";
+    const isNewDay = lastReset !== today;
+    const newCount = isNewDay ? 1 : (data.currentBusiness.daily_swipes_used ?? 0) + 1;
+    await supabase
+      .from("businesses")
+      .update({
+        daily_swipes_used: newCount,
+        ...(isNewDay ? { last_swipe_reset_at: today } : {}),
+      })
+      .eq("id", data.currentBusiness.id);
+    data.currentBusiness.daily_swipes_used = newCount;
+    if (isNewDay) data.currentBusiness.last_swipe_reset_at = today;
 
     if (direction === "right") {
       const { data: reverseSwipe, error: reverseSwipeError } = await supabase
