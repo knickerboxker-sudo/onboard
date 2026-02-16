@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -33,6 +33,7 @@ function MessagesPageContent() {
   const searchParams = useSearchParams();
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const matchId = searchParams.get("matchId");
@@ -111,6 +112,10 @@ function MessagesPageContent() {
     },
     refetchInterval: activeMatchId ? 5000 : false,
   });
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, activeMatchId]);
 
   const sendMutation = useMutation({
     mutationFn: async (content: string) => {
@@ -242,6 +247,7 @@ function MessagesPageContent() {
                   })()}
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
 
             <form className="border-t border-slate-200 p-4" onSubmit={handleSend}>

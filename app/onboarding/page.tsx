@@ -51,12 +51,18 @@ export default function OnboardingPage() {
 
   const isStep1Valid = businessName.trim() !== "" && businessType.trim() !== "" && address.trim() !== "";
 
-  const completenessFields = [
+  const completenessStringFields = [
     businessName, businessType, address, description, products,
-    followerCount, emailListSize, yearsInOperation,
+    followerCount, emailListSize, monthlyFootTraffic,
+    targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
+    yearsInOperation, hours, website, socialLinks, photos,
   ];
-  const filledFields = completenessFields.filter((f) => f.trim() !== "").length;
-  const completeness = Math.round((filledFields / completenessFields.length) * 100);
+  const completenessArrayFields = [partnerships, collaborationIntents];
+  const totalFields = completenessStringFields.length + completenessArrayFields.length;
+  const filledFields =
+    completenessStringFields.filter((f) => f.trim() !== "").length +
+    completenessArrayFields.filter((f) => f.length > 0).length;
+  const completeness = Math.round((filledFields / totalFields) * 100);
 
   const nextStep = () => {
     if (step === 1 && !isStep1Valid) {

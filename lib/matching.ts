@@ -480,6 +480,7 @@ export type ROIInput = {
   timeInvestedHours: number;
   marketingSpend: number;
   partnershipDurationMonths: number;
+  hourlyRate?: number;
 };
 
 export type ROIResult = {
@@ -494,7 +495,7 @@ export type ROIResult = {
 
 /** Calculate ROI for a partnership. */
 export function calculatePartnershipROI(input: ROIInput): ROIResult {
-  const hourlyRate = 50; // estimated value of business owner's time
+  const hourlyRate = input.hourlyRate ?? 50;
   const totalCost = input.marketingSpend + input.timeInvestedHours * hourlyRate;
   const netProfit = input.revenueGenerated - totalCost;
   const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;

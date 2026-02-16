@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers } from "@/lib/matching";
 import type { BusinessRecord, SwipeDirection, SwipeFilters, TrustBadge } from "@/lib/types";
@@ -145,6 +145,7 @@ function SwipeCard({
 
 export default function SwipePage() {
   const supabase = useMemo(() => createClient(), []);
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<SwipeFilters>(defaultFilters);
   const [position, setPosition] = useState(0);
   const [matchName, setMatchName] = useState<string | null>(null);
@@ -263,12 +264,16 @@ export default function SwipePage() {
           return;
         }
         setMatchName(activeCard.name);
-        const prompts = getIcebreakers(
-          data.currentBusiness.partnership_types ?? [],
-          activeCard.partnership_types ?? [],
-        );
-        if (prompts.length > 0) {
-          setIcebreaker(prompts[Math.floor(Math.random() * prompts.length)].prompt);
+        try {
+          const prompts = getIcebreakers(
+            data.currentBusiness.partnership_types ?? [],
+            activeCard.partnership_types ?? [],
+          );
+          if (prompts.length > 0) {
+            setIcebreaker(prompts[Math.floor(Math.random() * prompts.length)].prompt);
+          }
+        } catch {
+          // icebreaker generation should not block match notification
         }
       }
     }
@@ -301,7 +306,11 @@ export default function SwipePage() {
           className="btn-muted mt-4 w-full"
           onClick={() => {
             setPosition(0);
-            void refetch();
+            setMatchName(null);
+            setIcebreaker(null);
+            setSwipeLimitReached(false);
+            setActionError(null);
+            void queryClient.invalidateQueries({ queryKey: ["swipe-data", filters] }).then(() => refetch());
           }}
           type="button"
         >
