@@ -110,8 +110,29 @@ function MessagesPageContent() {
       if (error) throw new Error(error.message);
       return (data ?? []) as Message[];
     },
-    refetchInterval: activeMatchId ? 5000 : false,
   });
+
+  useEffect(() => {
+    if (!activeMatchId) return;
+    const channel = supabase
+      .channel(`messages:${activeMatchId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `match_id=eq.${activeMatchId}` },
+        (payload) => {
+          const incoming = payload.new as Message;
+          queryClient.setQueryData<Message[]>(["messages", activeMatchId], (old) => {
+            if (!old) return [incoming];
+            if (old.some((m) => m.id === incoming.id)) return old;
+            return [...old, incoming];
+          });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [activeMatchId, supabase, queryClient]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -127,8 +148,32 @@ function MessagesPageContent() {
       });
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => {
+    onMutate: async (content: string) => {
+      await queryClient.cancelQueries({ queryKey: ["messages", activeMatchId] });
+      const previous = queryClient.getQueryData<Message[]>(["messages", activeMatchId]);
+      const previousMessage = newMessage;
+      const optimistic: Message = {
+        id: `optimistic-${crypto.randomUUID()}`,
+        match_id: activeMatchId!,
+        sender_business_id: matchesData?.businessId ?? "",
+        content,
+        sent_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData<Message[]>(["messages", activeMatchId], (old) =>
+        old ? [...old, optimistic] : [optimistic],
+      );
       setNewMessage("");
+      return { previous, previousMessage };
+    },
+    onError: (_err, _content, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["messages", activeMatchId], context.previous);
+      }
+      if (context?.previousMessage !== undefined) {
+        setNewMessage(context.previousMessage);
+      }
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["messages", activeMatchId] });
     },
   });
