@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getTrustBadges } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge, PartnershipType, PartnershipStatus } from "@/lib/types";
-import { BadgeCheck, Star, Flag, ChevronDown } from "lucide-react";
+import { BadgeCheck, Star, Flag, ChevronDown, Users } from "lucide-react";
 
 type PartnerBusiness = {
   id: string;
@@ -511,7 +511,25 @@ export default function MatchesPage() {
     },
   });
 
-  if (isLoading) return <div className="glass rounded-3xl p-6">Loading matches…</div>;
+  if (isLoading)
+    return (
+      <div className="glass rounded-3xl p-6">
+        <div className="h-7 w-40 animate-skeleton-pulse rounded bg-slate-200" />
+        <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded bg-slate-200" />
+        <div className="mt-5 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div className="rounded-xl border border-slate-200 px-4 py-3" key={i}>
+              <div className="h-4 w-36 animate-skeleton-pulse rounded bg-slate-200" />
+              <div className="mt-2 h-3 w-48 animate-skeleton-pulse rounded bg-slate-200" />
+              <div className="mt-3 flex gap-2">
+                <div className="h-8 w-24 animate-skeleton-pulse rounded-lg bg-slate-200" />
+                <div className="h-8 w-28 animate-skeleton-pulse rounded-lg bg-slate-200" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   if (error) return <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error.message}</p>;
 
   const filteredData = (data ?? [])
@@ -588,8 +606,17 @@ export default function MatchesPage() {
             <MatchCard key={match.id} match={match} />
           ))
         ) : (
-          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">
-            {data?.length ? "No matches found for the current filters." : "No matches yet. Start swiping to discover businesses that complement yours."}
+          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center">
+            {data?.length ? (
+              <p className="text-sm text-slate-500">No matches found for the current filters.</p>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <Users className="h-8 w-8 text-slate-300" />
+                <h3 className="text-base font-semibold text-slate-900">Discover Partners</h3>
+                <p className="text-sm text-slate-500">Start swiping to discover businesses that complement yours.</p>
+                <Link href="/swipe" className="btn-primary mt-2">Start Swiping</Link>
+              </div>
+            )}
           </li>
         )}
       </ul>

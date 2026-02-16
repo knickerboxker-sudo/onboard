@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getIcebreakers } from "@/lib/matching";
 import type { IcebreakerPrompt } from "@/lib/types";
-import { Send } from "lucide-react";
+import { Send, MessageCircle } from "lucide-react";
 
 type MatchWithPartner = {
   id: string;
@@ -184,7 +184,35 @@ function MessagesPageContent() {
     sendMutation.mutate(newMessage.trim());
   };
 
-  if (matchesLoading) return <div className="glass rounded-3xl p-6">Loading conversations…</div>;
+  if (matchesLoading)
+    return (
+      <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
+        <div className="glass min-w-0 rounded-3xl p-5">
+          <div className="h-6 w-32 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="mt-4 space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div className="rounded-xl border border-slate-200 px-4 py-3" key={i}>
+                <div className="h-4 w-28 animate-skeleton-pulse rounded bg-slate-200" />
+                <div className="mt-1 h-3 w-20 animate-skeleton-pulse rounded bg-slate-200" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="glass flex min-w-0 flex-col rounded-3xl p-5">
+          <div className="space-y-3">
+            <div className="flex justify-start">
+              <div className="h-10 w-48 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            </div>
+            <div className="flex justify-end">
+              <div className="h-10 w-40 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            </div>
+            <div className="flex justify-start">
+              <div className="h-10 w-56 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   if (matchesError) return <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{matchesError.message}</p>;
 
   const activeMatch = matchesData?.matches.find((m) => m.id === activeMatchId);
@@ -194,7 +222,12 @@ function MessagesPageContent() {
       <div className="glass min-w-0 rounded-3xl p-5">
         <h2 className="text-lg font-semibold text-slate-900">Conversations</h2>
         {matchesData?.matches.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No matches yet. Start swiping to find local partners.</p>
+          <div className="mt-6 flex flex-col items-center gap-2 text-center">
+            <MessageCircle className="h-8 w-8 text-slate-300" />
+            <p className="text-sm font-medium text-slate-900">No conversations yet</p>
+            <p className="text-xs text-slate-500">Match with businesses to start messaging.</p>
+            <a href="/matches" className="btn-primary mt-2 text-xs">View Matches</a>
+          </div>
         ) : (
           <ul className="mt-4 space-y-2">
             {matchesData?.matches.map((match) => (
@@ -324,7 +357,34 @@ function MessagesPageContent() {
 
 export default function MessagesPage() {
   return (
-    <Suspense fallback={<div className="glass rounded-3xl p-6">Loading conversations…</div>}>
+    <Suspense fallback={
+      <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
+        <div className="glass min-w-0 rounded-3xl p-5">
+          <div className="h-6 w-32 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="mt-4 space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div className="rounded-xl border border-slate-200 px-4 py-3" key={i}>
+                <div className="h-4 w-28 animate-skeleton-pulse rounded bg-slate-200" />
+                <div className="mt-1 h-3 w-20 animate-skeleton-pulse rounded bg-slate-200" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="glass flex min-w-0 flex-col rounded-3xl p-5">
+          <div className="space-y-3">
+            <div className="flex justify-start">
+              <div className="h-10 w-48 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            </div>
+            <div className="flex justify-end">
+              <div className="h-10 w-40 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            </div>
+            <div className="flex justify-start">
+              <div className="h-10 w-56 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            </div>
+          </div>
+        </div>
+      </section>
+    }>
       <MessagesPageContent />
     </Suspense>
   );

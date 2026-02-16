@@ -166,7 +166,23 @@ export default function DashboardPage() {
   });
 
   if (isLoading)
-    return <div className="glass rounded-3xl p-6">Loading dashboard…</div>;
+    return (
+      <div className="space-y-4">
+        <div className="glass rounded-3xl p-6">
+          <div className="h-4 w-40 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="mt-2 h-6 w-56 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded bg-slate-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div className="glass rounded-2xl p-5" key={i}>
+              <div className="h-4 w-24 animate-skeleton-pulse rounded bg-slate-200" />
+              <div className="mt-3 h-8 w-16 animate-skeleton-pulse rounded bg-slate-200" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   if (error)
     return (
       <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">

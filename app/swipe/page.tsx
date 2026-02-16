@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers, getContextualIcebreaker } from "@/lib/matching";
 import type { BusinessRecord, SwipeDirection, SwipeFilters, TrustBadge } from "@/lib/types";
+import { MapPin } from "lucide-react";
 
 const defaultFilters: SwipeFilters = {
   radiusMiles: 25,
@@ -437,7 +438,8 @@ export default function SwipePage() {
 
         {!isLoading && !activeCard && !error && !swipeLimitReached ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">
-            <h3 className="text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
+            <MapPin className="mx-auto h-10 w-10 text-slate-300" />
+            <h3 className="mt-3 text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
             <p className="mt-2 text-sm text-slate-600">Try a wider radius, update your filters, or invite more local businesses to Sortir.</p>
           </div>
         ) : null}
