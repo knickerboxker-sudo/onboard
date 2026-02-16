@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
+import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 
 const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
@@ -165,16 +166,17 @@ export default function OnboardingPage() {
               <input className="input" onChange={(event) => setBusinessType(event.target.value)} required value={businessType} />
             </div>
             <div>
-              <label className="label">Address (Google Maps autocomplete ready)</label>
-              <input className="input" onChange={(event) => setAddress(event.target.value)} required value={address} />
-            </div>
-            <div>
-              <label className="label" htmlFor="business-latitude">Latitude</label>
-              <input className="input" id="business-latitude" inputMode="decimal" onChange={(event) => setLat(event.target.value)} value={lat} />
-            </div>
-            <div>
-              <label className="label" htmlFor="business-longitude">Longitude</label>
-              <input className="input" id="business-longitude" inputMode="decimal" onChange={(event) => setLng(event.target.value)} value={lng} />
+              <label className="label">Address</label>
+              <AddressAutocomplete
+                onSelect={({ address: addr, lat: latitude, lng: longitude }) => {
+                  setAddress(addr);
+                  setLat(String(latitude));
+                  setLng(String(longitude));
+                }}
+                onChange={(val) => setAddress(val)}
+                required
+                value={address}
+              />
             </div>
           </div>
         ) : null}
