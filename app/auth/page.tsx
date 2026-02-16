@@ -58,6 +58,7 @@ export default function AuthPage() {
               Password
             </label>
             <input className="input" id="password" minLength={8} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
+            <p className="mt-1 text-xs text-slate-500">Use at least 8 characters for account security.</p>
           </div>
 
           {errorMessage ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p> : null}

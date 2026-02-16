@@ -22,12 +22,25 @@ export type EquityAssessment = {
 };
 
 const scoreBusiness = (input: ContributionInput) => {
-  const reachScore = input.followers * 0.0006 + input.emailList * 0.0012 + input.dailyFootTraffic * 0.08;
-  const distributionScore = input.distributionChannelStrength * 15;
-  const productScore = input.productWholesaleValue * 0.14;
-  const marketingScore = input.marketingEffort * 12;
-  const exclusivityBonus = input.exclusiveCategoryPartner ? 28 : 0;
-  const durationBonus = Math.min(input.durationMonths, 24) * 2.2;
+  const REACH_FOLLOWERS_WEIGHT = 0.0006;
+  const REACH_EMAIL_WEIGHT = 0.0012;
+  const REACH_FOOT_TRAFFIC_WEIGHT = 0.08;
+  const DISTRIBUTION_WEIGHT = 15;
+  const PRODUCT_VALUE_WEIGHT = 0.14;
+  const MARKETING_WEIGHT = 12;
+  const EXCLUSIVITY_BONUS = 28;
+  const MAX_DURATION_MONTHS = 24;
+  const DURATION_WEIGHT = 2.2;
+
+  const reachScore =
+    input.followers * REACH_FOLLOWERS_WEIGHT +
+    input.emailList * REACH_EMAIL_WEIGHT +
+    input.dailyFootTraffic * REACH_FOOT_TRAFFIC_WEIGHT;
+  const distributionScore = input.distributionChannelStrength * DISTRIBUTION_WEIGHT;
+  const productScore = input.productWholesaleValue * PRODUCT_VALUE_WEIGHT;
+  const marketingScore = input.marketingEffort * MARKETING_WEIGHT;
+  const exclusivityBonus = input.exclusiveCategoryPartner ? EXCLUSIVITY_BONUS : 0;
+  const durationBonus = Math.min(input.durationMonths, MAX_DURATION_MONTHS) * DURATION_WEIGHT;
   return reachScore + distributionScore + productScore + marketingScore + exclusivityBonus + durationBonus;
 };
 

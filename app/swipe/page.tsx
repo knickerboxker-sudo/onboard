@@ -12,6 +12,8 @@ const defaultFilters: SwipeFilters = {
   categories: [],
   partnershipTypes: [],
 };
+const SWIPE_CONFLICT_COLUMNS = "swiper_business_id,swiped_business_id";
+const MATCH_CONFLICT_COLUMNS = "business_1_id,business_2_id";
 
 function SwipeCard({
   business,
@@ -88,6 +90,7 @@ export default function SwipePage() {
   const [filters, setFilters] = useState<SwipeFilters>(defaultFilters);
   const [position, setPosition] = useState(0);
   const [matchName, setMatchName] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const { data, isLoading, refetch, error } = useQuery({
     queryKey: ["swipe-data", filters],
@@ -139,33 +142,46 @@ export default function SwipePage() {
   const handleSwipe = async (direction: SwipeDirection) => {
     if (!data || !activeCard) return;
 
-    await supabase.from("swipes").upsert(
+    const { error: swipeError } = await supabase.from("swipes").upsert(
       {
         swiper_business_id: data.currentBusiness.id,
         swiped_business_id: activeCard.id,
         direction,
       },
-      { onConflict: "swiper_business_id,swiped_business_id" },
+      { onConflict: SWIPE_CONFLICT_COLUMNS },
     );
+    if (swipeError) {
+      setActionError(`Unable to save swipe: ${swipeError.message}`);
+      return;
+    }
+    setActionError(null);
 
     if (direction === "right") {
-      const { data: reverseSwipe } = await supabase
+      const { data: reverseSwipe, error: reverseSwipeError } = await supabase
         .from("swipes")
         .select("id")
         .eq("swiper_business_id", activeCard.id)
         .eq("swiped_business_id", data.currentBusiness.id)
         .eq("direction", "right")
         .maybeSingle();
+      if (reverseSwipeError) {
+        setActionError(`Unable to validate reverse swipe: ${reverseSwipeError.message}`);
+        return;
+      }
 
       if (reverseSwipe) {
         const [business1, business2] = buildMatchPair(data.currentBusiness.id, activeCard.id);
-        await supabase.from("matches").upsert(
+        const { error: matchError } = await supabase.from("matches").upsert(
           {
             business_1_id: business1,
             business_2_id: business2,
           },
-          { onConflict: "business_1_id,business_2_id" },
+          { onConflict: MATCH_CONFLICT_COLUMNS },
         );
+        if (matchError) {
+          setActionError(`Unable to create match: ${matchError.message}`);
+          return;
+        }
         setMatchName(activeCard.name);
       }
     }
@@ -211,8 +227,21 @@ export default function SwipePage() {
         {!isLoading && error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error.message}</p> : null}
 
         <AnimatePresence mode="wait">
-          {!isLoading && activeCard ? <SwipeCard business={activeCard} key={activeCard.id} onSwipe={(direction) => void handleSwipe(direction)} /> : null}
+          {!isLoading && activeCard ? (
+            <SwipeCard
+              business={activeCard}
+              key={activeCard.id}
+              onSwipe={(direction) => {
+                handleSwipe(direction).catch((error: unknown) =>
+                  setActionError(
+                    `Unexpected swipe error: ${error instanceof Error ? error.message : "unknown error"}`,
+                  ),
+                );
+              }}
+            />
+          ) : null}
         </AnimatePresence>
+        {actionError ? <p className="fixed bottom-6 left-6 z-40 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{actionError}</p> : null}
 
         {!isLoading && !activeCard && !error ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">

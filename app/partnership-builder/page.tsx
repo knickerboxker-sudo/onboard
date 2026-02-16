@@ -125,9 +125,9 @@ export default function PartnershipBuilderPage() {
             <input className="input mt-1" max={95} min={5} onChange={(event) => setProposedSplitA(Number(event.target.value))} type="number" value={proposedSplitA} />
           </label>
           <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-700">{fairnessSummary}</p>
-          <label className="label mt-3">
+          <label className="label mt-3" htmlFor="message-template">
             Messaging template
-            <textarea className="input mt-1 min-h-[110px]" onChange={(event) => setMessageDraft(event.target.value)} placeholder={starterMessage} value={messageDraft} />
+            <textarea className="input mt-1 min-h-[110px]" id="message-template" onChange={(event) => setMessageDraft(event.target.value)} placeholder={starterMessage} value={messageDraft} />
           </label>
           <p className="mt-2 text-xs text-slate-500">Template starter: {starterMessage}</p>
         </div>

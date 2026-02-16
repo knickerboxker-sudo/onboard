@@ -103,12 +103,12 @@ export default function OnboardingPage() {
               <input className="input" onChange={(event) => setAddress(event.target.value)} required value={address} />
             </div>
             <div>
-              <label className="label">Latitude</label>
-              <input className="input" inputMode="decimal" onChange={(event) => setLat(event.target.value)} value={lat} />
+              <label className="label" htmlFor="business-latitude">Latitude</label>
+              <input className="input" id="business-latitude" inputMode="decimal" onChange={(event) => setLat(event.target.value)} value={lat} />
             </div>
             <div>
-              <label className="label">Longitude</label>
-              <input className="input" inputMode="decimal" onChange={(event) => setLng(event.target.value)} value={lng} />
+              <label className="label" htmlFor="business-longitude">Longitude</label>
+              <input className="input" id="business-longitude" inputMode="decimal" onChange={(event) => setLng(event.target.value)} value={lng} />
             </div>
           </div>
         ) : null}
