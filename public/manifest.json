@@ -1,11 +1,11 @@
 {
-  "name": "Trading Copilot - AI-Powered Trading Journal",
-  "short_name": "Trading Copilot",
-  "description": "AI-powered trading copilot for analysis, journaling, and decision support.",
+  "name": "PartnerSwipe",
+  "short_name": "PartnerSwipe",
+  "description": "A matchmaking app for local small businesses to connect, collaborate, and grow together.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f0f",
-  "theme_color": "#0f0f0f",
+  "background_color": "#f8fafc",
+  "theme_color": "#0ea5e9",
   "icons": [
     {
       "src": "/sortir-logo-192.png",
