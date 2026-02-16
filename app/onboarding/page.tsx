@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
+import ImageUpload from "@/app/components/ImageUpload";
 
 const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
@@ -34,7 +35,7 @@ export default function OnboardingPage() {
   const [hours, setHours] = useState("");
   const [website, setWebsite] = useState("");
   const [socialLinks, setSocialLinks] = useState("");
-  const [photos, setPhotos] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
 
   // Social proof
   const [followerCount, setFollowerCount] = useState("");
@@ -56,9 +57,9 @@ export default function OnboardingPage() {
     businessName, businessType, address, description, products,
     followerCount, emailListSize, monthlyFootTraffic,
     targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
-    yearsInOperation, hours, website, socialLinks, photos,
+    yearsInOperation, hours, website, socialLinks,
   ];
-  const completenessArrayFields = [partnerships, collaborationIntents];
+  const completenessArrayFields = [partnerships, collaborationIntents, photos];
   const totalFields = completenessStringFields.length + completenessArrayFields.length;
   const filledFields =
     completenessStringFields.filter((f) => f.trim() !== "").length +
@@ -105,10 +106,7 @@ export default function OnboardingPage() {
         .filter(Boolean),
       partnership_types: partnerships,
       collaboration_intents: collaborationIntents,
-      photos: photos
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
+      photos,
       operating_hours: hours,
       website,
       social_links: socialLinks
@@ -313,8 +311,7 @@ export default function OnboardingPage() {
                 <input className="input" onChange={(event) => setSocialLinks(event.target.value)} value={socialLinks} />
               </div>
               <div className="sm:col-span-2">
-                <label className="label">Photo URLs (comma separated)</label>
-                <input className="input" onChange={(event) => setPhotos(event.target.value)} value={photos} />
+                <ImageUpload photos={photos} onChange={setPhotos} />
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
+import ImageUpload from "@/app/components/ImageUpload";
 
 const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
@@ -32,7 +33,7 @@ export default function SettingsPage() {
   const [hours, setHours] = useState("");
   const [website, setWebsite] = useState("");
   const [socialLinks, setSocialLinks] = useState("");
-  const [photos, setPhotos] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
   const [followerCount, setFollowerCount] = useState("");
   const [emailListSize, setEmailListSize] = useState("");
   const [monthlyFootTraffic, setMonthlyFootTraffic] = useState("");
@@ -59,7 +60,7 @@ export default function SettingsPage() {
     setHours((data.operating_hours as string) ?? "");
     setWebsite((data.website as string) ?? "");
     setSocialLinks(((data.social_links as string[]) ?? []).join(", "));
-    setPhotos(((data.photos as string[]) ?? []).join(", "));
+    setPhotos((data.photos as string[]) ?? []);
     setFollowerCount(data.follower_count != null ? String(data.follower_count) : "");
     setEmailListSize(data.email_list_size != null ? String(data.email_list_size) : "");
     setMonthlyFootTraffic(data.monthly_foot_traffic != null ? String(data.monthly_foot_traffic) : "");
@@ -116,10 +117,7 @@ export default function SettingsPage() {
           .filter(Boolean),
         partnership_types: partnerships,
         collaboration_intents: collaborationIntents,
-        photos: photos
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        photos,
         operating_hours: hours,
         website,
         social_links: socialLinks
@@ -334,8 +332,7 @@ export default function SettingsPage() {
               <input className="input" onChange={(e) => setSocialLinks(e.target.value)} value={socialLinks} />
             </div>
             <div className="sm:col-span-2">
-              <label className="label">Photo URLs (comma separated)</label>
-              <input className="input" onChange={(e) => setPhotos(e.target.value)} value={photos} />
+              <ImageUpload photos={photos} onChange={setPhotos} />
             </div>
           </div>
         </div>
