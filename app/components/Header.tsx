@@ -35,7 +35,7 @@ export default function Header() {
           alt="Sortir"
           width={32}
           height={32}
-          className="h-8 w-8 rounded-lg object-contain"
+          className="h-8 w-8 rounded-lg object-contain mix-blend-multiply"
           priority
         />
         <span className="text-lg font-semibold tracking-tight text-slate-900">Sortir</span>
