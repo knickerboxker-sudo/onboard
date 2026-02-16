@@ -42,8 +42,8 @@ export default function JoinSuccessPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-lg animate-pulse space-y-6">
-        <div className="h-8 w-64 rounded bg-neutral-200 mx-auto" />
-        <div className="h-4 w-48 rounded bg-neutral-200 mx-auto" />
+        <div className="mx-auto h-8 w-64 rounded bg-neutral-200" />
+        <div className="mx-auto h-4 w-48 rounded bg-neutral-200" />
         <div className="rounded-xl border border-neutral-200 bg-white p-6 space-y-4">
           <div className="h-4 w-full rounded bg-neutral-200" />
           <div className="h-4 w-3/4 rounded bg-neutral-200" />
