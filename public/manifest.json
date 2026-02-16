@@ -1,6 +1,6 @@
 {
-  "name": "PartnerSwipe",
-  "short_name": "PartnerSwipe",
+  "name": "Sortir",
+  "short_name": "Sortir",
   "description": "A matchmaking app for local small businesses to connect, collaborate, and grow together.",
   "start_url": "/",
   "display": "standalone",
