@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -389,8 +389,40 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
   );
 }
 
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: "all", label: "All statuses" },
+  { value: "pending", label: "Pending" },
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
+  { value: "archived", label: "Archived" },
+  { value: "paused", label: "Paused" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
 export default function MatchesPage() {
   const supabase = useMemo(() => createClient(), []);
+
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const activeFilterCount =
+    (searchQuery ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (sortOrder !== "newest" ? 1 : 0);
+
+  const clearFilters = () => {
+    setSearchInput("");
+    setSearchQuery("");
+    setStatusFilter("all");
+    setSortOrder("newest");
+  };
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["matches"],
@@ -479,19 +511,83 @@ export default function MatchesPage() {
   if (isLoading) return <div className="glass rounded-3xl p-6">Loading matches…</div>;
   if (error) return <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error.message}</p>;
 
+  const filteredData = (data ?? [])
+    .filter((match: MatchWithPartner) => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const nameMatch = match.partner.name.toLowerCase().includes(q);
+        const typeMatch = match.partner.business_type.toLowerCase().includes(q);
+        if (!nameMatch && !typeMatch) return false;
+      }
+      if (statusFilter !== "all") {
+        const status = match.partnership?.status;
+        if (status !== statusFilter) return false;
+      }
+      return true;
+    })
+    .sort((a: MatchWithPartner, b: MatchWithPartner) => {
+      const aTime = new Date(a.matched_at).getTime();
+      const bTime = new Date(b.matched_at).getTime();
+      return sortOrder === "newest" ? bTime - aTime : aTime - bTime;
+    });
+
   return (
     <div className="glass rounded-3xl p-6">
       <h1 className="text-2xl font-semibold text-slate-900">Your matches</h1>
       <p className="mt-1 text-sm text-slate-500">
         Each match is a business that wants to collaborate with you — promote each other&apos;s products, cross-market locally, or co-brand together. Start a conversation to explore what&apos;s possible.
       </p>
-      <ul className="mt-5 space-y-3">
-        {data?.length ? (
-          data.map((match: MatchWithPartner) => (
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <input
+          type="text"
+          className="input w-full sm:w-64"
+          placeholder="Search by name or type…"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        <select
+          className="input"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <select
+          className="input"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+        {activeFilterCount > 0 && (
+          <button className="btn-muted flex items-center gap-1.5" onClick={clearFilters}>
+            Clear filters
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">
+              {activeFilterCount}
+            </span>
+          </button>
+        )}
+      </div>
+
+      <p className="mt-3 text-xs text-slate-500">
+        Showing {filteredData.length} of {data?.length ?? 0} matches
+      </p>
+
+      <ul className="mt-3 space-y-3">
+        {filteredData.length ? (
+          filteredData.map((match: MatchWithPartner) => (
             <MatchCard key={match.id} match={match} />
           ))
         ) : (
-          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">No matches yet. Start swiping to discover businesses that complement yours.</li>
+          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">
+            {data?.length ? "No matches found for the current filters." : "No matches yet. Start swiping to discover businesses that complement yours."}
+          </li>
         )}
       </ul>
     </div>
