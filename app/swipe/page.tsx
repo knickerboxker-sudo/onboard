@@ -6,7 +6,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { buildMatchPair, filterBusinessesForSwipe, getTrustBadges, complementarityScore, canSwipe, getIcebreakers, getContextualIcebreaker } from "@/lib/matching";
 import type { BusinessRecord, SwipeDirection, SwipeFilters, TrustBadge } from "@/lib/types";
-import { MapPin } from "lucide-react";
+import Link from "next/link";
+import { MapPin, Search } from "lucide-react";
 
 const defaultFilters: SwipeFilters = {
   radiusMiles: 25,
@@ -372,6 +373,11 @@ export default function SwipePage() {
 
   return (
     <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[320px_1fr]">
+      <div className="mb-4 flex items-center justify-end lg:col-span-2">
+        <Link href="/discover" className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-sky-600 transition-colors hover:bg-sky-50">
+          <Search className="h-3.5 w-3.5" /> Discover More Partners
+        </Link>
+      </div>
       <aside className="glass min-w-0 rounded-3xl p-5">
         <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
         <label className="label mt-4">Distance radius</label>
