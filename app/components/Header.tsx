@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowRight } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -56,6 +57,7 @@ export default function Header() {
             <Link className="hidden rounded-lg px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:inline-flex" href="/settings">
               Settings
             </Link>
+            <NotificationBell />
           </>
         )}
         {!isLoggedIn && (
