@@ -43,8 +43,12 @@ export default function AuthPage() {
   return (
     <div className="mx-auto max-w-md">
       <div className="glass rounded-3xl p-8">
-        <h1 className="text-2xl font-semibold text-slate-900">{isSignup ? "Create your PartnerSwipe account" : "Sign in"}</h1>
-        <p className="mt-2 text-sm text-slate-600">Secure email authentication for business owners.</p>
+        <h1 className="text-2xl font-semibold text-slate-900">{isSignup ? "Create your business account" : "Sign in"}</h1>
+        <p className="mt-2 text-sm text-slate-600">
+          {isSignup
+            ? "Join PartnerSwipe to connect, collaborate, and promote alongside other local businesses. After signup you\u2019ll set up your business profile."
+            : "Welcome back. Sign in to manage your partnerships and discover new collaborators."}
+        </p>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>

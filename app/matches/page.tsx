@@ -479,15 +479,18 @@ export default function MatchesPage() {
 
   return (
     <div className="glass rounded-3xl p-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Matches</h1>
-      <p className="mt-1 text-sm text-slate-500">Your mutual connections with local businesses.</p>
+      <h1 className="text-2xl font-semibold text-slate-900">Your matches</h1>
+      <p className="mt-1 text-sm text-slate-500">
+        Each match is a business that wants to collaborate with you — promote each other&apos;s products, cross-market locally, or co-brand together. Start a conversation to explore what&apos;s possible.
+      </p>
+      {/* TODO: Partnership state — surface pending/active/archived partnership status per match */}
       <ul className="mt-5 space-y-3">
         {data?.length ? (
           data.map((match: MatchWithPartner) => (
             <MatchCard key={match.id} match={match} />
           ))
         ) : (
-          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">No matches yet. Start swiping to build your local network.</li>
+          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">No matches yet. Start swiping to discover businesses that complement yours.</li>
         )}
       </ul>
     </div>

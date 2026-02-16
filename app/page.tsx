@@ -65,10 +65,10 @@ export default function Home() {
   return (
     <section className="space-y-8">
       <div className="glass rounded-3xl p-6 sm:p-8">
-        <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">PartnerSwipe</p>
-        <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Connect with local businesses. Collaborate and grow together.</h1>
+        <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Connect · Collaborate · Promote</p>
+        <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Small businesses grow stronger together.</h1>
         <p className="max-w-2xl text-slate-600">
-          PartnerSwipe connects small business owners and solo entrepreneurs in their community to collaborate — sell each other&apos;s products, cross-promote on social media, create joint offerings, and build lasting local partnerships.
+          PartnerSwipe helps small businesses and solo entrepreneurs form real partnerships — sell each other&apos;s products, cross-promote locally, and build cooperative networks that compete with the big guys.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link className="btn-primary" href="/auth">
@@ -92,7 +92,7 @@ export default function Home() {
 
       <div className="glass rounded-3xl p-6 sm:p-8">
         <h2 className="text-xl font-semibold text-slate-900">Ways to collaborate</h2>
-        <p className="mt-2 text-sm text-slate-600">PartnerSwipe makes it easy to find the right local partners and build real business relationships.</p>
+        <p className="mt-2 text-sm text-slate-600">Form non-exclusive partnerships that let you promote, resell, and co-brand with complementary businesses in your area.</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {collaborationTypes.map((item) => (
             <div className="rounded-xl border border-slate-100 bg-white px-4 py-3 text-sm text-slate-700" key={item}>
@@ -111,8 +111,8 @@ export default function Home() {
       </div>
 
       <div className="glass rounded-3xl p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-slate-900">Success stories</h2>
-        <p className="mt-2 text-sm text-slate-600">Real partnerships formed on PartnerSwipe — updated as businesses complete collaborations and share their results.</p>
+        <h2 className="text-xl font-semibold text-slate-900">Partnership stories</h2>
+        <p className="mt-2 text-sm text-slate-600">Real collaborations between local businesses — a coffee shop partnering with a bakery, a gym teaming up with a meal-prep service. Your story could be next.</p>
         <div className="mt-5 rounded-xl border border-slate-100 bg-white px-6 py-8 text-center text-sm text-slate-500">
           Partnership stories will appear here as businesses complete collaborations. Be one of the first!
         </div>

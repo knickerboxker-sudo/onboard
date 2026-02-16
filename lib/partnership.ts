@@ -1,3 +1,6 @@
+// TODO: Partnership logic — support notes, promotion links, and lightweight
+// terms per partnership. Track pending → active → archived state transitions.
+
 export type ContributionInput = {
   followers: number;
   emailList: number;
