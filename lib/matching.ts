@@ -57,6 +57,10 @@ export function filterBusinessesForSwipe(
 
 // --- Enhanced Matching: Complementarity Scoring ---
 
+// TODO: Match scoring — expand complementary pairs from partner data and allow
+// businesses to declare collaboration intent (sell / promote / supply / co-brand)
+// to improve match quality beyond category compatibility alone.
+
 /** Known complementary business type pairs that score highly together. */
 const COMPLEMENTARY_PAIRS: [string, string][] = [
   ["cafe", "bakery"],

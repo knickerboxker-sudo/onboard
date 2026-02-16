@@ -104,6 +104,9 @@ export default function DashboardPage() {
           .eq("reviewed_business_id", bizId),
       ]);
 
+      // TODO: Partnership logic — add "pending" state tracking so businesses
+      // can see inbound partnership requests and approve/reject them.
+      // TODO: Add "archived" partnership state for historical record-keeping.
       const activePartnerships = (partnerships ?? []).filter(
         (p: Partnership) => p.status === "active",
       );
@@ -190,11 +193,15 @@ export default function DashboardPage() {
     <div className="space-y-4">
       {/* Header */}
       <div className="glass rounded-3xl p-6">
+        <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Your partnership hub</p>
         <h1 className="text-2xl font-semibold text-slate-900">
           {data?.business.name}
         </h1>
         <p className="mt-1 text-sm text-slate-500">
           {data?.business.business_type}
+        </p>
+        <p className="mt-2 text-sm text-slate-600">
+          Track your active partnerships, see who&apos;s collaborating with you, and measure the impact of every connection.
         </p>
       </div>
 

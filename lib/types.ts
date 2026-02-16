@@ -46,6 +46,8 @@ export type SwipeFilters = {
 };
 
 // Partnership outcome tracking
+// TODO: Add "pending" and "archived" to PartnershipStatus to support
+// the full partnership lifecycle (pending → active → archived/cancelled).
 export type PartnershipStatus = "active" | "paused" | "completed" | "cancelled";
 
 export type PartnershipRecord = {

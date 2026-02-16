@@ -141,7 +141,7 @@ function MessagesPageContent() {
 
   return (
     <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
-      <div className="glass rounded-3xl p-5">
+      <div className="glass min-w-0 rounded-3xl p-5">
         <h2 className="text-lg font-semibold text-slate-900">Conversations</h2>
         {matchesData?.matches.length === 0 ? (
           <p className="mt-4 text-sm text-slate-500">No matches yet. Start swiping to find local partners.</p>
@@ -167,7 +167,7 @@ function MessagesPageContent() {
         )}
       </div>
 
-      <div className="glass flex flex-col rounded-3xl">
+      <div className="glass flex min-w-0 flex-col rounded-3xl">
         {!activeMatchId ? (
           <div className="flex flex-1 items-center justify-center p-8">
             <p className="text-sm text-slate-500">Select a conversation to start messaging your partner.</p>

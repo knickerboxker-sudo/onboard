@@ -111,7 +111,9 @@ export default function OnboardingPage() {
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Onboarding step {step} of 4</p>
-        <h1 className="mt-2 text-2xl font-semibold text-slate-900">Build your business partnership profile</h1>
+        <h1 className="mt-2 text-2xl font-semibold text-slate-900">Set up your business profile</h1>
+        <p className="mt-1 text-sm text-slate-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
+        {/* TODO: Business profile completeness — validate required fields (name, category, location) before allowing step progression, and show a completeness indicator. */}
 
         {step === 1 ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2">

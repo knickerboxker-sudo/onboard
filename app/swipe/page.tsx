@@ -264,7 +264,7 @@ export default function SwipePage() {
 
   return (
     <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[320px_1fr]">
-      <aside className="glass rounded-3xl p-5">
+      <aside className="glass min-w-0 rounded-3xl p-5">
         <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
         <label className="label mt-4">Distance radius</label>
         <select
