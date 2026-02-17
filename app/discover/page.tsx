@@ -378,13 +378,15 @@ export default function DiscoverPage() {
     },
     onSuccess: (_data, receiverBusinessId) => {
       setSuccessIds((prev) => new Set(prev).add(receiverBusinessId));
-      void queryClient.invalidateQueries({ queryKey: ["connection-requests", userBusiness?.id] }).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["connection-requests", userBusiness?.id] }).then(() => {
         // Clear the optimistic success state after the query has been invalidated
         setSuccessIds((prev) => {
           const next = new Set(prev);
           next.delete(receiverBusinessId);
           return next;
         });
+      }).catch(() => {
+        // Silently handle invalidation errors
       });
     },
     onError: (error, receiverBusinessId) => {
