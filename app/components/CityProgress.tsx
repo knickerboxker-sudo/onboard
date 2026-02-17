@@ -35,16 +35,22 @@ export default function CityProgress({ city }: { city: string }) {
   if (loading) {
     return (
       <div className="animate-pulse space-y-3">
-        <div className="h-4 w-48 rounded bg-neutral-200" />
-        <div className="h-3 w-full rounded-full bg-neutral-200" />
-        <div className="h-3 w-32 rounded bg-neutral-200" />
+        <div className="h-4 w-48 rounded" style={{ backgroundColor: 'var(--color-paper-dark)' }} />
+        <div className="h-2 w-full" style={{ backgroundColor: 'var(--color-paper-dark)' }} />
+        <div className="h-3 w-32 rounded" style={{ backgroundColor: 'var(--color-paper-dark)' }} />
       </div>
     );
   }
 
   if (!status) {
     return (
-      <div className="text-sm text-neutral-500">
+      <div
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '13px',
+          color: 'var(--color-muted)',
+        }}
+      >
         Unable to load progress for {city}.
       </div>
     );
@@ -60,12 +66,24 @@ export default function CityProgress({ city }: { city: string }) {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <span className="badge-success">✓ Launched!</span>
-          <span className="text-sm font-medium text-neutral-900">{city}</span>
+          <span
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'var(--color-ink)',
+            }}
+          >
+            {city}
+          </span>
         </div>
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-100">
+        <div
+          className="h-2 w-full overflow-hidden"
+          style={{ backgroundColor: 'var(--color-paper-dark)' }}
+        >
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all duration-700 ease-out"
-            style={{ width: "100%" }}
+            className="h-full transition-all duration-700 ease-out"
+            style={{ width: '100%', backgroundColor: 'var(--color-accent)' }}
           />
         </div>
       </div>
@@ -75,21 +93,58 @@ export default function CityProgress({ city }: { city: string }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-neutral-900">{city}</span>
-        <span className="text-sm text-neutral-500">
+        <span
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: 'var(--color-ink)',
+          }}
+        >
+          {city}
+        </span>
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '11px',
+            letterSpacing: '0.08em',
+            color: 'var(--color-muted)',
+          }}
+        >
           {status.current_count}/{status.threshold} businesses
         </span>
       </div>
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-100">
+      <div
+        className="h-2 w-full overflow-hidden"
+        style={{ backgroundColor: 'var(--color-paper-dark)' }}
+      >
         <div
-          className="h-full rounded-full bg-lavender-500 transition-all duration-700 ease-out"
-          style={{ width: `${percentage}%` }}
+          className="h-full transition-all duration-700 ease-out"
+          style={{ width: `${percentage}%`, backgroundColor: 'var(--color-accent)' }}
         />
       </div>
-      <div className="flex items-center justify-between text-xs text-neutral-500">
-        <span>{percentage}% to launch</span>
+      <div className="flex items-center justify-between">
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '11px',
+            letterSpacing: '0.08em',
+            color: 'var(--color-muted)',
+          }}
+        >
+          {percentage}% to launch
+        </span>
         {status.estimated_days && status.estimated_days > 0 && (
-          <span>~{status.estimated_days} days to launch</span>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              color: 'var(--color-muted)',
+            }}
+          >
+            ~{status.estimated_days} days to launch
+          </span>
         )}
       </div>
     </div>

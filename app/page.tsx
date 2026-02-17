@@ -169,7 +169,22 @@ export default function Home() {
           </div>
 
           {/* Trust signals — columns 9-12 */}
-          <div className="lg:col-span-4 flex flex-col justify-center">
+          <div className="lg:col-span-4 flex flex-col justify-center relative">
+            {/* Decorative watermark */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute inset-0 flex items-center overflow-hidden"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(5rem, 12vw, 10rem)',
+                fontStyle: 'italic',
+                color: 'rgba(13,13,13,0.04)',
+                lineHeight: '1',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              together
+            </span>
             {trustSignals.map((signal, i) => (
               <div
                 key={signal.stat}
@@ -219,7 +234,7 @@ export default function Home() {
               data-reveal
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
                 color: 'var(--color-ink)',
               }}
             >
@@ -310,7 +325,7 @@ export default function Home() {
             data-reveal
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
               color: 'var(--color-paper)',
             }}
           >
@@ -377,7 +392,7 @@ export default function Home() {
             data-reveal
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
               color: 'var(--color-ink)',
             }}
           >
@@ -402,7 +417,7 @@ export default function Home() {
             {[...partnershipExamples, ...partnershipExamples].map((ex, i) => (
               <div
                 key={`${ex.businesses}-${i}`}
-                className="flex-shrink-0 whitespace-nowrap transition-colors duration-200 hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)] hover:border-[var(--color-ink)]"
+                className="marquee-pill flex-shrink-0 whitespace-nowrap transition-colors duration-200 hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)] hover:border-[var(--color-ink)]"
                 style={{
                   border: '1px solid var(--color-rule)',
                   padding: '10px 20px',
@@ -410,8 +425,11 @@ export default function Home() {
                   fontSize: '12px',
                   background: 'var(--color-paper)',
                   color: 'var(--color-ink)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                 }}
               >
+                <span className="pill-arrow">→</span>
                 {ex.businesses} → {ex.result}
               </div>
             ))}
