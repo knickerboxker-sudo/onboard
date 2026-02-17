@@ -33,6 +33,10 @@ type ConnectionRequest = {
   receiver?: Business | Business[];
 };
 
+function extractBusiness(relation?: Business | Business[]): Business | undefined {
+  return Array.isArray(relation) ? relation[0] : relation;
+}
+
 export default function ConnectionsPage() {
   const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
@@ -220,7 +224,7 @@ export default function ConnectionsPage() {
         {(data?.incoming.length ?? 0) > 0 ? (
           <div className="mt-4 space-y-3">
             {data?.incoming.map((request) => {
-              const sender = Array.isArray(request.sender) ? request.sender[0] : request.sender;
+              const sender = extractBusiness(request.sender);
               return (
                 <div
                   key={request.id}
@@ -309,7 +313,7 @@ export default function ConnectionsPage() {
         {(data?.outgoing.length ?? 0) > 0 ? (
           <div className="mt-4 space-y-3">
             {data?.outgoing.map((request) => {
-              const receiver = Array.isArray(request.receiver) ? request.receiver[0] : request.receiver;
+              const receiver = extractBusiness(request.receiver);
               return (
                 <div
                   key={request.id}
@@ -384,12 +388,10 @@ export default function ConnectionsPage() {
         {(data?.accepted.length ?? 0) > 0 ? (
           <div className="mt-4 space-y-3">
             {data?.accepted.map((request) => {
-              const senderBiz = Array.isArray(request.sender) ? request.sender[0] : request.sender;
-              const receiverBiz = Array.isArray(request.receiver) ? request.receiver[0] : request.receiver;
               const otherBusiness =
                 request.sender_business_id === data?.businessId
-                  ? receiverBiz
-                  : senderBiz;
+                  ? extractBusiness(request.receiver)
+                  : extractBusiness(request.sender);
               return (
                 <div
                   key={request.id}

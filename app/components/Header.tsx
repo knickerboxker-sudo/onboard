@@ -124,6 +124,7 @@ export default function Header() {
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
                 type="button"
+                aria-label="User menu"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-lavender-100 text-xs font-semibold text-lavender-700">
                   {userInitials || <User className="h-4 w-4" />}
