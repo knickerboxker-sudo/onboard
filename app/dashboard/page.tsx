@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { getTrustBadges } from "@/lib/matching";
+import { getTrustBadges, calculateProfileCompletion } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge, SavedAssessmentRecord } from "@/lib/types";
 import Link from "next/link";
 import {
@@ -244,11 +244,48 @@ export default function DashboardPage() {
         </h1>
         <p className="mt-1 text-sm text-slate-500">
           {data?.business.business_type}
+          {data?.business.created_at && (
+            <span className="ml-2 text-slate-400">· Member since {new Date(data.business.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</span>
+          )}
         </p>
         <p className="mt-2 text-sm text-slate-600">
           Track your active partnerships, see who&apos;s collaborating with you, and measure the impact of every connection.
         </p>
       </div>
+
+      {/* Profile Completion */}
+      {data?.business && (() => {
+        const completion = calculateProfileCompletion(data.business);
+        return completion < 100 ? (
+          <div className="glass rounded-2xl p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Profile Completion</h3>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Complete your profile to attract more partnership opportunities.
+                </p>
+              </div>
+              <span className={`text-lg font-bold ${completion >= 75 ? "text-emerald-600" : completion >= 50 ? "text-amber-600" : "text-slate-600"}`}>
+                {completion}%
+              </span>
+            </div>
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+              <div
+                className={`h-full rounded-full transition-all ${completion >= 75 ? "bg-emerald-500" : completion >= 50 ? "bg-amber-500" : "bg-slate-400"}`}
+                style={{ width: `${completion}%` }}
+              />
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Link href="/settings" className="text-xs font-medium text-sky-600 hover:text-sky-700">
+                Edit Profile →
+              </Link>
+              {(data.business.looking_for ?? []).length === 0 && (
+                <span className="text-xs text-slate-400">Add &quot;Looking For&quot; and &quot;Can Offer&quot; sections to stand out</span>
+              )}
+            </div>
+          </div>
+        ) : null;
+      })()}
 
       {/* Performance Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
@@ -485,6 +522,34 @@ export default function DashboardPage() {
         <Link href="/verify" className="btn-primary mt-4 inline-block">
           Submit Verification
         </Link>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="glass rounded-3xl p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Quick Actions</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Link href="/discover" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 transition-colors hover:bg-slate-50">
+            <Users className="h-5 w-5 text-sky-500" />
+            <div>
+              <p className="text-sm font-medium text-slate-900">Discover Partners</p>
+              <p className="text-xs text-slate-500">Browse businesses near you</p>
+            </div>
+          </Link>
+          <Link href="/partnership-ideas" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 transition-colors hover:bg-slate-50">
+            <Handshake className="h-5 w-5 text-violet-500" />
+            <div>
+              <p className="text-sm font-medium text-slate-900">Partnership Ideas</p>
+              <p className="text-xs text-slate-500">Get inspired by examples</p>
+            </div>
+          </Link>
+          <Link href="/partnership-builder" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 transition-colors hover:bg-slate-50">
+            <TrendingUp className="h-5 w-5 text-emerald-500" />
+            <div>
+              <p className="text-sm font-medium text-slate-900">Partnership Builder</p>
+              <p className="text-xs text-slate-500">Structure fair deals</p>
+            </div>
+          </Link>
+        </div>
       </div>
     </div>
   );

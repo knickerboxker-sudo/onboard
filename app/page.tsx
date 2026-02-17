@@ -4,6 +4,7 @@ import {
   BarChart3,
   FileText,
   Handshake,
+  Lightbulb,
   MapPin,
   MessageCircle,
   ShieldCheck,
@@ -70,6 +71,15 @@ const features = [
     description:
       "Get started quickly with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
   },
+];
+
+const partnershipExamples = [
+  { businesses: "Gym + Meal Prep Service", result: "Member nutrition package" },
+  { businesses: "Bookstore + Coffee Shop", result: "Reading events with refreshments" },
+  { businesses: "Salon + Boutique", result: "Style makeover packages" },
+  { businesses: "Auto Shop + Car Wash", result: "Full service maintenance deal" },
+  { businesses: "Photography + Event Planner", result: "Event media packages" },
+  { businesses: "Accountant + Attorney", result: "Business startup bundle" },
 ];
 
 const steps = [
@@ -244,6 +254,36 @@ export default function Home() {
           <Link className="btn-primary" href="/join">
             Join the waitlist
             <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Featured Partnership Ideas */}
+      <section>
+        <div className="mb-10 text-center">
+          <span className="section-label">
+            <Lightbulb className="h-3.5 w-3.5" />
+            Partnership ideas
+          </span>
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+            Every business can partner
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-neutral-500">
+            From coffee shops to accountants — there&apos;s a partnership waiting for every type of business.
+            Try something new, see what works.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {partnershipExamples.map((ex) => (
+            <div key={ex.businesses} className="rounded-xl border border-neutral-200 bg-white px-5 py-4 shadow-sm">
+              <p className="text-sm font-semibold text-neutral-900">{ex.businesses}</p>
+              <p className="mt-1 text-xs text-neutral-500">= {ex.result}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 text-center">
+          <Link className="text-sm font-medium text-sky-600 hover:text-sky-700" href="/partnership-ideas">
+            See all partnership ideas <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
           </Link>
         </div>
       </section>
