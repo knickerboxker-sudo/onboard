@@ -7,10 +7,10 @@ import CityProgress from "../components/CityProgress";
 import RecentSignups from "../components/RecentSignups";
 import CityRequestForm from "../components/CityRequestForm";
 
-const cities = ["Ann Arbor", "Detroit", "Grand Rapids"] as const;
+const cities = ["Ann Arbor Area", "Detroit Area", "Grand Rapids Area"] as const;
 
 export default function ComingSoonPage() {
-  const [selectedCity, setSelectedCity] = useState<string>("Ann Arbor");
+  const [selectedCity, setSelectedCity] = useState<string>("Ann Arbor Area");
 
   return (
     <div className="space-y-12">

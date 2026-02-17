@@ -1,10 +1,12 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}", "./hooks/**/*.{js,jsx,ts,tsx}", "./lib/**/*.{js,jsx,ts,tsx}", "./utils/**/*.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
+        white: '#FFFFFF',
         brand: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -76,7 +78,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.glass-pure': {
+          'background-color': '#FFFFFF',
+          'border': '1px solid #f4f4f5',
+          'box-shadow': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        },
+      });
+    }),
+  ],
 };
 
 export default config;

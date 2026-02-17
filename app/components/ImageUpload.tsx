@@ -10,6 +10,8 @@ interface ImageUploadProps {
 
 // TODO: Integrate with Supabase Storage for persistent file uploads.
 // Currently uses object URLs for local preview and supports manual URL entry.
+// WARNING: Uploaded images are temporary and stored in browser memory only.
+// Images will be lost on page refresh until Supabase Storage is configured.
 
 export default function ImageUpload({ photos, onChange, maxPhotos = 5 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);

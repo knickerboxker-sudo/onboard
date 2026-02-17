@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp, sanitizeString } from "@/lib/rate-limit";
 
 function generateReferralCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -12,6 +13,16 @@ function generateReferralCode(): string {
 
 export async function POST(request: Request) {
   try {
+    // Rate limit: 10 requests per minute per IP
+    const ip = getClientIp(request);
+    const rateLimitResult = rateLimit(ip, 10);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { business_name, email, business_type, city, state, partnership_interests, referred_by } = body;
 
@@ -22,13 +33,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Sanitize inputs
+    const cleanBusinessName = sanitizeString(String(business_name), 200);
+    const cleanEmail = sanitizeString(String(email), 254);
+    const cleanBusinessType = sanitizeString(String(business_type), 100);
+    const cleanCity = sanitizeString(String(city), 100);
+    const cleanState = sanitizeString(String(state), 50);
+    const cleanReferredBy = referred_by ? sanitizeString(String(referred_by), 20) : null;
+    const cleanInterests = Array.isArray(partnership_interests)
+      ? partnership_interests.map((i: unknown) => sanitizeString(String(i), 100)).slice(0, 10)
+      : [];
+
     const supabase = await createClient();
 
     // Check if email already registered
     const { data: existing } = await supabase
       .from("pre_launch_signups")
       .select("id, referral_code")
-      .eq("email", email)
+      .eq("email", cleanEmail)
       .single();
 
     if (existing) {
@@ -58,20 +80,21 @@ export async function POST(request: Request) {
     const { data: signup, error: signupError } = await supabase
       .from("pre_launch_signups")
       .insert({
-        business_name,
-        email,
-        business_type,
-        city,
-        state,
-        partnership_interests: partnership_interests || [],
+        business_name: cleanBusinessName,
+        email: cleanEmail,
+        business_type: cleanBusinessType,
+        city: cleanCity,
+        state: cleanState,
+        partnership_interests: cleanInterests,
         referral_code,
-        referred_by: referred_by || null,
+        referred_by: cleanReferredBy,
         status: "waiting",
       })
       .select()
       .single();
 
     if (signupError) {
+      console.error("Signup insert error:", signupError);
       return NextResponse.json(
         { error: "Failed to create signup" },
         { status: 500 }
@@ -82,22 +105,22 @@ export async function POST(request: Request) {
     const { data: cityData } = await supabase
       .from("city_launch_status")
       .select("current_count")
-      .eq("city", city)
+      .eq("city", cleanCity)
       .single();
 
     if (cityData) {
       await supabase
         .from("city_launch_status")
         .update({ current_count: cityData.current_count + 1 })
-        .eq("city", city);
+        .eq("city", cleanCity);
     }
 
     // If referred, increment referrer's count
-    if (referred_by) {
+    if (cleanReferredBy) {
       const { data: referrer } = await supabase
         .from("pre_launch_signups")
         .select("id, referral_count")
-        .eq("referral_code", referred_by)
+        .eq("referral_code", cleanReferredBy)
         .single();
 
       if (referrer) {
@@ -113,7 +136,8 @@ export async function POST(request: Request) {
       referral_code: signup.referral_code,
       city: signup.city,
     });
-  } catch {
+  } catch (err) {
+    console.error("Signup API error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
