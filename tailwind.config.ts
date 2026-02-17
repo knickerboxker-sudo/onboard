@@ -7,6 +7,11 @@ const config: Config = {
     extend: {
       colors: {
         white: '#FFFFFF',
+        ink: '#0d0d0d',
+        paper: '#f5f2eb',
+        accent: '#c8622a',
+        forest: '#1a3a2a',
+        muted: '#6b6560',
         brand: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -60,8 +65,10 @@ const config: Config = {
         error: '#ef4444',
       },
       fontFamily: {
-        sans: ['Inter var', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['Cal Sans', 'Inter var', 'system-ui', 'sans-serif'],
+        sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
+        display: ['DM Serif Display', 'Georgia', 'serif'],
+        body: ['Instrument Sans', 'system-ui', 'sans-serif'],
+        mono: ['DM Mono', 'monospace'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.02em' }],
