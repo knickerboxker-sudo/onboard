@@ -147,6 +147,12 @@ const steps = [
   },
 ];
 
+const credibilitySignals = [
+  "Brand-safe partner matching",
+  "AI-assisted collaboration ideas",
+  "ROI tracking from day one",
+];
+
 export default function Home() {
   return (
     <LandingAnimations>
@@ -189,6 +195,16 @@ export default function Home() {
               See launch progress
             </Link>
           </div>
+          <div className="mt-8 flex flex-wrap gap-2.5">
+            {credibilitySignals.map((signal) => (
+              <span
+                key={signal}
+                className="inline-flex items-center rounded-full border border-neutral-200/80 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-neutral-600 shadow-sm backdrop-blur-sm"
+              >
+                {signal}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -213,7 +229,7 @@ export default function Home() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <div
-              className="sortir-card p-6"
+              className={`group sortir-card border ${feature.borderAccent} p-6`}
               key={feature.title}
             >
               {/* Hover gradient overlay */}
@@ -236,7 +252,7 @@ export default function Home() {
       <div className="sortir-divider" />
 
       {/* How It Works Section */}
-      <section className="relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-8 shadow-soft sm:p-16">
+      <section id="how-it-works" className="relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-8 shadow-soft sm:p-16">
         {/* Subtle brand glow */}
         <div className="pointer-events-none absolute top-0 right-0 h-[300px] w-[300px] rounded-full opacity-[0.04]" style={{ background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)" }} />
 
