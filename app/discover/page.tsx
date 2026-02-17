@@ -233,7 +233,7 @@ function BusinessCard({
           <div className="mt-4 space-y-2">
             {connectionStatus === "accepted" ? (
               <Link
-                href={`/messages?businessId=${business.id}`}
+                href="/messages"
                 className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-spearmint-600 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-spearmint-700 hover:shadow-md active:scale-[0.98]"
               >
                 <MessageSquare className="h-3 w-3" /> Message
@@ -271,7 +271,7 @@ function BusinessCard({
         <div className="flex flex-col flex-shrink-0 gap-1 items-end">
           {connectionStatus === "accepted" ? (
             <Link
-              href={`/messages?businessId=${business.id}`}
+              href="/messages"
               className="flex items-center gap-1.5 rounded-xl bg-spearmint-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-spearmint-700 hover:shadow-md active:scale-[0.98]"
             >
               <MessageSquare className="h-3 w-3" /> Message
@@ -378,7 +378,14 @@ export default function DiscoverPage() {
     },
     onSuccess: (_data, receiverBusinessId) => {
       setSuccessIds((prev) => new Set(prev).add(receiverBusinessId));
-      void queryClient.invalidateQueries({ queryKey: ["connection-requests", userBusiness?.id] });
+      void queryClient.invalidateQueries({ queryKey: ["connection-requests", userBusiness?.id] }).then(() => {
+        // Clear the optimistic success state after the query has been invalidated
+        setSuccessIds((prev) => {
+          const next = new Set(prev);
+          next.delete(receiverBusinessId);
+          return next;
+        });
+      });
     },
     onError: (error, receiverBusinessId) => {
       setErrorMap((prev) => new Map(prev).set(receiverBusinessId, error.message));
@@ -393,11 +400,13 @@ export default function DiscoverPage() {
   });
 
   const getConnectionStatus = (businessId: string): "none" | "pending" | "accepted" => {
-    if (successIds.has(businessId)) return "pending";
     const request = connectionRequests.find((r) => r.receiver_business_id === businessId);
-    if (!request) return "none";
-    if (request.status === "accepted") return "accepted";
-    if (request.status === "pending") return "pending";
+    if (request) {
+      if (request.status === "accepted") return "accepted";
+      if (request.status === "pending") return "pending";
+    }
+    // Fall back to optimistic state if no request found yet
+    if (successIds.has(businessId)) return "pending";
     return "none";
   };
 
