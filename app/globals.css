@@ -243,6 +243,35 @@
     animation-play-state: paused;
   }
 
+  /* ─── Marquee Pills ────────────────────────────────────── */
+  .marquee-pill .pill-arrow {
+    display: inline-block;
+    font-family: var(--font-mono);
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: max-width 0.2s ease, opacity 0.2s ease, transform 0.2s ease, margin-right 0.2s ease;
+    margin-right: 0;
+    white-space: nowrap;
+  }
+
+  .marquee-pill:hover .pill-arrow {
+    max-width: 20px;
+    opacity: 1;
+    transform: translateX(0);
+    margin-right: 4px;
+  }
+
+  /* ─── Footer Nav Links ─────────────────────────────────── */
+  .footer-nav-link {
+    color: rgba(245, 242, 235, 0.6);
+  }
+
+  .footer-nav-link:hover {
+    color: var(--color-paper);
+  }
+
   /* ─── CTA Outline Button ───────────────────────────────── */
   .btn-cta-outline {
     display: inline-flex;

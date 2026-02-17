@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
 import CityProgress from "../components/CityProgress";
 import RecentSignups from "../components/RecentSignups";
 import CityRequestForm from "../components/CityRequestForm";
@@ -9,104 +8,162 @@ import CityRequestForm from "../components/CityRequestForm";
 export default function ComingSoonPage() {
   const city = "Ann Arbor Area";
 
+  const communities = [
+    "Ann Arbor",
+    "Ypsilanti",
+    "Saline",
+    "Milan",
+    "Dexter",
+    "Chelsea",
+    "Whitmore Lake",
+    "Pittsfield Twp.",
+  ];
+
   return (
-    <div className="space-y-14">
+    <div>
+      {/* Accent top rule */}
+      <div style={{ height: "2px", backgroundColor: "var(--color-accent)" }} />
+
       {/* Hero */}
-      <section className="text-center">
-        <div className="badge-primary mx-auto mb-5">
-          <MapPin className="h-3 w-3" />
-          Pre-Launch
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
+      <section
+        style={{ paddingTop: "80px", paddingBottom: "64px", paddingLeft: "24px", paddingRight: "24px" }}
+      >
+        <span className="section-label">Pre-Launch</span>
+        <h1
+          className="mt-5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2.5rem, 5vw, 4rem)",
+            lineHeight: "1.05",
+            letterSpacing: "-0.02em",
+            color: "var(--color-ink)",
+          }}
+        >
           Sortir is launching in the{" "}
-          <span className="bg-gradient-to-r from-lavender-600 to-spearmint-500 bg-clip-text text-transparent">
-            Ann Arbor Area
-          </span>
+          <em>{city}</em>
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-neutral-500">
-          We&apos;re starting in Ann Arbor, Ypsilanti, Saline, Milan, Dexter, Chelsea, Whitmore Lake, and surrounding Washtenaw County communities. When enough local businesses join, we go live.
+        <p
+          className="mt-6 max-w-2xl"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "16px",
+            lineHeight: "1.6",
+            color: "var(--color-muted)",
+          }}
+        >
+          We&apos;re starting in Ann Arbor, Ypsilanti, Saline, Milan, Dexter, Chelsea,
+          Whitmore Lake, and surrounding Washtenaw County communities. When enough local
+          businesses join, we go live.
         </p>
       </section>
 
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
+
       {/* Progress + signups grid */}
-      <section className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
-        {/* Left: Progress + CTA */}
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
-            <h2 className="mb-5 text-lg font-semibold text-neutral-900">
-              {city} launch progress
+      <section
+        className="grid gap-0 lg:grid-cols-2"
+        style={{ paddingLeft: "24px", paddingRight: "24px" }}
+      >
+        {/* Left: Progress + CTA + communities */}
+        <div
+          style={{ paddingTop: "48px", paddingBottom: "48px", paddingRight: "48px", borderRight: "1px solid var(--color-rule)" }}
+        >
+          {/* Progress card */}
+          <div className="sortir-card">
+            <span className="section-label">Launch progress</span>
+            <h2
+              className="mt-4 mb-6"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "20px",
+                color: "var(--color-ink)",
+              }}
+            >
+              {city}
             </h2>
             <CityProgress city={city} />
-            <p className="mt-4 text-sm text-neutral-500">
+            <p
+              className="mt-5"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "13px",
+                color: "var(--color-muted)",
+              }}
+            >
               Launch happens when we hit the target number of businesses.
             </p>
           </div>
 
-          <Link
-            href="/join"
-            className="btn-primary flex w-full items-center justify-center gap-2 py-3.5 text-base shadow-lg hover:shadow-xl"
-          >
-            Join the Waitlist
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="mt-8">
+            <Link href="/join" className="btn-primary">
+              Join the Waitlist →
+            </Link>
+          </div>
 
-          {/* Ann Arbor Area communities */}
-          <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-soft">
-            <h3 className="mb-4 text-sm font-semibold text-neutral-900">
-              Ann Arbor Area Communities
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-xs text-neutral-600">
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Ann Arbor
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Ypsilanti
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Saline
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Milan
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Dexter
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Chelsea
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Whitmore Lake
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-lavender-500" />
-                Pittsfield Twp.
-              </div>
-              <div className="col-span-2 text-center italic text-neutral-400">
+          {/* Communities */}
+          <div className="sortir-card mt-10">
+            <span className="section-label">Communities</span>
+            <div
+              className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2"
+            >
+              {communities.map((name) => (
+                <span
+                  key={name}
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    letterSpacing: "0.08em",
+                    color: "var(--color-ink)",
+                  }}
+                >
+                  {name}
+                </span>
+              ))}
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "11px",
+                  letterSpacing: "0.08em",
+                  color: "var(--color-muted)",
+                  fontStyle: "italic",
+                }}
+              >
                 + surrounding areas
-              </div>
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Right: Recent signups */}
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
-            <h2 className="mb-5 text-lg font-semibold text-neutral-900">
-              Recently joined in {city}
+        {/* Right: Recent signups + city request */}
+        <div style={{ paddingTop: "48px", paddingBottom: "48px", paddingLeft: "48px" }}>
+          <div className="sortir-card">
+            <span className="section-label">Recently joined</span>
+            <h2
+              className="mt-4 mb-6"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "20px",
+                color: "var(--color-ink)",
+              }}
+            >
+              {city}
             </h2>
             <RecentSignups city={city} />
           </div>
 
           {/* Request your city */}
-          <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
-            <CityRequestForm />
+          <div
+            className="mt-10"
+            style={{
+              borderTop: "1px solid var(--color-rule)",
+              backgroundColor: "var(--color-paper-dark)",
+              padding: "24px",
+            }}
+          >
+            <span className="section-label">Not in your city yet?</span>
+            <div className="mt-4">
+              <CityRequestForm />
+            </div>
           </div>
         </div>
       </section>

@@ -20,88 +20,112 @@ const footerLinks = {
 export default function Footer() {
   return (
     <footer
-      className="mt-20"
-      style={{
-        borderTop: '1px solid var(--color-rule)',
-        backgroundColor: 'var(--color-paper)',
-      }}
+      className="-mx-4 sm:-mx-6 mt-20 relative overflow-hidden"
+      style={{ backgroundColor: "var(--color-ink)" }}
     >
-      <div className="pt-12 pb-10 px-6 sm:px-12">
-        <div className="grid gap-10 grid-cols-1 sm:grid-cols-2">
-          {/* Left — wordmark */}
-          <div>
-            <Link className="flex items-center" href="/">
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '18px',
-                  color: 'var(--color-ink)',
-                }}
-              >
-                Sortir
-              </span>
-              <span
-                style={{
-                  color: 'var(--color-accent)',
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '18px',
-                  marginLeft: '1px',
-                }}
-              >
-                ·
-              </span>
-            </Link>
-          </div>
+      {/* Background wordmark watermark */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute bottom-0 left-6 leading-none"
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(5rem, 15vw, 12rem)",
+          fontStyle: "italic",
+          color: "rgba(245,242,235,0.06)",
+          lineHeight: "0.85",
+          zIndex: 0,
+        }}
+      >
+        Sortir
+      </span>
 
-          {/* Right — links */}
-          <div className="flex flex-wrap gap-x-12 gap-y-6">
-            {Object.entries(footerLinks).map(([heading, links]) => (
-              <div key={heading}>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '12px',
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase' as const,
-                    color: 'var(--color-muted)',
-                  }}
-                >
-                  {heading}
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {links.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        className="transition-colors duration-200"
-                        href={link.href}
-                        style={{
-                          fontFamily: 'var(--font-body)',
-                          fontSize: '12px',
-                          letterSpacing: '0.08em',
-                          textTransform: 'uppercase' as const,
-                          color: 'var(--color-muted)',
-                        }}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+      <div className="relative px-6 sm:px-12 pt-16 pb-10" style={{ zIndex: 1 }}>
+        {/* Top: wordmark + tagline */}
+        <div className="mb-12">
+          <Link className="inline-block" href="/">
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "22px",
+                fontStyle: "italic",
+                color: "var(--color-paper)",
+              }}
+            >
+              Sortir
+            </span>
+            <span
+              style={{
+                color: "var(--color-accent)",
+                fontFamily: "var(--font-display)",
+                fontSize: "22px",
+                marginLeft: "1px",
+              }}
+            >
+              ·
+            </span>
+          </Link>
+          <p
+            className="mt-3 max-w-sm"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "15px",
+              fontStyle: "italic",
+              color: "rgba(245,242,235,0.55)",
+              lineHeight: "1.5",
+            }}
+          >
+            Your neighborhood businesses, stronger together.
+          </p>
+        </div>
+
+        {/* 3-column nav grid */}
+        <div className="grid grid-cols-3 gap-8 sm:gap-12">
+          {Object.entries(footerLinks).map(([heading, links]) => (
+            <div key={heading}>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "11px",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase" as const,
+                  color: "rgba(245,242,235,0.4)",
+                  marginBottom: "12px",
+                }}
+              >
+                {heading}
+              </p>
+              <ul className="space-y-2.5">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      className="footer-nav-link transition-colors duration-200"
+                      href={link.href}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "11px",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase" as const,
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Legal copy */}
         <div
-          className="mt-12 pt-6"
-          style={{ borderTop: '1px solid var(--color-rule)' }}
+          className="mt-16 pt-6"
+          style={{ borderTop: "1px solid rgba(245,242,235,0.1)" }}
         >
           <p
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-              color: 'var(--color-muted)',
+              fontFamily: "var(--font-mono)",
+              fontSize: "11px",
+              color: "rgba(245,242,235,0.3)",
             }}
           >
             &copy; {new Date().getFullYear()} Sortir. All rights reserved.
