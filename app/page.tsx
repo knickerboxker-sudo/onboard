@@ -135,7 +135,7 @@ export default function Home() {
         <div className="max-w-3xl">
           <div className="section-label mb-6">
             <MapPin className="h-3.5 w-3.5" />
-            Ann Arbor Pre-Launch
+            Ann Arbor Area Pre-Launch
           </div>
           <h1 className="mb-6 text-4xl font-bold leading-[1.1] tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl">
             Your neighborhood businesses, stronger together.
@@ -150,7 +150,7 @@ export default function Home() {
               className="btn-primary px-6 py-3.5"
               href="/join"
             >
-              Join the Waitlist — Ann Arbor
+              Join the Waitlist — Ann Arbor Area
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link

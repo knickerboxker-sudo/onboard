@@ -53,7 +53,7 @@ export default function JoinSuccessPage() {
   }
 
   // Fallback if data couldn't be loaded
-  const city = data?.city || "Ann Arbor";
+  const city = data?.city || "Ann Arbor Area";
   const referralCount = data?.referral_count || 0;
   const position = data?.position || 0;
 

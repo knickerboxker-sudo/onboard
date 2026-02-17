@@ -9,6 +9,7 @@ export interface SuccessStory {
   keyMetric: string;
 }
 
+// PLACEHOLDER: Replace with real testimonials before public launch
 export const successStories: SuccessStory[] = [
   {
     id: "cafe-bakery",

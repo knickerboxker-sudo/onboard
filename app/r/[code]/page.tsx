@@ -27,9 +27,9 @@ const partnershipOptions = [
 ];
 
 const cities = [
-  { name: "Ann Arbor", state: "MI" },
-  { name: "Detroit", state: "MI" },
-  { name: "Grand Rapids", state: "MI" },
+  { name: "Ann Arbor Area", state: "MI" },
+  { name: "Detroit Area", state: "MI" },
+  { name: "Grand Rapids Area", state: "MI" },
 ];
 
 interface ReferrerData {
@@ -231,6 +231,11 @@ export default function ReferralPage() {
               </option>
             ))}
           </select>
+          {formData.city === "Ann Arbor Area" && (
+            <p className="mt-1 text-xs text-neutral-400">
+              Ann Arbor Area includes Ypsilanti, Dexter, Chelsea, Saline, Milan, Whitmore Lake, and surrounding communities
+            </p>
+          )}
         </div>
 
         <div>
