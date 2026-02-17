@@ -2,6 +2,29 @@ export type PartnershipType = "cross-promotion" | "product-bundle" | "event-coll
 
 export type CollaborationIntent = "sell" | "promote" | "supply" | "co-brand" | "refer";
 
+export type PartnershipInterestTag =
+  | "Events"
+  | "Cross-Promotion"
+  | "Product Placement"
+  | "Revenue Share"
+  | "Referral Program"
+  | "Joint Marketing"
+  | "Space Sharing"
+  | "Equipment Sharing"
+  | "Bulk Purchasing";
+
+export const PARTNERSHIP_INTEREST_TAGS: PartnershipInterestTag[] = [
+  "Events",
+  "Cross-Promotion",
+  "Product Placement",
+  "Revenue Share",
+  "Referral Program",
+  "Joint Marketing",
+  "Space Sharing",
+  "Equipment Sharing",
+  "Bulk Purchasing",
+];
+
 export type BusinessRecord = {
   id: string;
   owner_id: string;
@@ -18,6 +41,14 @@ export type BusinessRecord = {
   operating_hours?: string | null;
   website?: string | null;
   social_links?: string[] | null;
+  // Enhanced profile sections
+  looking_for?: string[] | null;
+  can_offer?: string[] | null;
+  partnership_ideas?: string[] | null;
+  partnership_interest_tags?: string[] | null;
+  business_story?: string | null;
+  business_goals?: string | null;
+  business_values?: string[] | null;
   // Social proof & demographics
   follower_count?: number;
   email_list_size?: number;
@@ -41,6 +72,19 @@ export type BusinessRecord = {
   last_active_at?: string | null;
   avg_response_time_minutes?: number | null;
   created_at?: string;
+};
+
+// Connection request system
+export type ConnectionRequestStatus = "pending" | "accepted" | "declined";
+
+export type ConnectionRequestRecord = {
+  id: string;
+  sender_business_id: string;
+  receiver_business_id: string;
+  message: string | null;
+  status: ConnectionRequestStatus;
+  created_at: string;
+  updated_at: string;
 };
 
 export type SwipeDirection = "left" | "right";
