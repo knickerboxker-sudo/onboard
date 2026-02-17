@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { BusinessRecord } from "@/lib/types";
-import { TIER_LIMITS } from "@/lib/matching";
 import Link from "next/link";
 
 type ProfileViewWithViewer = {
@@ -13,8 +12,6 @@ type ProfileViewWithViewer = {
   viewed_at: string;
   viewer: Pick<BusinessRecord, "name" | "business_type"> | null;
 };
-
-const FREE_VIEW_LIMIT = 3;
 
 function formatTimeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -43,9 +40,9 @@ export default function ProfileViewsPage() {
 
       const { data: currentBusiness, error: bizError } = await supabase
         .from("businesses")
-        .select("id, subscription_tier")
+        .select("id")
         .eq("owner_id", user.id)
-        .single<Pick<BusinessRecord, "id" | "subscription_tier">>();
+        .single<Pick<BusinessRecord, "id">>();
 
       if (bizError || !currentBusiness) throw new Error("Complete onboarding to see who viewed your profile.");
 
@@ -78,16 +75,11 @@ export default function ProfileViewsPage() {
 
       return {
         views: enriched,
-        tier: (currentBusiness.subscription_tier ?? "free") as "free" | "pro" | "premium",
       };
     },
   });
 
-  const tier = data?.tier ?? "free";
-  const canSeeAll = TIER_LIMITS[tier].canSeeWhoLiked;
   const views = data?.views ?? [];
-  const visibleViews = canSeeAll ? views : views.slice(0, FREE_VIEW_LIMIT);
-  const hiddenCount = canSeeAll ? 0 : Math.max(0, views.length - FREE_VIEW_LIMIT);
 
   return (
     <section className="mx-auto max-w-2xl space-y-6">
@@ -122,7 +114,7 @@ export default function ProfileViewsPage() {
 
       {!isLoading && !error && views.length > 0 ? (
         <div className="space-y-3">
-          {visibleViews.map((view) => (
+          {views.map((view) => (
             <div key={view.id} className="glass flex items-center justify-between rounded-2xl p-4">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-neutral-900">
@@ -137,34 +129,6 @@ export default function ProfileViewsPage() {
               </Link>
             </div>
           ))}
-
-          {hiddenCount > 0 ? (
-            <>
-              {Array.from({ length: Math.min(hiddenCount, 3) }).map((_, i) => (
-                <div key={`blur-${i}`} className="glass relative rounded-2xl p-4 select-none">
-                  <div className="blur-sm">
-                    <p className="font-medium text-neutral-900">Hidden Business Name</p>
-                    <p className="mt-0.5 text-sm text-neutral-500">Business Type · 2d ago</p>
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/60">
-                    <span className="text-xs font-medium text-neutral-400">🔒</span>
-                  </div>
-                </div>
-              ))}
-
-              <div className="glass rounded-3xl p-6 text-center">
-                <p className="text-sm font-medium text-neutral-700">
-                  +{hiddenCount} more business{hiddenCount === 1 ? "" : "es"} viewed your profile
-                </p>
-                <p className="mt-1 text-xs text-neutral-500">
-                  Upgrade to Pro to see everyone who&apos;s interested in your business.
-                </p>
-                <Link href="/settings" className="btn-primary mt-3 inline-block text-sm">
-                  Upgrade to Pro
-                </Link>
-              </div>
-            </>
-          ) : null}
         </div>
       ) : null}
     </section>

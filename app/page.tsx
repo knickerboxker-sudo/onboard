@@ -103,9 +103,12 @@ const partnershipExamples = [
   { businesses: "Gym + Meal Prep Service", result: "Member nutrition package", accent: "lavender" },
   { businesses: "Bookstore + Coffee Shop", result: "Reading events with refreshments", accent: "spearmint" },
   { businesses: "Salon + Boutique", result: "Style makeover packages", accent: "creamsicle" },
-  { businesses: "Auto Shop + Car Wash", result: "Full service maintenance deal", accent: "lavender" },
-  { businesses: "Photography + Event Planner", result: "Event media packages", accent: "spearmint" },
-  { businesses: "Accountant + Attorney", result: "Business startup bundle", accent: "creamsicle" },
+  { businesses: "Real Estate Agent + Mortgage Broker", result: "One-stop home buying experience", accent: "lavender" },
+  { businesses: "Accountant + Attorney", result: "Business startup bundle", accent: "spearmint" },
+  { businesses: "Dog Walker + Pet Groomer", result: "All-in pet care subscription", accent: "creamsicle" },
+  { businesses: "Personal Trainer + Nutritionist", result: "Total transformation package", accent: "lavender" },
+  { businesses: "Wedding Photographer + Florist", result: "Memory + beauty package", accent: "spearmint" },
+  { businesses: "Chiropractor + Massage Therapist", result: "Complete pain relief program", accent: "creamsicle" },
 ];
 
 const accentColors: Record<string, string> = {
@@ -139,8 +142,8 @@ const steps = [
 ];
 
 const credibilitySignals = [
-  "Brand-safe partner matching",
-  "Collaboration ideas for local businesses",
+  "Stop paying for ads — start partnering",
+  "Free advertising through every partnership",
   "ROI tracking from day one",
 ];
 
@@ -196,6 +199,26 @@ export default function Home() {
               </span>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Free Advertising Hook Section */}
+      <section className="relative overflow-hidden rounded-2xl border border-spearmint-200/60 bg-gradient-to-br from-spearmint-50 to-white p-8 sm:p-12">
+        <div className="max-w-2xl">
+          <span className="section-label">
+            <TrendingUp className="h-3.5 w-3.5" />
+            The partnership advantage
+          </span>
+          <h2 className="mt-5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+            Stop paying for ads.<br />
+            <span className="sortir-gradient-text">Start partnering.</span>
+          </h2>
+          <p className="mt-4 text-neutral-500 leading-relaxed">
+            When a gym partners with a juice bar through Sortir, the gym promotes the juice bar to 800 Instagram followers — and the juice bar promotes the gym back. That&apos;s thousands of targeted impressions, zero ad spend, and customers who actually trust the recommendation because it came from a business they already love.
+          </p>
+          <p className="mt-3 text-neutral-500 leading-relaxed">
+            Every partnership you build on Sortir is free marketing for both sides. The more you partner, the more your name spreads — without spending a dollar.
+          </p>
         </div>
       </section>
 
@@ -333,8 +356,7 @@ export default function Home() {
             business partner?
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-neutral-400">
-            Join the waitlist for your city and be the first to know when Sortir
-            launches. It&apos;s free to get started.
+            Join the waitlist for your city and be the first to know when Sortir launches in your neighborhood. Always free to get started.
           </p>
           <div className="mt-10">
             <Link
@@ -346,7 +368,7 @@ export default function Home() {
             </Link>
           </div>
           <p className="mt-6 text-xs text-neutral-500">
-            No credit card required &middot; Free forever for basic features
+            Free for all businesses &middot; No credit card ever required
           </p>
         </div>
       </section>

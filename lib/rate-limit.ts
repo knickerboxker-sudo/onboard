@@ -1,8 +1,9 @@
 /**
  * In-memory rate limiter for API routes.
- * Uses a sliding window approach to limit requests per IP address.
- * Note: In-memory store resets on server restart. For distributed deployments,
- * replace with Redis or a similar shared store.
+ * ⚠️  PRODUCTION NOTE: This store resets on server restart and does not work
+ * across multiple instances. Before scaling beyond a single Railway instance,
+ * replace this Map-based store with Upstash Redis using the @upstash/ratelimit
+ * package for distributed rate limiting.
  */
 
 interface RateLimitEntry {

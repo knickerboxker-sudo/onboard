@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { TIER_LIMITS, generatePartnershipInsights } from "@/lib/matching";
+import { generatePartnershipInsights } from "@/lib/matching";
 import type { PartnershipInsight } from "@/lib/matching";
-import type { BusinessRecord, SubscriptionTier } from "@/lib/types";
+import type { BusinessRecord } from "@/lib/types";
 import Link from "next/link";
 import {
   BarChart3,
@@ -127,11 +127,6 @@ export default function AnalyticsPage() {
         .single();
       if (!business) throw new Error("Please complete onboarding.");
 
-      const tier: SubscriptionTier = business.subscription_tier ?? "free";
-      if (!TIER_LIMITS[tier].advancedAnalytics) {
-        return { gated: true as const, business: business as BusinessRecord, partnerships: [] };
-      }
-
       const bizId = business.id;
       const { data: matchRows } = await supabase
         .from("matches")
@@ -146,7 +141,6 @@ export default function AnalyticsPage() {
         .order("start_date", { ascending: true });
 
       return {
-        gated: false as const,
         business: business as BusinessRecord,
         partnerships: (partnerships ?? []) as Partnership[],
       };
@@ -158,21 +152,6 @@ export default function AnalyticsPage() {
     return (
       <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error.message}</p>
     );
-
-  if (data?.gated) {
-    return (
-      <div className="glass rounded-3xl p-6 text-center">
-        <BarChart3 className="mx-auto h-12 w-12 text-neutral-300" />
-        <h1 className="mt-4 text-xl font-semibold text-neutral-900">Advanced Analytics</h1>
-        <p className="mt-2 text-sm text-neutral-500">
-          Unlock charts, revenue insights, and CSV exports with a Pro or Premium plan.
-        </p>
-        <Link href="/settings" className="btn-primary mt-4 inline-block">
-          Upgrade Now
-        </Link>
-      </div>
-    );
-  }
 
   const cutoff = daysAgo(rangeDays);
   const filtered = (data?.partnerships ?? []).filter(

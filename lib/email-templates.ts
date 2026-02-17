@@ -182,3 +182,83 @@ export function ReferralRewardEmail({
     `,
   };
 }
+
+interface NewConnectionRequestEmailProps {
+  recipientBusinessName: string;
+  senderBusinessName: string;
+  message: string | null;
+  appUrl: string;
+}
+
+export function newConnectionRequestEmail({
+  recipientBusinessName,
+  senderBusinessName,
+  message,
+  appUrl,
+}: NewConnectionRequestEmailProps): { subject: string; html: string } {
+  return {
+    subject: `New connection request from ${senderBusinessName}`,
+    html: `
+      <div style="font-family: 'Inter', system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+        <h1 style="font-size: 24px; font-weight: 700; color: #18181b; margin: 0 0 16px;">
+          New Connection Request
+        </h1>
+        <p style="font-size: 14px; color: #71717a; line-height: 1.6; margin: 0 0 24px;">
+          Hi ${recipientBusinessName}, <strong>${senderBusinessName}</strong> wants to connect with you on Sortir!
+        </p>
+        ${message ? `
+        <div style="background: #f4f4f5; border-radius: 12px; padding: 16px; margin: 0 0 24px;">
+          <p style="font-size: 13px; color: #52525b; line-height: 1.6; margin: 0;">
+            "${message}"
+          </p>
+        </div>
+        ` : ""}
+        <a href="${appUrl}/connections" style="display: inline-block; background: #18181b; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+          View Request →
+        </a>
+        <p style="font-size: 12px; color: #a1a1aa; margin: 24px 0 0;">
+          — The Sortir Team
+        </p>
+      </div>
+    `,
+  };
+}
+
+interface NewMessageEmailProps {
+  recipientBusinessName: string;
+  senderBusinessName: string;
+  messagePreview: string;
+  appUrl: string;
+}
+
+export function newMessageEmail({
+  recipientBusinessName,
+  senderBusinessName,
+  messagePreview,
+  appUrl,
+}: NewMessageEmailProps): { subject: string; html: string } {
+  return {
+    subject: `New message from ${senderBusinessName}`,
+    html: `
+      <div style="font-family: 'Inter', system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+        <h1 style="font-size: 24px; font-weight: 700; color: #18181b; margin: 0 0 16px;">
+          New Message
+        </h1>
+        <p style="font-size: 14px; color: #71717a; line-height: 1.6; margin: 0 0 24px;">
+          Hi ${recipientBusinessName}, <strong>${senderBusinessName}</strong> sent you a message on Sortir.
+        </p>
+        <div style="background: #f4f4f5; border-radius: 12px; padding: 16px; margin: 0 0 24px;">
+          <p style="font-size: 13px; color: #52525b; line-height: 1.6; margin: 0;">
+            "${messagePreview}"
+          </p>
+        </div>
+        <a href="${appUrl}/messages" style="display: inline-block; background: #18181b; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+          Reply Now →
+        </a>
+        <p style="font-size: 12px; color: #a1a1aa; margin: 24px 0 0;">
+          — The Sortir Team
+        </p>
+      </div>
+    `,
+  };
+}

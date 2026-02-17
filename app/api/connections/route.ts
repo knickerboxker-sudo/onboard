@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     // Get sender's business
     const { data: senderBusiness, error: senderError } = await supabase
       .from("businesses")
-      .select("id")
+      .select("id, name")
       .eq("owner_id", user.id)
       .single();
 
@@ -135,6 +135,32 @@ export async function POST(request: Request) {
 
     if (insertError) {
       throw insertError;
+    }
+
+    // Send email notification to the receiver (non-blocking)
+    try {
+      const { data: receiverOwner } = await supabase
+        .from("businesses")
+        .select("name, owner_id")
+        .eq("id", receiver_business_id)
+        .single();
+
+      if (receiverOwner) {
+        const { data: { user: receiverUser } } = await supabase.auth.admin.getUserById(receiverOwner.owner_id);
+        if (receiverUser?.email) {
+          const { sendEmail } = await import("@/lib/resend");
+          const { newConnectionRequestEmail } = await import("@/lib/email-templates");
+          const template = newConnectionRequestEmail({
+            recipientBusinessName: receiverOwner.name,
+            senderBusinessName: senderBusiness.name,
+            message: sanitizedMessage,
+            appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "",
+          });
+          await sendEmail({ to: receiverUser.email, ...template });
+        }
+      }
+    } catch (emailError) {
+      console.error("Failed to send connection notification email:", emailError);
     }
 
     return NextResponse.json({

@@ -12,7 +12,6 @@ interface Reward {
 const rewards: Reward[] = [
   { threshold: 5, label: "Priority Placement", description: "Priority placement at launch" },
   { threshold: 10, label: "Featured Listing", description: "Featured in launch announcement" },
-  { threshold: 15, label: "Free Pro Tier", description: "Free Professional tier for 3 months" },
 ];
 
 interface ReferralStatsProps {

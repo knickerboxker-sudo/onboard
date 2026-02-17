@@ -8,13 +8,25 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
+  const code = searchParams.get("code");
   const next = getSafePath(searchParams.get("next"));
 
+  const supabase = await createClient();
+
+  // Handle OAuth callback (code exchange)
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      return NextResponse.redirect(`${origin}${next}`);
+    }
+    return NextResponse.redirect(`${origin}/auth?error=auth_failed`);
+  }
+
+  // Handle email OTP verification (token_hash flow)
   if (!tokenHash || !type) {
     return NextResponse.redirect(`${origin}/auth?error=invalid_link`);
   }
 
-  const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
     type: type as EmailOtpType,

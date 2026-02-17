@@ -176,7 +176,7 @@ export type SavedAssessmentRecord = {
 export type SubscriptionTier = "free" | "starter" | "professional" | "business" | "pro" | "premium";
 
 export type TierLimits = {
-  dailySwipes: number;
+  dailyConnections: number;
   canSeeWhoLiked: boolean;
   canSeeProfileViews?: number;
   prioritySearch: boolean;

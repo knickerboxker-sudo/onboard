@@ -192,29 +192,29 @@ describe("trust badges", () => {
 });
 
 describe("subscription tier limits", () => {
-  it("free tier has 3 daily swipes", () => {
-    expect(TIER_LIMITS.free.dailySwipes).toBe(3);
+  it("free tier has 3 daily connections", () => {
+    expect(TIER_LIMITS.free.dailyConnections).toBe(3);
     expect(TIER_LIMITS.free.canSeeWhoLiked).toBe(false);
   });
 
-  it("starter tier has 15 daily swipes", () => {
-    expect(TIER_LIMITS.starter.dailySwipes).toBe(15);
+  it("starter tier has 15 daily connections", () => {
+    expect(TIER_LIMITS.starter.dailyConnections).toBe(15);
     expect(TIER_LIMITS.starter.canSeeWhoLiked).toBe(false);
   });
 
-  it("professional tier has unlimited swipes", () => {
-    expect(TIER_LIMITS.professional.dailySwipes).toBe(Infinity);
+  it("professional tier has unlimited connections", () => {
+    expect(TIER_LIMITS.professional.dailyConnections).toBe(Infinity);
     expect(TIER_LIMITS.professional.canSeeWhoLiked).toBe(true);
   });
 
-  it("business tier has unlimited swipes with boost", () => {
-    expect(TIER_LIMITS.business.dailySwipes).toBe(Infinity);
+  it("business tier has unlimited connections with boost", () => {
+    expect(TIER_LIMITS.business.dailyConnections).toBe(Infinity);
     expect(TIER_LIMITS.business.canSeeWhoLiked).toBe(true);
     expect(TIER_LIMITS.business.boostProfile).toBe(true);
   });
 
-  it("pro tier has unlimited swipes", () => {
-    expect(TIER_LIMITS.pro.dailySwipes).toBe(Infinity);
+  it("pro tier has unlimited connections", () => {
+    expect(TIER_LIMITS.pro.dailyConnections).toBe(Infinity);
     expect(TIER_LIMITS.pro.canSeeWhoLiked).toBe(true);
   });
 });

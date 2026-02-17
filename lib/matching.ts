@@ -261,7 +261,7 @@ export function getTrustBadges(business: BusinessRecord): TrustBadge[] {
 
 export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
   free: {
-    dailySwipes: 3,
+    dailyConnections: 3,
     canSeeWhoLiked: false,
     canSeeProfileViews: 0,
     prioritySearch: false,
@@ -271,7 +271,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     removeBranding: false,
   },
   starter: {
-    dailySwipes: 15,
+    dailyConnections: 15,
     canSeeWhoLiked: false,
     canSeeProfileViews: 10,
     prioritySearch: false,
@@ -281,7 +281,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     removeBranding: true,
   },
   professional: {
-    dailySwipes: Infinity,
+    dailyConnections: Infinity,
     canSeeWhoLiked: true,
     canSeeProfileViews: Infinity,
     prioritySearch: true,
@@ -291,7 +291,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     removeBranding: true,
   },
   business: {
-    dailySwipes: Infinity,
+    dailyConnections: Infinity,
     canSeeWhoLiked: true,
     canSeeProfileViews: Infinity,
     prioritySearch: true,
@@ -305,7 +305,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
   },
   // Legacy tier aliases (backward compatibility)
   pro: {
-    dailySwipes: Infinity,
+    dailyConnections: Infinity,
     canSeeWhoLiked: true,
     prioritySearch: true,
     advancedAnalytics: true,
@@ -313,7 +313,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     boostProfile: false,
   },
   premium: {
-    dailySwipes: Infinity,
+    dailyConnections: Infinity,
     canSeeWhoLiked: true,
     prioritySearch: true,
     advancedAnalytics: true,
