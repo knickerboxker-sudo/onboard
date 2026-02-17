@@ -1,8 +1,22 @@
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia' as Stripe.LatestApiVersion,
-});
+let stripeClient: Stripe | null = null;
+
+export const getStripe = () => {
+  if (!stripeClient) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+
+    if (!secretKey) {
+      throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+
+    stripeClient = new Stripe(secretKey, {
+      apiVersion: '2024-11-20.acacia' as Stripe.LatestApiVersion,
+    });
+  }
+
+  return stripeClient;
+};
 
 export const PRICING = {
   starter: {
@@ -30,7 +44,7 @@ export const createCheckoutSession = async (
 ) => {
   const priceId = PRICING[tier].priceId;
 
-  return await stripe.checkout.sessions.create({
+  return await getStripe().checkout.sessions.create({
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?upgraded=true`,
