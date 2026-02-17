@@ -153,8 +153,8 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative px-6 py-20 sm:px-12 sm:py-32">
         {/* Dot grid background */}
-        <div className="pointer-events-none absolute inset-0 bg-dot-pattern bg-dot-sm opacity-[0.3]" />
-        {/* Brand gradient orbs */}
+        <div className="pointer-events-none absolute inset-0 bg-dot-pattern bg-dot-sm opacity-[0.25]" />
+        {/* Sortir signature gradient orbs */}
         <div className="pointer-events-none absolute -top-20 right-0 h-[500px] w-[500px] rounded-full opacity-[0.06]" style={{ background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)" }} />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full opacity-[0.04]" style={{ background: "radial-gradient(circle, #34d399 0%, transparent 70%)" }} />
 
@@ -192,6 +192,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sortir signature divider */}
+      <div className="sortir-divider" />
+
       {/* Feature Cards */}
       <section>
         <div className="mb-14 text-center">
@@ -210,7 +213,7 @@ export default function Home() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <div
-              className={`group relative overflow-hidden rounded-2xl border border-neutral-100 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated ${feature.borderAccent}`}
+              className="sortir-card p-6"
               key={feature.title}
             >
               {/* Hover gradient overlay */}
@@ -229,8 +232,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sortir divider */}
+      <div className="sortir-divider" />
+
       {/* How It Works Section */}
-      <section className="relative overflow-hidden rounded-2xl border border-neutral-100 bg-white p-8 shadow-soft sm:p-16">
+      <section className="relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-8 shadow-soft sm:p-16">
         {/* Subtle brand glow */}
         <div className="pointer-events-none absolute top-0 right-0 h-[300px] w-[300px] rounded-full opacity-[0.04]" style={{ background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)" }} />
 
@@ -271,6 +277,9 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Sortir divider */}
+      <div className="sortir-divider" />
 
       {/* Featured Partnership Ideas */}
       <section>

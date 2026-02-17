@@ -1,16 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════
+   SORTIR DESIGN SYSTEM
+   A warm, community-focused brand identity.
+   Signature: Lavender-to-Spearmint gradient accents,
+   warm stone neutrals, soft rounded surfaces.
+   ═══════════════════════════════════════════════════════════ */
 
 @layer base {
   * {
     @apply border-neutral-200;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-neutral-50 text-neutral-900 antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01";
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -20,37 +32,106 @@
   ::selection {
     @apply bg-lavender-100 text-lavender-900;
   }
+
+  /* Sortir signature focus ring — lavender glow */
+  :focus-visible {
+    @apply outline-none ring-2 ring-lavender-400/30 ring-offset-2 ring-offset-neutral-50;
+  }
 }
 
 @layer components {
+  /* ─── Buttons ──────────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply focus-visible:ring-2 focus-visible:ring-lavender-400/30;
   }
 
   .btn-primary {
-    @apply btn bg-neutral-900 text-white shadow-sm hover:shadow-lg hover:bg-neutral-800 active:scale-[0.98];
+    @apply btn text-white shadow-sm;
+    @apply hover:shadow-lg active:scale-[0.97];
+    background: linear-gradient(135deg, #292524 0%, #1C1917 100%);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #44403C 0%, #292524 100%);
   }
 
   .btn-secondary {
-    @apply btn bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 shadow-sm;
+    @apply btn bg-white text-neutral-700 border border-neutral-200 shadow-sm;
+    @apply hover:bg-neutral-50 hover:border-neutral-300 hover:shadow-md;
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-neutral-700 hover:bg-neutral-100;
+    @apply btn bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900;
   }
 
+  .btn-muted {
+    @apply btn bg-white text-neutral-600 border border-neutral-200 shadow-sm font-semibold;
+    @apply hover:bg-neutral-50 hover:border-neutral-300;
+  }
+
+  /* Sortir's signature accent button — gradient */
+  .btn-accent {
+    @apply btn text-white shadow-sm;
+    @apply hover:shadow-glow hover:brightness-110 active:scale-[0.97];
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #34d399 100%);
+  }
+
+  /* ─── Form Elements ────────────────────────────────────── */
   .input {
-    @apply w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-lavender-500 focus:ring-2 focus:ring-lavender-500/20 focus:outline-none transition-all duration-200 shadow-sm;
+    @apply w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm shadow-sm;
+    @apply placeholder:text-neutral-400;
+    @apply focus:border-lavender-400 focus:ring-[3px] focus:ring-lavender-500/10 focus:outline-none;
+    @apply transition-all duration-200;
   }
 
   .label {
     @apply mb-1.5 block text-sm font-medium text-neutral-700;
   }
 
+  /* ─── Cards & Surfaces ─────────────────────────────────── */
   .card {
-    @apply rounded-2xl bg-white border border-neutral-100 shadow-soft hover:shadow-elevated transition-all duration-300;
+    @apply rounded-2xl bg-white border border-neutral-200/60 shadow-soft;
+    @apply hover:shadow-elevated transition-all duration-300;
   }
 
+  .glass {
+    @apply rounded-2xl bg-white border border-neutral-200/60 shadow-soft;
+  }
+
+  /* Sortir's signature card — subtle gradient left border on hover */
+  .sortir-card {
+    @apply relative overflow-hidden rounded-2xl bg-white border border-neutral-200/60 shadow-soft;
+    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated;
+  }
+
+  .sortir-card::before {
+    content: "";
+    @apply absolute top-0 left-0 bottom-0 w-[3px] opacity-0 transition-opacity duration-300;
+    background: linear-gradient(180deg, #8b5cf6, #34d399);
+  }
+
+  .sortir-card:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Stat card with top gradient line on hover */
+  .stat-card {
+    @apply relative overflow-hidden rounded-2xl bg-white border border-neutral-200/60 p-6 shadow-soft;
+    @apply transition-all duration-300 hover:shadow-elevated hover:-translate-y-0.5;
+  }
+
+  .stat-card::after {
+    content: "";
+    @apply absolute top-0 left-0 right-0 h-[2px] opacity-0 transition-opacity duration-300;
+    background: linear-gradient(90deg, #8b5cf6, #34d399);
+  }
+
+  .stat-card:hover::after {
+    @apply opacity-100;
+  }
+
+  /* ─── Badges ───────────────────────────────────────────── */
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
   }
@@ -60,48 +141,64 @@
   }
 
   .badge-success {
-    @apply badge bg-spearmint-50 text-spearmint-700 border border-spearmint-200;
+    @apply badge bg-spearmint-50 text-spearmint-700 border border-spearmint-100;
   }
 
   .badge-neutral {
-    @apply badge bg-neutral-100 text-neutral-700 border border-neutral-200;
+    @apply badge bg-neutral-100 text-neutral-600 border border-neutral-200;
   }
 
+  /* ─── Section Labels ───────────────────────────────────── */
   .section-label {
-    @apply inline-flex items-center gap-2 rounded-full border border-lavender-100 bg-lavender-50/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-700;
+    @apply inline-flex items-center gap-2 rounded-full border border-lavender-100 bg-lavender-50/80 px-4 py-1.5;
+    @apply text-xs font-semibold uppercase tracking-widest text-lavender-700;
+  }
+
+  .hero-badge {
+    @apply section-label;
+  }
+
+  /* ─── Sortir Brand Elements ────────────────────────────── */
+  .sortir-gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 40%, #34d399 100%);
   }
 
   .gradient-text {
     @apply bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700 bg-clip-text text-transparent;
   }
 
-  /* Backward-compatible utility classes for existing pages */
-  .glass {
-    @apply bg-white/90 backdrop-blur-sm border border-neutral-100 shadow-soft;
+  /* Sortir signature section divider */
+  .sortir-divider {
+    @apply h-px w-full;
+    background: linear-gradient(90deg, transparent 0%, #ddd6fe 30%, #a7f3d0 70%, transparent 100%);
   }
 
-  .btn-muted {
-    @apply btn bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 font-semibold shadow-sm;
-  }
-
-  .hero-badge {
-    @apply inline-flex items-center gap-2 rounded-full border border-lavender-100 bg-lavender-50/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-700;
-  }
-
+  /* ─── Backward-compatible ──────────────────────────────── */
   .testimonial-card {
-    @apply rounded-2xl bg-white p-6 border border-neutral-100 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated;
+    @apply sortir-card p-6;
   }
 
   .hero-section {
     @apply bg-white;
   }
+}
 
-  /* Premium gradient border effect */
-  .gradient-border-card {
-    @apply relative rounded-2xl bg-white p-[1px] overflow-hidden;
-    background: linear-gradient(135deg, #ede9fe, #e4e4e7, #d1fae5);
-  }
-  .gradient-border-card > * {
-    @apply relative bg-white rounded-[calc(1rem-1px)];
-  }
+/* ─── Smooth scrollbar (WebKit) ──────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D6D3D1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A29E;
 }

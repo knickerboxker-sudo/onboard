@@ -21,7 +21,7 @@ const footerLinks = {
 export default function Footer() {
   return (
     <footer className="mt-20">
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-200 to-transparent" />
+      <div className="sortir-divider" />
       <div className="pt-12 pb-10">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
