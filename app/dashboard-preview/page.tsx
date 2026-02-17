@@ -6,7 +6,7 @@ const previewFeatures = [
     icon: Users,
     title: "Discover Local Partners",
     description:
-      "Browse and connect with complementary businesses in your area through our intelligent matching system.",
+      "Browse and connect with complementary businesses in your area through our matching system.",
     iconBg: "bg-brand-50",
     iconColor: "text-brand-600",
   },

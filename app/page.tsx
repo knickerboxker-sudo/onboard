@@ -149,7 +149,7 @@ const steps = [
 
 const credibilitySignals = [
   "Brand-safe partner matching",
-  "AI-assisted collaboration ideas",
+  "Collaboration ideas for local businesses",
   "ROI tracking from day one",
 ];
 
