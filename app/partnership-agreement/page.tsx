@@ -194,7 +194,7 @@ function AgreementBuilder() {
   return (
     <div className="space-y-6">
       {/* Step indicator */}
-      <div className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-100">
+      <div className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-neutral-100">
         <div className="flex items-center justify-between">
           {STEPS.map((s, i) => (
             <button
@@ -205,7 +205,7 @@ function AgreementBuilder() {
                   ? "bg-sky-50 text-sky-700"
                   : i < step
                     ? "text-emerald-600"
-                    : "text-slate-400"
+                    : "text-neutral-400"
               }`}
             >
               <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
@@ -213,7 +213,7 @@ function AgreementBuilder() {
                   ? "bg-sky-500 text-white"
                   : i < step
                     ? "bg-emerald-500 text-white"
-                    : "bg-slate-200 text-slate-500"
+                    : "bg-neutral-200 text-neutral-500"
               }`}>
                 {i < step ? <Check className="h-3 w-3" /> : i + 1}
               </span>
@@ -236,8 +236,8 @@ function AgreementBuilder() {
             >
               {step === 0 && (
                 <div className="space-y-4">
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Agreement Details</h2>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Agreement Details</h2>
                     <div className="mt-4 space-y-3">
                       <div>
                         <label className="label">Agreement Title</label>
@@ -253,8 +253,8 @@ function AgreementBuilder() {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Partnership Type</h2>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Partnership Type</h2>
                     <select
                       className="input mt-3"
                       value={partnershipType}
@@ -268,22 +268,22 @@ function AgreementBuilder() {
                       ))}
                     </select>
                   </div>
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Load Template</h2>
-                    <p className="mt-1 text-xs text-slate-500">Select a template to pre-fill clauses.</p>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Load Template</h2>
+                    <p className="mt-1 text-xs text-neutral-500">Select a template to pre-fill clauses.</p>
                     <div className="mt-3 space-y-2">
                       {templates.length > 0 ? templates.map((t) => (
                         <button
                           key={t.id}
                           onClick={() => loadTemplate(t.id)}
-                          className="w-full rounded-xl border border-slate-200 p-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50"
+                          className="w-full rounded-xl border border-neutral-200 p-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50"
                         >
-                          <p className="text-sm font-medium text-slate-900">{t.name}</p>
-                          <p className="mt-1 text-xs text-slate-500">{t.description}</p>
+                          <p className="text-sm font-medium text-neutral-900">{t.name}</p>
+                          <p className="mt-1 text-xs text-neutral-500">{t.description}</p>
                           <p className="mt-1 text-xs text-sky-600">Suggested split: {t.suggestedSplit}</p>
                         </button>
                       )) : (
-                        <p className="text-sm text-slate-400">No templates for this type.</p>
+                        <p className="text-sm text-neutral-400">No templates for this type.</p>
                       )}
                     </div>
                   </div>
@@ -292,25 +292,25 @@ function AgreementBuilder() {
 
               {step === 1 && (
                 <div className="space-y-4">
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Agreement Clauses</h2>
-                    <p className="mt-1 text-xs text-slate-500">
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Agreement Clauses</h2>
+                    <p className="mt-1 text-xs text-neutral-500">
                       {clauses.length} clause{clauses.length !== 1 ? "s" : ""}. Reorder or remove as needed.
                     </p>
                     <div className="mt-4 space-y-2">
                       {clauses.map((clause, i) => (
-                        <div key={clause.id} className="flex items-start gap-2 rounded-xl border border-slate-200 p-3">
+                        <div key={clause.id} className="flex items-start gap-2 rounded-xl border border-neutral-200 p-3">
                           <div className="flex flex-col gap-1 pt-1">
-                            <button onClick={() => moveClause(i, "up")} disabled={i === 0} className="text-slate-400 hover:text-slate-600 disabled:opacity-30">
+                            <button onClick={() => moveClause(i, "up")} disabled={i === 0} className="text-neutral-400 hover:text-neutral-600 disabled:opacity-30">
                               <GripVertical className="h-4 w-4" />
                             </button>
-                            <button onClick={() => moveClause(i, "down")} disabled={i === clauses.length - 1} className="text-slate-400 hover:text-slate-600 disabled:opacity-30">
+                            <button onClick={() => moveClause(i, "down")} disabled={i === clauses.length - 1} className="text-neutral-400 hover:text-neutral-600 disabled:opacity-30">
                               <GripVertical className="h-4 w-4 rotate-180" />
                             </button>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-slate-900">{clause.title}</p>
-                            <p className="mt-1 text-xs text-slate-500">{clause.content}</p>
+                            <p className="text-sm font-medium text-neutral-900">{clause.title}</p>
+                            <p className="mt-1 text-xs text-neutral-500">{clause.content}</p>
                             {clause.isCustom && <span className="mt-1 inline-block text-[10px] text-sky-600">Custom</span>}
                           </div>
                           <button onClick={() => removeClause(clause.id)} className="flex-shrink-0 rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600">
@@ -319,12 +319,12 @@ function AgreementBuilder() {
                         </div>
                       ))}
                       {clauses.length === 0 && (
-                        <p className="py-4 text-center text-sm text-slate-400">No clauses yet. Add your own or go back and load a template.</p>
+                        <p className="py-4 text-center text-sm text-neutral-400">No clauses yet. Add your own or go back and load a template.</p>
                       )}
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Add Custom Clause</h2>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Add Custom Clause</h2>
                     <div className="mt-3 space-y-3">
                       <input className="input" placeholder="Clause title" value={newClauseTitle} onChange={(e) => setNewClauseTitle(e.target.value)} />
                       <textarea className="input" rows={3} placeholder="Clause content..." value={newClauseContent} onChange={(e) => setNewClauseContent(e.target.value)} />
@@ -338,8 +338,8 @@ function AgreementBuilder() {
 
               {step === 2 && (
                 <div className="space-y-4">
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Revenue Split</h2>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Revenue Split</h2>
                     <div className="mt-3 grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="label">{partnerNameA} (%)</label>
@@ -351,12 +351,12 @@ function AgreementBuilder() {
                       </div>
                     </div>
                     {!splitValid && <p className="mt-2 text-xs text-red-600">Must sum to 100%.</p>}
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-neutral-100">
                       <div className="h-full bg-gradient-to-r from-sky-500 to-indigo-500" style={{ width: `${splitA}%` }} />
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Duration</h2>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Duration</h2>
                     <div className="mt-3 grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="label">Start Date</label>
@@ -368,8 +368,8 @@ function AgreementBuilder() {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Additional Terms</h2>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Additional Terms</h2>
                     <textarea className="input mt-3" rows={4} placeholder="Any extra terms or notes..." value={customTerms} onChange={(e) => setCustomTerms(e.target.value)} />
                   </div>
                 </div>
@@ -377,9 +377,9 @@ function AgreementBuilder() {
 
               {step === 3 && (
                 <div className="space-y-4">
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-900">Digital Signatures</h2>
-                    <p className="mt-1 text-xs text-slate-500">Type full names to acknowledge agreement terms.</p>
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+                    <h2 className="text-lg font-semibold text-neutral-900">Digital Signatures</h2>
+                    <p className="mt-1 text-xs text-neutral-500">Type full names to acknowledge agreement terms.</p>
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="label">{partnerNameA}</label>
@@ -391,7 +391,7 @@ function AgreementBuilder() {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
+                  <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
                     <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
                       This is a template for discussion purposes. Consult legal counsel before executing.
                     </p>
@@ -425,20 +425,20 @@ function AgreementBuilder() {
 
         {/* Live Preview */}
         <div className="lg:col-span-2">
-          <div className="sticky top-6 rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-            <h3 className="text-sm font-semibold text-slate-900">Live Preview</h3>
-            <div className="mt-4 space-y-3 text-xs text-slate-600">
-              <div className="border-b border-slate-100 pb-2">
-                <p className="font-semibold text-slate-900">{title}</p>
-                <p className="text-slate-400">{PARTNERSHIP_TYPES.find((t) => t.value === partnershipType)?.label}</p>
+          <div className="sticky top-6 rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+            <h3 className="text-sm font-semibold text-neutral-900">Live Preview</h3>
+            <div className="mt-4 space-y-3 text-xs text-neutral-600">
+              <div className="border-b border-neutral-100 pb-2">
+                <p className="font-semibold text-neutral-900">{title}</p>
+                <p className="text-neutral-400">{PARTNERSHIP_TYPES.find((t) => t.value === partnershipType)?.label}</p>
               </div>
               <div>
-                <p className="font-medium text-slate-700">Parties</p>
+                <p className="font-medium text-neutral-700">Parties</p>
                 <p>{partnerNameA} & {partnerNameB}</p>
               </div>
               {clauses.length > 0 && (
                 <div>
-                  <p className="font-medium text-slate-700">Clauses ({clauses.length})</p>
+                  <p className="font-medium text-neutral-700">Clauses ({clauses.length})</p>
                   <ul className="mt-1 list-disc pl-4 space-y-1">
                     {clauses.map((c) => (
                       <li key={c.id}>{c.title}</li>
@@ -447,18 +447,18 @@ function AgreementBuilder() {
                 </div>
               )}
               <div>
-                <p className="font-medium text-slate-700">Revenue Split</p>
+                <p className="font-medium text-neutral-700">Revenue Split</p>
                 <p>{partnerNameA}: {splitA}% / {partnerNameB}: {splitB}%</p>
               </div>
               {(startDate || endDate) && (
                 <div>
-                  <p className="font-medium text-slate-700">Duration</p>
+                  <p className="font-medium text-neutral-700">Duration</p>
                   <p>{startDate || "TBD"} — {endDate || "TBD"}</p>
                 </div>
               )}
               {signatureA && (
                 <div>
-                  <p className="font-medium text-slate-700">Signatures</p>
+                  <p className="font-medium text-neutral-700">Signatures</p>
                   <p className="italic">{signatureA}{signatureB ? `, ${signatureB}` : ""}</p>
                 </div>
               )}
@@ -472,7 +472,7 @@ function AgreementBuilder() {
 
 export default function PartnershipAgreementPage() {
   return (
-    <Suspense fallback={<div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">Loading agreement builder…</div>}>
+    <Suspense fallback={<div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">Loading agreement builder…</div>}>
       <AgreementBuilder />
     </Suspense>
   );

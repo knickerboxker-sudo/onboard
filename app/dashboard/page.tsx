@@ -223,7 +223,7 @@ export default function DashboardPage() {
     completed: "bg-blue-100 text-blue-800",
     paused: "bg-yellow-100 text-yellow-800",
     cancelled: "bg-red-100 text-red-800",
-    archived: "bg-slate-100 text-slate-600",
+    archived: "bg-neutral-100 text-neutral-600",
   };
 
   const verificationLabel: Record<string, string> = {
@@ -288,16 +288,16 @@ export default function DashboardPage() {
       })()}
 
       {/* Performance Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {statCards.map((item) => (
-          <div className="glass rounded-2xl p-6 transition-all duration-300 hover:shadow-elevated" key={item.label}>
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-100">
+          <div className="stat-card" key={item.label}>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-100">
                 <item.icon className="h-4 w-4 text-neutral-500" />
               </div>
               <p className="text-sm text-neutral-500">{item.label}</p>
             </div>
-            <p className="mt-3 text-3xl font-semibold text-neutral-900">
+            <p className="mt-3 text-3xl font-bold text-neutral-900">
               {item.value}
             </p>
           </div>

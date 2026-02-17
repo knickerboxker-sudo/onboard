@@ -27,7 +27,7 @@ const REFERRAL_MILESTONES = [
 ];
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  invited: { label: "Invited", color: "bg-slate-100 text-slate-600" },
+  invited: { label: "Invited", color: "bg-neutral-100 text-neutral-600" },
   signed_up: { label: "Signed Up", color: "bg-sky-50 text-sky-700" },
   first_match: { label: "First Match", color: "bg-amber-50 text-amber-700" },
   active_partnership: { label: "Active Partnership", color: "bg-emerald-50 text-emerald-700" },
@@ -118,57 +118,57 @@ export default function ReferPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Refer & Earn</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Refer & Earn</h1>
+        <p className="mt-1 text-sm text-neutral-500">
           Invite businesses to Sortir and earn rewards for every successful partnership they form.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100">
+        <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-neutral-100">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50">
               <Mail className="h-5 w-5 text-sky-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-400">Invites Sent</p>
-              <p className="text-xl font-bold text-slate-900">{referrals.length}</p>
+              <p className="text-xs text-neutral-400">Invites Sent</p>
+              <p className="text-xl font-bold text-neutral-900">{referrals.length}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100">
+        <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-neutral-100">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
               <Users className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-400">Signed Up</p>
-              <p className="text-xl font-bold text-slate-900">{signedUpCount}</p>
+              <p className="text-xs text-neutral-400">Signed Up</p>
+              <p className="text-xl font-bold text-neutral-900">{signedUpCount}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100">
+        <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-neutral-100">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
               <Award className="h-5 w-5 text-violet-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-400">Active Partnerships</p>
-              <p className="text-xl font-bold text-slate-900">{successfulReferrals}</p>
+              <p className="text-xs text-neutral-400">Active Partnerships</p>
+              <p className="text-xl font-bold text-neutral-900">{successfulReferrals}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Referral Link */}
-      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-        <h2 className="text-lg font-semibold text-slate-900">Your Referral Link</h2>
-        <p className="mt-1 text-xs text-slate-500">Share this link with businesses you&apos;d like to invite.</p>
+      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+        <h2 className="text-lg font-semibold text-neutral-900">Your Referral Link</h2>
+        <p className="mt-1 text-xs text-neutral-500">Share this link with businesses you&apos;d like to invite.</p>
         <div className="mt-4 flex gap-2">
-          <div className="flex min-w-0 flex-1 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <Link2 className="mr-2 h-4 w-4 flex-shrink-0 text-slate-400" />
-            <span className="truncate text-sm text-slate-600">{referralLink || "Sign in to get your link"}</span>
+          <div className="flex min-w-0 flex-1 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
+            <Link2 className="mr-2 h-4 w-4 flex-shrink-0 text-neutral-400" />
+            <span className="truncate text-sm text-neutral-600">{referralLink || "Sign in to get your link"}</span>
           </div>
           <button onClick={copyLink} className="btn-muted flex-shrink-0" disabled={!referralLink}>
             {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
@@ -184,9 +184,9 @@ export default function ReferPage() {
       </div>
 
       {/* Email Invite */}
-      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-        <h2 className="text-lg font-semibold text-slate-900">Invite by Email</h2>
-        <p className="mt-1 text-xs text-slate-500">
+      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+        <h2 className="text-lg font-semibold text-neutral-900">Invite by Email</h2>
+        <p className="mt-1 text-xs text-neutral-500">
           Enter email addresses separated by commas to send batch invitations.
         </p>
         <div className="mt-4 space-y-3">
@@ -216,22 +216,22 @@ export default function ReferPage() {
       </div>
 
       {/* Rewards Milestones */}
-      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-        <h2 className="text-lg font-semibold text-slate-900">Referral Rewards</h2>
-        <p className="mt-1 text-xs text-slate-500">Unlock rewards as you refer more businesses.</p>
+      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+        <h2 className="text-lg font-semibold text-neutral-900">Referral Rewards</h2>
+        <p className="mt-1 text-xs text-neutral-500">Unlock rewards as you refer more businesses.</p>
         <div className="mt-4 space-y-3">
           {REFERRAL_MILESTONES.map((milestone) => {
             const reached = successfulReferrals >= milestone.count;
             return (
-              <div key={milestone.count} className={`flex items-center gap-4 rounded-xl border p-4 ${reached ? "border-emerald-200 bg-emerald-50" : "border-slate-200"}`}>
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${reached ? "bg-emerald-500" : "bg-slate-100"}`}>
-                  <milestone.icon className={`h-5 w-5 ${reached ? "text-white" : "text-slate-400"}`} />
+              <div key={milestone.count} className={`flex items-center gap-4 rounded-xl border p-4 ${reached ? "border-emerald-200 bg-emerald-50" : "border-neutral-200"}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${reached ? "bg-emerald-500" : "bg-neutral-100"}`}>
+                  <milestone.icon className={`h-5 w-5 ${reached ? "text-white" : "text-neutral-400"}`} />
                 </div>
                 <div className="flex-1">
-                  <p className={`text-sm font-medium ${reached ? "text-emerald-800" : "text-slate-900"}`}>
+                  <p className={`text-sm font-medium ${reached ? "text-emerald-800" : "text-neutral-900"}`}>
                     {milestone.count} referral{milestone.count !== 1 ? "s" : ""}
                   </p>
-                  <p className="text-xs text-slate-500">{milestone.reward}</p>
+                  <p className="text-xs text-neutral-500">{milestone.reward}</p>
                 </div>
                 {reached && <Check className="h-5 w-5 text-emerald-600" />}
               </div>
@@ -240,11 +240,11 @@ export default function ReferPage() {
         </div>
         {nextMilestone && (
           <div className="mt-4">
-            <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center justify-between text-xs text-neutral-500">
               <span>Progress to next reward</span>
               <span>{successfulReferrals} / {nextMilestone.count}</span>
             </div>
-            <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-1 h-2 overflow-hidden rounded-full bg-neutral-100">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(successfulReferrals / nextMilestone.count) * 100}%` }}
@@ -257,13 +257,13 @@ export default function ReferPage() {
       </div>
 
       {/* Referral Network Visualization */}
-      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-        <h2 className="text-lg font-semibold text-slate-900">Your Referral Network</h2>
+      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+        <h2 className="text-lg font-semibold text-neutral-900">Your Referral Network</h2>
         <div className="mt-4">
           {referrals.length === 0 ? (
             <div className="py-8 text-center">
-              <Share2 className="mx-auto h-12 w-12 text-slate-300" />
-              <p className="mt-3 text-sm text-slate-500">No referrals yet. Share your link to get started!</p>
+              <Share2 className="mx-auto h-12 w-12 text-neutral-300" />
+              <p className="mt-3 text-sm text-neutral-500">No referrals yet. Share your link to get started!</p>
             </div>
           ) : (
             <div className="relative">
@@ -305,10 +305,10 @@ export default function ReferPage() {
                 {referrals.map((r) => {
                   const statusInfo = STATUS_LABELS[r.status] ?? STATUS_LABELS.invited;
                   return (
-                    <div key={r.id} className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3">
+                    <div key={r.id} className="flex items-center justify-between rounded-xl border border-neutral-100 px-4 py-3">
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{r.referred_email}</p>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-sm font-medium text-neutral-900">{r.referred_email}</p>
+                        <p className="text-[10px] text-neutral-400">
                           Invited {new Date(r.created_at).toLocaleDateString()}
                         </p>
                       </div>

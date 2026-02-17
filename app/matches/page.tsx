@@ -59,8 +59,8 @@ const STATUS_COLORS: Record<PartnershipStatus, string> = {
   active: "bg-green-50 text-green-700",
   paused: "bg-amber-50 text-amber-700",
   completed: "bg-blue-50 text-blue-700",
-  cancelled: "bg-slate-100 text-slate-500",
-  archived: "bg-slate-50 text-slate-500",
+  cancelled: "bg-neutral-100 text-neutral-500",
+  archived: "bg-neutral-50 text-neutral-500",
 };
 
 function StarRating({
@@ -84,7 +84,7 @@ function StarRating({
           aria-label={`${star} star${star > 1 ? "s" : ""}`}
         >
           <Star
-            className={`h-4 w-4 ${star <= value ? "fill-amber-400 text-amber-400" : "text-slate-300"}`}
+            className={`h-4 w-4 ${star <= value ? "fill-amber-400 text-amber-400" : "text-neutral-300"}`}
           />
         </button>
       ))}
@@ -184,11 +184,11 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
   });
 
   return (
-    <li className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <li className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-900">{match.partner.name}</p>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <p className="text-sm font-semibold text-neutral-900">{match.partner.name}</p>
+          <p className="mt-0.5 text-xs text-neutral-500">
             {match.partner.business_type} · matched{" "}
             {new Date(match.matched_at).toLocaleDateString()}
           </p>
@@ -209,10 +209,10 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
 
       {/* Existing review */}
       {match.review && (
-        <div className="mt-2 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
+        <div className="mt-2 flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2">
           <StarRating value={match.review.rating} readonly />
           {match.review.comment && (
-            <p className="text-xs text-slate-600">{match.review.comment}</p>
+            <p className="text-xs text-neutral-600">{match.review.comment}</p>
           )}
         </div>
       )}
@@ -249,12 +249,12 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
 
       {/* Start partnership form */}
       {showPartnershipForm && (
-        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <label className="block text-xs font-medium text-slate-700">
+        <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+          <label className="block text-xs font-medium text-neutral-700">
             Partnership Type
           </label>
           <select
-            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm"
             value={partnershipType}
             onChange={(e) => setPartnershipType(e.target.value as PartnershipType)}
           >
@@ -273,7 +273,7 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
               {startPartnership.isPending ? "Starting…" : "Confirm"}
             </button>
             <button
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100"
               onClick={() => setShowPartnershipForm(false)}
             >
               Cancel
@@ -287,16 +287,16 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
 
       {/* Review form */}
       {showReviewForm && (
-        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <label className="block text-xs font-medium text-slate-700">Rating</label>
+        <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+          <label className="block text-xs font-medium text-neutral-700">Rating</label>
           <div className="mt-1">
             <StarRating value={reviewRating} onChange={setReviewRating} />
           </div>
-          <label className="mt-2 block text-xs font-medium text-slate-700">
+          <label className="mt-2 block text-xs font-medium text-neutral-700">
             Comment (optional)
           </label>
           <textarea
-            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm"
             rows={2}
             value={reviewComment}
             onChange={(e) => setReviewComment(e.target.value)}
@@ -311,7 +311,7 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
               {submitReview.isPending ? "Submitting…" : "Submit Review"}
             </button>
             <button
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100"
               onClick={() => setShowReviewForm(false)}
             >
               Cancel
@@ -324,9 +324,9 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
       )}
 
       {/* Report button */}
-      <div className="mt-3 border-t border-slate-100 pt-2">
+      <div className="mt-3 border-t border-neutral-100 pt-2">
         <button
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500"
+          className="flex items-center gap-1 text-xs text-neutral-400 hover:text-red-500"
           onClick={() => setShowReportForm((v) => !v)}
         >
           <Flag className="h-3 w-3" />
@@ -337,9 +337,9 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
       {/* Report form */}
       {showReportForm && (
         <div className="mt-2 rounded-lg border border-red-100 bg-red-50 p-3">
-          <label className="block text-xs font-medium text-slate-700">Reason</label>
+          <label className="block text-xs font-medium text-neutral-700">Reason</label>
           <select
-            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm"
             value={reportReason}
             onChange={(e) => setReportReason(e.target.value)}
           >
@@ -349,22 +349,22 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
               </option>
             ))}
           </select>
-          <label className="mt-2 block text-xs font-medium text-slate-700">
+          <label className="mt-2 block text-xs font-medium text-neutral-700">
             Details (optional)
           </label>
           <textarea
-            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm"
             rows={2}
             value={reportDetails}
             onChange={(e) => setReportDetails(e.target.value)}
             placeholder="Provide additional context…"
           />
-          <label className="mt-2 flex items-center gap-2 text-xs text-slate-700">
+          <label className="mt-2 flex items-center gap-2 text-xs text-neutral-700">
             <input
               type="checkbox"
               checked={alsoBlock}
               onChange={(e) => setAlsoBlock(e.target.checked)}
-              className="rounded border-slate-300"
+              className="rounded border-neutral-300"
             />
             Also block this business
           </label>
@@ -377,7 +377,7 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
               {submitReport.isPending ? "Submitting…" : "Submit Report"}
             </button>
             <button
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100"
               onClick={() => setShowReportForm(false)}
             >
               Cancel
@@ -514,16 +514,16 @@ export default function MatchesPage() {
   if (isLoading)
     return (
       <div className="glass rounded-3xl p-6">
-        <div className="h-7 w-40 animate-skeleton-pulse rounded bg-slate-200" />
-        <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded bg-slate-200" />
+        <div className="h-7 w-40 animate-skeleton-pulse rounded bg-neutral-200" />
+        <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded bg-neutral-200" />
         <div className="mt-5 space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div className="rounded-xl border border-slate-200 px-4 py-3" key={i}>
-              <div className="h-4 w-36 animate-skeleton-pulse rounded bg-slate-200" />
-              <div className="mt-2 h-3 w-48 animate-skeleton-pulse rounded bg-slate-200" />
+            <div className="rounded-xl border border-neutral-200 px-4 py-3" key={i}>
+              <div className="h-4 w-36 animate-skeleton-pulse rounded bg-neutral-200" />
+              <div className="mt-2 h-3 w-48 animate-skeleton-pulse rounded bg-neutral-200" />
               <div className="mt-3 flex gap-2">
-                <div className="h-8 w-24 animate-skeleton-pulse rounded-lg bg-slate-200" />
-                <div className="h-8 w-28 animate-skeleton-pulse rounded-lg bg-slate-200" />
+                <div className="h-8 w-24 animate-skeleton-pulse rounded-lg bg-neutral-200" />
+                <div className="h-8 w-28 animate-skeleton-pulse rounded-lg bg-neutral-200" />
               </div>
             </div>
           ))}
@@ -554,8 +554,8 @@ export default function MatchesPage() {
 
   return (
     <div className="glass rounded-3xl p-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Your matches</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-2xl font-semibold text-neutral-900">Your matches</h1>
+      <p className="mt-1 text-sm text-neutral-500">
         Each match is a business that wants to collaborate with you — promote each other&apos;s products, cross-market locally, or co-brand together. Start a conversation to explore what&apos;s possible.
       </p>
 
@@ -596,7 +596,7 @@ export default function MatchesPage() {
         )}
       </div>
 
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-neutral-500">
         Showing {filteredData.length} of {data?.length ?? 0} matches
       </p>
 
@@ -606,14 +606,14 @@ export default function MatchesPage() {
             <MatchCard key={match.id} match={match} />
           ))
         ) : (
-          <li className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center">
+          <li className="rounded-xl border border-dashed border-neutral-300 px-4 py-10 text-center">
             {data?.length ? (
-              <p className="text-sm text-slate-500">No matches found for the current filters.</p>
+              <p className="text-sm text-neutral-500">No matches found for the current filters.</p>
             ) : (
               <div className="flex flex-col items-center gap-2">
-                <Users className="h-8 w-8 text-slate-300" />
-                <h3 className="text-base font-semibold text-slate-900">Discover Partners</h3>
-                <p className="text-sm text-slate-500">Browse businesses in your area to find your next collaboration partner.</p>
+                <Users className="h-8 w-8 text-neutral-300" />
+                <h3 className="text-base font-semibold text-neutral-900">Discover Partners</h3>
+                <p className="text-sm text-neutral-500">Browse businesses in your area to find your next collaboration partner.</p>
                 <Link href="/discover" className="btn-primary mt-2">Discover Partners</Link>
               </div>
             )}

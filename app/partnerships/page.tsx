@@ -28,10 +28,10 @@ import type { PartnershipRecord, PartnershipStatus, PartnershipHealthScore } fro
 const STATUS_STYLES: Record<PartnershipStatus, { bg: string; text: string; label: string }> = {
   pending: { bg: "bg-amber-50", text: "text-amber-700", label: "Pending" },
   active: { bg: "bg-emerald-50", text: "text-emerald-700", label: "Active" },
-  paused: { bg: "bg-slate-50", text: "text-slate-700", label: "Paused" },
+  paused: { bg: "bg-neutral-50", text: "text-neutral-700", label: "Paused" },
   completed: { bg: "bg-sky-50", text: "text-sky-700", label: "Completed" },
   cancelled: { bg: "bg-red-50", text: "text-red-700", label: "Cancelled" },
-  archived: { bg: "bg-slate-50", text: "text-slate-500", label: "Archived" },
+  archived: { bg: "bg-neutral-50", text: "text-neutral-500", label: "Archived" },
 };
 
 const TABS = ["Overview", "Milestones", "Health"] as const;
@@ -84,11 +84,11 @@ function PartnershipCard({ partnership, partnerName }: { partnership: Partnershi
   const health = calculateHealth(partnership);
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100 transition-all hover:shadow-card-hover">
+    <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-neutral-100 transition-all hover:shadow-card-hover">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-slate-900">{partnerName}</h3>
-          <p className="text-xs text-slate-500">{partnership.partnership_type}</p>
+          <h3 className="font-semibold text-neutral-900">{partnerName}</h3>
+          <p className="text-xs text-neutral-500">{partnership.partnership_type}</p>
         </div>
         <div className="flex items-center gap-2">
           <HealthIndicator health={health} />
@@ -100,16 +100,16 @@ function PartnershipCard({ partnership, partnerName }: { partnership: Partnershi
 
       <div className="mt-4 grid grid-cols-3 gap-4">
         <div>
-          <p className="text-xs text-slate-400">Revenue</p>
-          <p className="text-sm font-semibold text-slate-900">${partnership.revenue_generated.toLocaleString()}</p>
+          <p className="text-xs text-neutral-400">Revenue</p>
+          <p className="text-sm font-semibold text-neutral-900">${partnership.revenue_generated.toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-400">Customers</p>
-          <p className="text-sm font-semibold text-slate-900">{partnership.customers_acquired}</p>
+          <p className="text-xs text-neutral-400">Customers</p>
+          <p className="text-sm font-semibold text-neutral-900">{partnership.customers_acquired}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-400">Since</p>
-          <p className="text-sm font-semibold text-slate-900">{new Date(partnership.start_date).toLocaleDateString()}</p>
+          <p className="text-xs text-neutral-400">Since</p>
+          <p className="text-sm font-semibold text-neutral-900">{new Date(partnership.start_date).toLocaleDateString()}</p>
         </div>
       </div>
 
@@ -118,10 +118,10 @@ function PartnershipCard({ partnership, partnerName }: { partnership: Partnershi
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 w-6 rounded-full ${i < partnership.success_rating! ? "bg-amber-400" : "bg-slate-200"}`}
+              className={`h-1.5 w-6 rounded-full ${i < partnership.success_rating! ? "bg-amber-400" : "bg-neutral-200"}`}
             />
           ))}
-          <span className="ml-1 text-[10px] text-slate-400">{partnership.success_rating}/5</span>
+          <span className="ml-1 text-[10px] text-neutral-400">{partnership.success_rating}/5</span>
         </div>
       )}
     </div>
@@ -142,7 +142,7 @@ function MilestoneTracker() {
       {defaultMilestones.map((m) => {
         const progress = Math.min(100, (m.current / m.target) * 100);
         return (
-          <div key={m.id} className="rounded-xl bg-white p-4 shadow-card ring-1 ring-slate-100">
+          <div key={m.id} className="rounded-xl bg-white p-4 shadow-card ring-1 ring-neutral-100">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 {m.completed ? (
@@ -150,15 +150,15 @@ function MilestoneTracker() {
                     <Trophy className="h-4 w-4 text-emerald-600" />
                   </div>
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
-                    <Target className="h-4 w-4 text-slate-500" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100">
+                    <Target className="h-4 w-4 text-neutral-500" />
                   </div>
                 )}
                 <div>
-                  <p className={`text-sm font-medium ${m.completed ? "text-emerald-700" : "text-slate-900"}`}>
+                  <p className={`text-sm font-medium ${m.completed ? "text-emerald-700" : "text-neutral-900"}`}>
                     {m.title}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-neutral-400">
                     {m.current} / {m.target} {m.type === "revenue_threshold" ? "dollars" : ""}
                   </p>
                 </div>
@@ -168,7 +168,7 @@ function MilestoneTracker() {
               )}
             </div>
             {!m.completed && (
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
@@ -201,13 +201,13 @@ function HealthDashboard({ partnerships }: { partnerships: PartnershipRecord[] }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
+      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
         <div className="flex items-center gap-4">
           <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${avgBg}`}>
             <span className="text-2xl font-bold text-white">{avgHealth}</span>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-600">Overall Partnership Health</p>
+            <p className="text-sm font-medium text-neutral-600">Overall Partnership Health</p>
             <p className={`text-lg font-bold ${avgColor}`}>
               {avgLevel === "healthy" ? "Healthy" : avgLevel === "moderate" ? "Moderate" : "Needs Attention"}
             </p>
@@ -216,16 +216,16 @@ function HealthDashboard({ partnerships }: { partnerships: PartnershipRecord[] }
       </div>
 
       {healthScores.length > 0 && (
-        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-          <h3 className="text-sm font-semibold text-slate-900">Health Factors</h3>
+        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+          <h3 className="text-sm font-semibold text-neutral-900">Health Factors</h3>
           <div className="mt-4 space-y-3">
             {healthScores[0].factors.map((f) => (
               <div key={f.label}>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-600">{f.label}</span>
-                  <span className="font-medium text-slate-900">{Math.round(f.value)}%</span>
+                  <span className="text-neutral-600">{f.label}</span>
+                  <span className="font-medium text-neutral-900">{Math.round(f.value)}%</span>
                 </div>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-neutral-100">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 transition-all duration-500"
                     style={{ width: `${f.value}%` }}
@@ -238,8 +238,8 @@ function HealthDashboard({ partnerships }: { partnerships: PartnershipRecord[] }
       )}
 
       {suggestions.length > 0 && (
-        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
-          <h3 className="text-sm font-semibold text-slate-900">Suggestions</h3>
+        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+          <h3 className="text-sm font-semibold text-neutral-900">Suggestions</h3>
           <div className="mt-3 space-y-2">
             {suggestions.map((s, i) => (
               <div key={i} className="flex items-start gap-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-800">
@@ -328,8 +328,8 @@ export default function PartnershipsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Partnerships</h1>
-          <p className="mt-1 text-sm text-slate-500">Track, manage, and grow your business partnerships.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Partnerships</h1>
+          <p className="mt-1 text-sm text-neutral-500">Track, manage, and grow your business partnerships.</p>
         </div>
         <Link href="/discover" className="btn-primary text-xs">
           <Plus className="mr-1 h-3.5 w-3.5" /> Find New Partners
@@ -344,14 +344,14 @@ export default function PartnershipsPage() {
           { label: "Customers Acquired", value: totalCustomers, icon: Target, color: "text-violet-600" },
           { label: "All Partnerships", value: partnerships.length, icon: Award, color: "text-amber-600" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-100">
+          <div key={stat.label} className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-neutral-100">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-50">
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
               <div>
-                <p className="text-xs text-slate-400">{stat.label}</p>
-                <p className="text-lg font-bold text-slate-900">{stat.value}</p>
+                <p className="text-xs text-neutral-400">{stat.label}</p>
+                <p className="text-lg font-bold text-neutral-900">{stat.value}</p>
               </div>
             </div>
           </div>
@@ -359,13 +359,13 @@ export default function PartnershipsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+      <div className="flex gap-1 rounded-xl bg-neutral-100 p-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              tab === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              tab === t ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
             }`}
           >
             {t}
@@ -377,7 +377,7 @@ export default function PartnershipsPage() {
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="animate-skeleton-pulse h-32 rounded-2xl bg-slate-100" />
+            <div key={i} className="animate-skeleton-pulse h-32 rounded-2xl bg-neutral-100" />
           ))}
         </div>
       ) : (
@@ -391,7 +391,7 @@ export default function PartnershipsPage() {
                     key={s}
                     onClick={() => setStatusFilter(s)}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                      statusFilter === s ? "bg-sky-50 text-sky-700 ring-1 ring-sky-200" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      statusFilter === s ? "bg-sky-50 text-sky-700 ring-1 ring-sky-200" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
                     }`}
                   >
                     {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -400,10 +400,10 @@ export default function PartnershipsPage() {
               </div>
 
               {filteredPartnerships.length === 0 ? (
-                <div className="rounded-2xl bg-white p-12 text-center shadow-card ring-1 ring-slate-100">
-                  <Users className="mx-auto h-12 w-12 text-slate-300" />
-                  <p className="mt-4 text-sm font-medium text-slate-600">No partnerships yet</p>
-                  <p className="mt-1 text-xs text-slate-400">Discover businesses in your area to find your first partner!</p>
+                <div className="rounded-2xl bg-white p-12 text-center shadow-card ring-1 ring-neutral-100">
+                  <Users className="mx-auto h-12 w-12 text-neutral-300" />
+                  <p className="mt-4 text-sm font-medium text-neutral-600">No partnerships yet</p>
+                  <p className="mt-1 text-xs text-neutral-400">Discover businesses in your area to find your first partner!</p>
                   <Link href="/discover" className="btn-primary mt-4 text-xs">
                     Discover Partners
                   </Link>
@@ -425,7 +425,7 @@ export default function PartnershipsPage() {
           {tab === "Milestones" && (
             <div>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">Milestone Tracker</h2>
+                <h2 className="text-lg font-semibold text-neutral-900">Milestone Tracker</h2>
               </div>
               <MilestoneTracker />
             </div>

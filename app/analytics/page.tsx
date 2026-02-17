@@ -159,9 +159,9 @@ export default function AnalyticsPage() {
   if (data?.gated) {
     return (
       <div className="glass rounded-3xl p-6 text-center">
-        <BarChart3 className="mx-auto h-12 w-12 text-slate-300" />
-        <h1 className="mt-4 text-xl font-semibold text-slate-900">Advanced Analytics</h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <BarChart3 className="mx-auto h-12 w-12 text-neutral-300" />
+        <h1 className="mt-4 text-xl font-semibold text-neutral-900">Advanced Analytics</h1>
+        <p className="mt-2 text-sm text-neutral-500">
           Unlock charts, revenue insights, and CSV exports with a Pro or Premium plan.
         </p>
         <Link href="/settings" className="btn-primary mt-4 inline-block">
@@ -218,13 +218,13 @@ export default function AnalyticsPage() {
         <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-lavender-600">
           Advanced analytics
         </p>
-        <h1 className="text-2xl font-semibold text-slate-900">Analytics Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-neutral-900">Analytics Dashboard</h1>
+        <p className="mt-1 text-sm text-neutral-500">
           Visualize your partnership performance over time.
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Calendar className="h-4 w-4 text-slate-400" />
+          <Calendar className="h-4 w-4 text-neutral-400" />
           {DATE_RANGES.map((r) => (
             <button
               key={r.days}
@@ -232,7 +232,7 @@ export default function AnalyticsPage() {
               className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                 rangeDays === r.days
                   ? "bg-lavender-500 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
               }`}
             >
               {r.label}
@@ -240,7 +240,7 @@ export default function AnalyticsPage() {
           ))}
           <button
             onClick={() => exportCSV(filtered)}
-            className="ml-auto flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+            className="ml-auto flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-200"
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
@@ -252,16 +252,16 @@ export default function AnalyticsPage() {
         {metrics.map((m) => (
           <div className="glass rounded-2xl p-5" key={m.label}>
             <div className="flex items-center gap-2">
-              <m.icon className="h-4 w-4 text-slate-400" />
-              <p className="text-sm text-slate-500">{m.label}</p>
+              <m.icon className="h-4 w-4 text-neutral-400" />
+              <p className="text-sm text-neutral-500">{m.label}</p>
             </div>
-            <p className="mt-2 text-3xl font-semibold text-slate-900">{m.value}</p>
+            <p className="mt-2 text-3xl font-semibold text-neutral-900">{m.value}</p>
           </div>
         ))}
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Revenue Over Time</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Revenue Over Time</h2>
         <div className="mt-4 h-72">
           {lineData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
@@ -284,14 +284,14 @@ export default function AnalyticsPage() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="pt-24 text-center text-sm text-slate-400">No data in this range.</p>
+            <p className="pt-24 text-center text-sm text-neutral-400">No data in this range.</p>
           )}
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="glass rounded-3xl p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Revenue by Type</h2>
+          <h2 className="text-lg font-semibold text-neutral-900">Revenue by Type</h2>
           <div className="mt-4 h-72">
             {barData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -311,13 +311,13 @@ export default function AnalyticsPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="pt-24 text-center text-sm text-slate-400">No data in this range.</p>
+              <p className="pt-24 text-center text-sm text-neutral-400">No data in this range.</p>
             )}
           </div>
         </div>
 
         <div className="glass rounded-3xl p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Status Distribution</h2>
+          <h2 className="text-lg font-semibold text-neutral-900">Status Distribution</h2>
           <div className="mt-4 h-72">
             {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -344,7 +344,7 @@ export default function AnalyticsPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="pt-24 text-center text-sm text-slate-400">No data in this range.</p>
+              <p className="pt-24 text-center text-sm text-neutral-400">No data in this range.</p>
             )}
           </div>
         </div>

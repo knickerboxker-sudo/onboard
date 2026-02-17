@@ -7,18 +7,24 @@ const previewFeatures = [
     title: "Discover Local Partners",
     description:
       "Browse and connect with complementary businesses in your area through our intelligent matching system.",
+    iconBg: "bg-brand-50",
+    iconColor: "text-brand-600",
   },
   {
     icon: Handshake,
     title: "Partnership Builder",
     description:
       "Structure fair partnerships with our equity assessment tool — from revenue splits to commission models.",
+    iconBg: "bg-lavender-50",
+    iconColor: "text-lavender-600",
   },
   {
     icon: BarChart3,
     title: "Track Results",
     description:
       "Measure the ROI of your partnerships with built-in analytics tracking revenue and customer growth.",
+    iconBg: "bg-spearmint-50",
+    iconColor: "text-spearmint-600",
   },
 ];
 
@@ -27,13 +33,13 @@ export default function DashboardPreviewPage() {
     <div className="mx-auto max-w-2xl space-y-8">
       {/* Header */}
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100">
           <Lock className="h-6 w-6 text-neutral-500" />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
           Dashboard Preview
         </h1>
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-3 text-neutral-500">
           Here&apos;s what you&apos;ll get access to when your city launches.
         </p>
       </div>
@@ -43,10 +49,10 @@ export default function DashboardPreviewPage() {
         {previewFeatures.map((feature) => (
           <div
             key={feature.title}
-            className="flex items-start gap-4 rounded-xl border border-neutral-200 bg-white p-5"
+            className="group flex items-start gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
           >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-100">
-              <feature.icon className="h-5 w-5 text-neutral-600" />
+            <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${feature.iconBg} transition-transform duration-300 group-hover:scale-110`}>
+              <feature.icon className={`h-5 w-5 ${feature.iconColor}`} />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-neutral-900">
@@ -61,8 +67,8 @@ export default function DashboardPreviewPage() {
       </div>
 
       {/* Partnership board teaser */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6">
-        <h2 className="mb-4 font-semibold text-neutral-900">
+      <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
+        <h2 className="mb-5 font-semibold text-neutral-900">
           Partnership Opportunity Board
         </h2>
         <div className="space-y-3">
@@ -85,7 +91,7 @@ export default function DashboardPreviewPage() {
           ].map((opp) => (
             <div
               key={opp.title}
-              className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-3"
+              className="flex items-center justify-between rounded-xl border border-neutral-100 bg-neutral-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm"
             >
               <div>
                 <p className="text-sm font-medium text-neutral-900">
@@ -97,7 +103,7 @@ export default function DashboardPreviewPage() {
             </div>
           ))}
         </div>
-        <div className="mt-4 flex items-center justify-center rounded-lg border border-dashed border-neutral-300 py-3 text-sm text-neutral-500">
+        <div className="mt-5 flex items-center justify-center rounded-xl border border-dashed border-neutral-200 py-4 text-sm text-neutral-500">
           <Lock className="mr-2 h-3.5 w-3.5" />
           More opportunities available at launch
         </div>
@@ -105,11 +111,11 @@ export default function DashboardPreviewPage() {
 
       {/* CTA */}
       <div className="text-center">
-        <Link href="/join" className="btn-primary">
+        <Link href="/join" className="btn-primary px-8 py-3.5 shadow-lg hover:shadow-xl">
           Join the Waitlist
           <ArrowRight className="h-4 w-4" />
         </Link>
-        <p className="mt-3 text-xs text-neutral-400">
+        <p className="mt-4 text-xs text-neutral-400">
           Get early access when your city launches
         </p>
       </div>

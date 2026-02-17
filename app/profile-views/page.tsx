@@ -92,14 +92,14 @@ export default function ProfileViewsPage() {
   return (
     <section className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Profile Views</h1>
-        <p className="mt-1 text-sm text-slate-500">See who&apos;s been checking out your business</p>
+        <h1 className="text-2xl font-semibold text-neutral-900">Profile Views</h1>
+        <p className="mt-1 text-sm text-neutral-500">See who&apos;s been checking out your business</p>
       </div>
 
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+            <div key={i} className="h-20 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
           ))}
         </div>
       ) : null}
@@ -110,8 +110,8 @@ export default function ProfileViewsPage() {
 
       {!isLoading && !error && views.length === 0 ? (
         <div className="glass rounded-3xl p-8 text-center">
-          <h3 className="text-xl font-semibold text-slate-900">No profile views yet</h3>
-          <p className="mt-2 text-sm text-slate-600">
+          <h3 className="text-xl font-semibold text-neutral-900">No profile views yet</h3>
+          <p className="mt-2 text-sm text-neutral-600">
             When other businesses view your profile while browsing, they&apos;ll appear here.
           </p>
           <Link href="/discover" className="btn-primary mt-4 inline-block">
@@ -125,10 +125,10 @@ export default function ProfileViewsPage() {
           {visibleViews.map((view) => (
             <div key={view.id} className="glass flex items-center justify-between rounded-2xl p-4">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-slate-900">
+                <p className="truncate font-medium text-neutral-900">
                   {view.viewer?.name ?? "Unknown Business"}
                 </p>
-                <p className="mt-0.5 text-sm text-slate-500">
+                <p className="mt-0.5 text-sm text-neutral-500">
                   {view.viewer?.business_type ?? "Business"} · {formatTimeAgo(view.viewed_at)}
                 </p>
               </div>
@@ -143,20 +143,20 @@ export default function ProfileViewsPage() {
               {Array.from({ length: Math.min(hiddenCount, 3) }).map((_, i) => (
                 <div key={`blur-${i}`} className="glass relative rounded-2xl p-4 select-none">
                   <div className="blur-sm">
-                    <p className="font-medium text-slate-900">Hidden Business Name</p>
-                    <p className="mt-0.5 text-sm text-slate-500">Business Type · 2d ago</p>
+                    <p className="font-medium text-neutral-900">Hidden Business Name</p>
+                    <p className="mt-0.5 text-sm text-neutral-500">Business Type · 2d ago</p>
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/60">
-                    <span className="text-xs font-medium text-slate-400">🔒</span>
+                    <span className="text-xs font-medium text-neutral-400">🔒</span>
                   </div>
                 </div>
               ))}
 
               <div className="glass rounded-3xl p-6 text-center">
-                <p className="text-sm font-medium text-slate-700">
+                <p className="text-sm font-medium text-neutral-700">
                   +{hiddenCount} more business{hiddenCount === 1 ? "" : "es"} viewed your profile
                 </p>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-neutral-500">
                   Upgrade to Pro to see everyone who&apos;s interested in your business.
                 </p>
                 <Link href="/settings" className="btn-primary mt-3 inline-block text-sm">
