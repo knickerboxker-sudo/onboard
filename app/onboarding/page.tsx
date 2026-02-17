@@ -4,7 +4,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import type { PartnershipType, CollaborationIntent, PartnershipInterestTag, PARTNERSHIP_INTEREST_TAGS as TAGS } from "@/lib/types";
+import type { PartnershipType, CollaborationIntent } from "@/lib/types";
 import { PARTNERSHIP_INTEREST_TAGS } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 import ImageUpload from "@/app/components/ImageUpload";
