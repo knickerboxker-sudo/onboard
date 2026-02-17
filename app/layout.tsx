@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="overflow-x-hidden">
         <Providers>
-          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-8 pt-6 sm:px-6">
+          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pt-0 pb-0 sm:px-6">
             <Header />
             <main className="min-w-0 flex-1">{children}</main>
             <Footer />

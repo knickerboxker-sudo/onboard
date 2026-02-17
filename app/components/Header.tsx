@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowRight, Menu, X, Settings, LogOut, User } from "lucide-react";
+import { Menu, X, Settings, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
@@ -66,33 +65,78 @@ export default function Header() {
   };
 
   return (
-    <header className="relative z-50 mb-8 flex items-center justify-between gap-3 rounded-2xl border border-neutral-200/60 bg-white/90 px-5 py-3 shadow-soft backdrop-blur-xl">
+    <header
+      className="sticky top-0 z-50 flex items-center justify-between px-5 py-3"
+      style={{
+        backgroundColor: 'rgba(245, 242, 235, 0.92)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        borderBottom: '1px solid var(--color-rule)',
+      }}
+    >
       <div className="flex items-center gap-3">
-        <Link className="flex items-center gap-2.5" href="/">
-          <Image
-            src="/sortir-logo.png"
-            alt="Sortir"
-            width={32}
-            height={32}
-            className="h-8 w-8 rounded-lg object-contain"
-            priority
-          />
-          <span className="text-lg font-bold tracking-tight text-neutral-900">Sortir</span>
+        <Link className="flex items-center" href="/">
+          <span
+            className="tracking-tight"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '18px',
+              color: 'var(--color-ink)',
+            }}
+          >
+            Sortir
+          </span>
+          <span
+            style={{
+              color: 'var(--color-accent)',
+              fontFamily: 'var(--font-display)',
+              fontSize: '18px',
+              marginLeft: '1px',
+            }}
+          >
+            ·
+          </span>
         </Link>
-        <span className="badge-primary hidden sm:inline-flex">Pre-Launch</span>
       </div>
 
       {/* Desktop nav */}
-      <nav className="hidden items-center gap-0.5 text-sm sm:flex">
+      <nav className="hidden items-center gap-0.5 sm:flex">
         {!isLoggedIn ? (
           <>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Home
             </Link>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/coming-soon">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/coming-soon"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Launch Progress
             </Link>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/success-stories">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/success-stories"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Success Stories
             </Link>
             <Link
@@ -100,21 +144,56 @@ export default function Header() {
               href="/join"
             >
               Join Waitlist
-              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </>
         ) : (
           <>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/discover">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/discover"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Discover
             </Link>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/connections">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/connections"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Connections
             </Link>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/messages">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/messages"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Messages
             </Link>
-            <Link className="rounded-xl px-3.5 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900" href="/dashboard">
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/dashboard"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
+                color: 'var(--color-muted)',
+              }}
+            >
               Dashboard
             </Link>
             
@@ -122,11 +201,20 @@ export default function Header() {
             <div className="relative ml-2">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+                className="flex items-center gap-2 px-3 py-2 transition-colors"
                 type="button"
                 aria-label="User menu"
+                style={{ color: 'var(--color-muted)' }}
               >
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-lavender-100 text-xs font-semibold text-lavender-700">
+                <div
+                  className="flex h-7 w-7 items-center justify-center text-xs font-semibold"
+                  style={{
+                    borderRadius: '2px',
+                    backgroundColor: 'var(--color-paper-dark)',
+                    color: 'var(--color-ink)',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
                   {userInitials || <User className="h-4 w-4" />}
                 </div>
               </button>
@@ -138,21 +226,29 @@ export default function Header() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-neutral-100 bg-white/95 shadow-elevated backdrop-blur-xl"
+                    className="absolute right-0 top-full z-50 mt-2 w-48"
+                    style={{
+                      borderRadius: '2px',
+                      border: '1px solid var(--color-rule)',
+                      backgroundColor: 'rgba(245, 242, 235, 0.95)',
+                      backdropFilter: 'blur(8px)',
+                    }}
                   >
                     <div className="p-2">
                       <Link
                         href="/settings"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100"
+                        className="flex items-center gap-2 px-3 py-2 text-sm transition-colors"
+                        style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)' }}
                       >
                         <Settings className="h-4 w-4" />
                         Settings
                       </Link>
                       <button
                         onClick={handleSignOut}
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-50"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors"
                         type="button"
+                        style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-body)' }}
                       >
                         <LogOut className="h-4 w-4" />
                         Sign Out
@@ -168,10 +264,11 @@ export default function Header() {
 
       {/* Mobile menu button */}
       <button
-        className="rounded-xl p-2 text-neutral-500 hover:bg-neutral-100 sm:hidden"
+        className="p-2 sm:hidden"
         onClick={() => setMenuOpen(!menuOpen)}
         type="button"
         aria-label="Toggle menu"
+        style={{ color: 'var(--color-muted)' }}
       >
         {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -184,18 +281,38 @@ export default function Header() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border border-neutral-100 bg-white/95 p-4 shadow-elevated backdrop-blur-xl sm:hidden"
+            className="absolute left-0 right-0 top-full z-50 mt-0 p-4 sm:hidden"
+            style={{
+              backgroundColor: 'rgba(245, 242, 235, 0.95)',
+              backdropFilter: 'blur(8px)',
+              borderBottom: '1px solid var(--color-rule)',
+            }}
           >
             <nav className="flex flex-col gap-1">
               {!isLoggedIn ? (
                 <>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Home
                   </Link>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/coming-soon" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/coming-soon"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Launch Progress
                   </Link>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/success-stories" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/success-stories"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Success Stories
                   </Link>
                   <Link
@@ -204,24 +321,48 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                   >
                     Join Waitlist
-                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/discover" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/discover"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Discover
                   </Link>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/connections" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/connections"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Connections
                   </Link>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/messages" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/messages"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Messages
                   </Link>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/dashboard" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Dashboard
                   </Link>
-                  <Link className="rounded-xl px-3 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-100" href="/settings" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/settings"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                  >
                     Settings
                   </Link>
                   <button
@@ -229,8 +370,15 @@ export default function Header() {
                       setMenuOpen(false);
                       handleSignOut();
                     }}
-                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-red-50 px-3 py-2.5 font-medium text-red-700 transition-colors hover:bg-red-100"
+                    className="mt-2 flex w-full items-center justify-center gap-2 px-3 py-2.5"
                     type="button"
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase' as const,
+                      color: 'var(--color-accent)',
+                    }}
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out

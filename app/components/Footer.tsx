@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 const footerLinks = {
   Product: [
@@ -20,57 +19,93 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="mt-20">
-      <div className="sortir-divider" />
-      <div className="pt-12 pb-10">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+    <footer
+      className="mt-20"
+      style={{
+        borderTop: '1px solid var(--color-rule)',
+        backgroundColor: 'var(--color-paper)',
+      }}
+    >
+      <div className="pt-12 pb-10 px-6 sm:px-12">
+        <div className="grid gap-10 grid-cols-1 sm:grid-cols-2">
+          {/* Left — wordmark */}
           <div>
-            <Link className="flex items-center gap-2.5" href="/">
-              <Image
-                src="/sortir-logo.png"
-                alt="Sortir"
-                width={28}
-                height={28}
-                className="h-7 w-7 rounded-lg object-contain"
-              />
-              <span className="text-lg font-bold tracking-tight text-neutral-900">Sortir</span>
+            <Link className="flex items-center" href="/">
+              <span
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '18px',
+                  color: 'var(--color-ink)',
+                }}
+              >
+                Sortir
+              </span>
+              <span
+                style={{
+                  color: 'var(--color-accent)',
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '18px',
+                  marginLeft: '1px',
+                }}
+              >
+                ·
+              </span>
             </Link>
-            <p className="mt-3 text-sm leading-relaxed text-neutral-500">
-              Helping small businesses and solo entrepreneurs form real partnerships to grow together.
-            </p>
           </div>
-          {Object.entries(footerLinks).map(([heading, links]) => (
-            <div key={heading}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{heading}</p>
-              <ul className="mt-4 space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      className="text-sm text-neutral-500 transition-colors duration-200 hover:text-neutral-900"
-                      href={link.href}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+
+          {/* Right — links */}
+          <div className="flex flex-wrap gap-x-12 gap-y-6">
+            {Object.entries(footerLinks).map(([heading, links]) => (
+              <div key={heading}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase' as const,
+                    color: 'var(--color-muted)',
+                  }}
+                >
+                  {heading}
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        className="transition-colors duration-200"
+                        href={link.href}
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '12px',
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase' as const,
+                          color: 'var(--color-muted)',
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 pt-6 text-sm text-neutral-400 sm:flex-row">
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-200 to-transparent sm:hidden" />
-          <p>&copy; {new Date().getFullYear()} Sortir. All rights reserved.</p>
-          <div className="flex gap-5">
-            <Link className="transition-colors duration-200 hover:text-neutral-600" href="/privacy">
-              Privacy
-            </Link>
-            <Link className="transition-colors duration-200 hover:text-neutral-600" href="/terms">
-              Terms
-            </Link>
-            <Link className="transition-colors duration-200 hover:text-neutral-600" href="mailto:hello@sortir.app">
-              Contact
-            </Link>
-          </div>
+
+        {/* Legal copy */}
+        <div
+          className="mt-12 pt-6"
+          style={{ borderTop: '1px solid var(--color-rule)' }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: 'var(--color-muted)',
+            }}
+          >
+            &copy; {new Date().getFullYear()} Sortir. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
