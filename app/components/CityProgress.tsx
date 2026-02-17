@@ -82,7 +82,7 @@ export default function CityProgress({ city }: { city: string }) {
       </div>
       <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-100">
         <div
-          className="h-full rounded-full bg-brand-500 transition-all duration-700 ease-out"
+          className="h-full rounded-full bg-lavender-500 transition-all duration-700 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>

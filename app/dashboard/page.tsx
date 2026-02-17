@@ -238,16 +238,16 @@ export default function DashboardPage() {
     <div className="space-y-4">
       {/* Header */}
       <div className="glass rounded-3xl p-6">
-        <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Your partnership hub</p>
+        <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-creamsicle-600">Your partnership hub</p>
         <h1 className="text-2xl font-semibold text-slate-900">
           {data?.business.name}
         </h1>
         <p className="mt-1 text-sm text-slate-500">
           {data?.business.business_type}
-          {data?.business.created_at && (
-            <span className="ml-2 text-slate-400">· Member since {new Date(data.business.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</span>
-          )}
         </p>
+        {data?.business.created_at && (
+          <p className="mt-0.5 text-xs text-slate-400">Member since {new Date(data.business.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</p>
+        )}
         <p className="mt-2 text-sm text-slate-600">
           Track your active partnerships, see who&apos;s collaborating with you, and measure the impact of every connection.
         </p>
@@ -276,7 +276,7 @@ export default function DashboardPage() {
               />
             </div>
             <div className="mt-3 flex gap-2">
-              <Link href="/settings" className="text-xs font-medium text-sky-600 hover:text-sky-700">
+              <Link href="/settings" className="text-xs font-medium text-lavender-600 hover:text-lavender-700">
                 Edit Profile →
               </Link>
               {(data.business.looking_for ?? []).length === 0 && (
@@ -387,7 +387,7 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">
+                    <span className="rounded-full bg-lavender-100 px-2.5 py-0.5 text-xs font-medium text-lavender-800">
                       {a.scenario}
                     </span>
                     {a.shared_with_match && (
@@ -438,7 +438,7 @@ export default function DashboardPage() {
                       ...(a.proposed_split_a != null && { split: String(a.proposed_split_a) }),
                       ...(a.match_id && { match: a.match_id }),
                     }).toString()}`}
-                    className="rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-100"
+                    className="rounded-lg bg-lavender-50 px-3 py-1.5 text-xs font-medium text-lavender-700 hover:bg-lavender-100"
                   >
                     View / Edit
                   </Link>

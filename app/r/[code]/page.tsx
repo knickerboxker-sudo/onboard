@@ -134,7 +134,7 @@ export default function ReferralPage() {
     <div className="mx-auto max-w-lg">
       <div className="mb-8 text-center">
         {referrer && (
-          <div className="mb-4 rounded-lg border border-brand-200 bg-brand-50 p-3 text-sm text-brand-700">
+          <div className="mb-4 rounded-lg border border-lavender-200 bg-lavender-50 p-3 text-sm text-lavender-700">
             <span className="font-medium">{referrer.business_name}</span> invited
             you to join Sortir
           </div>
@@ -248,7 +248,7 @@ export default function ReferralPage() {
                 key={option}
                 className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2.5 text-sm transition-all ${
                   formData.partnership_interests.includes(option)
-                    ? "border-brand-500 bg-brand-50 text-brand-700"
+                    ? "border-lavender-500 bg-lavender-50 text-lavender-700"
                     : "border-neutral-200 text-neutral-700 hover:border-neutral-300"
                 }`}
               >
@@ -261,7 +261,7 @@ export default function ReferralPage() {
                 <div
                   className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
                     formData.partnership_interests.includes(option)
-                      ? "border-brand-500 bg-brand-500 text-white"
+                      ? "border-lavender-500 bg-lavender-500 text-white"
                       : "border-neutral-300"
                   }`}
                 >

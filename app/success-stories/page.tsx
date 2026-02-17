@@ -31,7 +31,7 @@ export default function SuccessStoriesPage() {
               className="glass flex flex-col rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
             >
               {/* Partnership type badge */}
-              <span className="inline-flex w-fit items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-sky-700">
+              <span className="inline-flex w-fit items-center rounded-full border border-lavender-200 bg-lavender-50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-lavender-700">
                 {story.partnershipType}
               </span>
 
@@ -62,7 +62,7 @@ export default function SuccessStoriesPage() {
       )}
 
       {/* CTA */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl bg-slate-900 px-6 py-12 text-center">
+      <div className="flex flex-col items-center gap-4 rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 px-6 py-12 text-center">
         <h2 className="text-2xl font-bold text-white sm:text-3xl">
           Be One of Our First Success Stories
         </h2>

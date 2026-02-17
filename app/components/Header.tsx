@@ -30,7 +30,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="mb-8 flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-5 py-3.5 shadow-sm">
+    <header className="relative mb-8 flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-5 py-3.5 shadow-sm">
       <div className="flex items-center gap-3">
         <Link className="flex items-center gap-2.5" href="/">
           <Image
@@ -85,7 +85,7 @@ export default function Header() {
 
       {/* Mobile nav */}
       {menuOpen && (
-        <div className="absolute left-4 right-4 top-20 z-50 rounded-xl border border-neutral-200 bg-white p-4 shadow-lg sm:hidden">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-neutral-200 bg-white p-4 shadow-lg sm:hidden">
           <nav className="flex flex-col gap-1">
             <Link className="rounded-lg px-3 py-2.5 font-medium text-neutral-700 hover:bg-neutral-100" href="/" onClick={() => setMenuOpen(false)}>
               Home

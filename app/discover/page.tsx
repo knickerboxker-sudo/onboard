@@ -115,7 +115,7 @@ function BusinessCard({
       exit={{ opacity: 0, y: -10 }}
       className={`group rounded-2xl bg-white shadow-card ring-1 ring-slate-100 transition-all hover:shadow-card-hover ${
         isGrid ? "p-5" : "flex items-center gap-4 p-4"
-      } ${selected ? "ring-2 ring-sky-500" : ""}`}
+      } ${selected ? "ring-2 ring-lavender-500" : ""}`}
     >
       <div className={isGrid ? "" : "min-w-0 flex-1"}>
         <div className="flex items-start justify-between gap-2">
@@ -132,7 +132,7 @@ function BusinessCard({
             <button
               onClick={onToggleSelect}
               className={`rounded-lg p-1.5 transition-colors ${
-                selected ? "bg-sky-100 text-sky-600" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                selected ? "bg-lavender-100 text-lavender-600" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
               }`}
               aria-label={selected ? "Deselect business" : "Select business"}
             >
@@ -175,7 +175,7 @@ function BusinessCard({
               <MapPin className="h-3 w-3" /> {business.distanceMiles.toFixed(1)} mi
             </span>
           )}
-          <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-semibold text-sky-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-spearmint-50 px-2 py-0.5 text-[10px] font-semibold text-spearmint-700">
             <TrendingUp className="h-3 w-3" /> {Math.round(business.score)}% match
           </span>
           {badges.map((badge) => (
@@ -402,19 +402,19 @@ export default function DiscoverPage() {
           </Link>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`rounded-lg p-2 transition-colors ${showFilters ? "bg-sky-50 text-sky-600" : "text-slate-400 hover:bg-slate-100"}`}
+            className={`rounded-lg p-2 transition-colors ${showFilters ? "bg-lavender-50 text-lavender-600" : "text-slate-400 hover:bg-slate-100"}`}
           >
             <SlidersHorizontal className="h-4 w-4" />
           </button>
           <button
             onClick={() => setView("grid")}
-            className={`rounded-lg p-2 transition-colors ${view === "grid" ? "bg-sky-50 text-sky-600" : "text-slate-400 hover:bg-slate-100"}`}
+            className={`rounded-lg p-2 transition-colors ${view === "grid" ? "bg-lavender-50 text-lavender-600" : "text-slate-400 hover:bg-slate-100"}`}
           >
             <Grid3X3 className="h-4 w-4" />
           </button>
           <button
             onClick={() => setView("list")}
-            className={`rounded-lg p-2 transition-colors ${view === "list" ? "bg-sky-50 text-sky-600" : "text-slate-400 hover:bg-slate-100"}`}
+            className={`rounded-lg p-2 transition-colors ${view === "list" ? "bg-lavender-50 text-lavender-600" : "text-slate-400 hover:bg-slate-100"}`}
           >
             <List className="h-4 w-4" />
           </button>
@@ -434,9 +434,9 @@ export default function DiscoverPage() {
 
       {/* Recently Joined */}
       {recentlyJoined.length > 0 && !filters.searchQuery && filters.interestTags.length === 0 && filters.partnershipTypes.length === 0 && (
-        <div className="rounded-2xl bg-gradient-to-r from-sky-50 to-violet-50 p-4 ring-1 ring-sky-100">
+        <div className="rounded-2xl bg-gradient-to-r from-creamsicle-50 to-lavender-50 p-4 ring-1 ring-creamsicle-100">
           <div className="mb-3 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-sky-600" />
+            <Clock className="h-4 w-4 text-creamsicle-600" />
             <h3 className="text-sm font-semibold text-slate-900">Recently Joined</h3>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
@@ -452,9 +452,9 @@ export default function DiscoverPage() {
 
       {/* Selection actions bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 rounded-xl bg-sky-50 px-4 py-3 ring-1 ring-sky-200">
-          <span className="text-sm font-medium text-sky-800">{selectedIds.size} selected</span>
-          <button onClick={() => setSelectedIds(new Set())} className="text-xs text-sky-600 hover:text-sky-700">
+        <div className="flex items-center gap-3 rounded-xl bg-lavender-50 px-4 py-3 ring-1 ring-lavender-200">
+          <span className="text-sm font-medium text-lavender-800">{selectedIds.size} selected</span>
+          <button onClick={() => setSelectedIds(new Set())} className="text-xs text-lavender-600 hover:text-lavender-700">
             Clear
           </button>
         </div>
@@ -474,7 +474,7 @@ export default function DiscoverPage() {
               <div className="w-64 space-y-5 rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
-                  <button onClick={() => setFilters(defaultFilters)} className="text-xs text-sky-600 hover:text-sky-700">
+                  <button onClick={() => setFilters(defaultFilters)} className="text-xs text-lavender-600 hover:text-lavender-700">
                     Reset
                   </button>
                 </div>
