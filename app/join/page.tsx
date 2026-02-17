@@ -207,7 +207,7 @@ export default function JoinPage() {
                 key={option}
                 className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2.5 text-sm transition-all ${
                   formData.partnership_interests.includes(option)
-                    ? "border-brand-500 bg-brand-50 text-brand-700"
+                    ? "border-lavender-500 bg-lavender-50 text-lavender-700"
                     : "border-neutral-200 text-neutral-700 hover:border-neutral-300"
                 }`}
               >
@@ -220,7 +220,7 @@ export default function JoinPage() {
                 <div
                   className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
                     formData.partnership_interests.includes(option)
-                      ? "border-brand-500 bg-brand-500 text-white"
+                      ? "border-lavender-500 bg-lavender-500 text-white"
                       : "border-neutral-300"
                   }`}
                 >

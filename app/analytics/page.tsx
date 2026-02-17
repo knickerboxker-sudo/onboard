@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-4">
       <div className="glass rounded-3xl p-6">
-        <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">
+        <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-lavender-600">
           Advanced analytics
         </p>
         <h1 className="text-2xl font-semibold text-slate-900">Analytics Dashboard</h1>
@@ -231,7 +231,7 @@ export default function AnalyticsPage() {
               onClick={() => setRangeDays(r.days)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                 rangeDays === r.days
-                  ? "bg-sky-500 text-white"
+                  ? "bg-lavender-500 text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >

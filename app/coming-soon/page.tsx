@@ -31,7 +31,7 @@ export default function ComingSoonPage() {
 
       {/* City selector */}
       <section className="mx-auto max-w-2xl">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {cities.map((city) => (
             <button
               key={city}
@@ -82,7 +82,7 @@ export default function ComingSoonPage() {
                   onClick={() => setSelectedCity(city)}
                   className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all ${
                     selectedCity === city
-                      ? "bg-brand-50 text-brand-700 font-medium"
+                      ? "bg-lavender-50 text-lavender-700 font-medium"
                       : "text-neutral-600 hover:bg-neutral-50"
                   }`}
                 >

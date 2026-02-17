@@ -24,7 +24,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-neutral-900 text-white hover:bg-neutral-800 active:scale-[0.98] shadow-sm hover:shadow-md;
+    @apply btn bg-gradient-to-r from-neutral-900 to-neutral-800 text-white hover:from-neutral-800 hover:to-neutral-700 active:scale-[0.98] shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
@@ -36,7 +36,7 @@
   }
 
   .input {
-    @apply w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all;
+    @apply w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-lavender-500 focus:ring-2 focus:ring-lavender-500/20 focus:outline-none transition-all;
   }
 
   .label {
@@ -52,11 +52,11 @@
   }
 
   .badge-primary {
-    @apply badge bg-brand-50 text-brand-700 border border-brand-200;
+    @apply badge bg-lavender-50 text-lavender-700 border border-lavender-200;
   }
 
   .badge-success {
-    @apply badge bg-emerald-50 text-emerald-700 border border-emerald-200;
+    @apply badge bg-spearmint-50 text-spearmint-700 border border-spearmint-200;
   }
 
   .badge-neutral {
@@ -64,7 +64,7 @@
   }
 
   .section-label {
-    @apply inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-neutral-500;
+    @apply inline-flex items-center gap-2 rounded-full border border-lavender-100 bg-lavender-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-700;
   }
 
   .gradient-text {
@@ -81,7 +81,7 @@
   }
 
   .hero-badge {
-    @apply inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-neutral-500;
+    @apply inline-flex items-center gap-2 rounded-full border border-lavender-100 bg-lavender-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-700;
   }
 
   .testimonial-card {

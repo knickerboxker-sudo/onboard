@@ -162,8 +162,8 @@ export default function Home() {
               className="group rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md"
               key={feature.title}
             >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 transition-colors group-hover:bg-neutral-200">
-                <feature.icon className="h-5 w-5 text-neutral-700" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-lavender-50 transition-colors group-hover:bg-lavender-100">
+                <feature.icon className="h-5 w-5 text-lavender-600" />
               </div>
               <h3 className="font-semibold text-neutral-900">{feature.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-neutral-500">
@@ -191,10 +191,10 @@ export default function Home() {
               {i < steps.length - 1 && (
                 <div className="pointer-events-none absolute left-[calc(50%+2rem)] top-8 hidden h-px w-[calc(100%-4rem)] bg-neutral-200 sm:block" />
               )}
-              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-neutral-200 bg-white shadow-sm">
-                <step.icon className="h-6 w-6 text-neutral-700" />
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-spearmint-100 bg-spearmint-50 shadow-sm">
+                <step.icon className="h-6 w-6 text-spearmint-700" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-brand-500">
+              <span className="text-xs font-bold uppercase tracking-widest text-lavender-500">
                 Step {step.number}
               </span>
               <h3 className="mt-2 text-lg font-semibold text-neutral-900">
@@ -238,14 +238,14 @@ export default function Home() {
           ))}
         </div>
         <div className="mt-6 text-center">
-          <Link className="text-sm font-medium text-sky-600 hover:text-sky-700" href="/partnership-ideas">
+          <Link className="text-sm font-medium text-lavender-600 hover:text-lavender-700" href="/partnership-ideas">
             See all partnership ideas <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
           </Link>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="rounded-xl bg-neutral-900 px-6 py-16 text-center sm:px-12">
+      <section className="rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 px-6 py-16 text-center sm:px-12">
         <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
           Ready to find your perfect business partner?
         </h2>

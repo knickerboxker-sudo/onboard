@@ -36,8 +36,8 @@ export default function PartnershipIdeasPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100">
-          <Lightbulb className="h-6 w-6 text-violet-600" />
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-creamsicle-100">
+          <Lightbulb className="h-6 w-6 text-creamsicle-600" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
           Partnership Ideas
@@ -82,11 +82,11 @@ export default function PartnershipIdeasPage() {
             className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100 transition-all hover:shadow-card-hover"
           >
             <div className="flex items-center gap-2 text-sm">
-              <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700">
+              <span className="rounded-full bg-creamsicle-50 px-2.5 py-0.5 text-xs font-semibold text-creamsicle-700">
                 {idea.businessA}
               </span>
               <span className="text-slate-400">+</span>
-              <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-semibold text-violet-700">
+              <span className="rounded-full bg-lavender-50 px-2.5 py-0.5 text-xs font-semibold text-lavender-700">
                 {idea.businessB}
               </span>
             </div>
@@ -98,7 +98,7 @@ export default function PartnershipIdeasPage() {
               </span>
               <Link
                 href="/discover"
-                className="flex items-center gap-1 text-xs font-medium text-sky-600 hover:text-sky-700"
+                className="flex items-center gap-1 text-xs font-medium text-lavender-600 hover:text-lavender-700"
               >
                 Find a partner <ArrowRight className="h-3 w-3" />
               </Link>
@@ -108,11 +108,11 @@ export default function PartnershipIdeasPage() {
       </div>
 
       {/* Partnership Proposal Templates Section */}
-      <div className="rounded-2xl bg-gradient-to-r from-slate-50 to-sky-50 p-6 ring-1 ring-slate-200">
+      <div className="rounded-2xl bg-gradient-to-r from-spearmint-50 to-lavender-50 p-6 ring-1 ring-spearmint-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100">
-              <FileText className="h-5 w-5 text-sky-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lavender-100">
+              <FileText className="h-5 w-5 text-lavender-600" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Proposal Templates</h2>
@@ -156,7 +156,7 @@ export default function PartnershipIdeasPage() {
       </div>
 
       {/* Submit Success Story CTA */}
-      <div className="rounded-2xl bg-slate-900 px-6 py-10 text-center">
+      <div className="rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 px-6 py-10 text-center">
         <Sparkles className="mx-auto h-8 w-8 text-amber-400" />
         <h2 className="mt-4 text-xl font-bold text-white">Have a partnership success story?</h2>
         <p className="mx-auto mt-2 max-w-lg text-sm text-slate-400">

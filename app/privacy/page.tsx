@@ -268,7 +268,7 @@ export default function PrivacyPage() {
             your account and associated data by contacting us at{" "}
             <a
               href="mailto:hello@sortir.app"
-              className="text-brand-600 hover:text-brand-700"
+              className="text-lavender-600 hover:text-lavender-700"
             >
               hello@sortir.app
             </a>
@@ -288,7 +288,7 @@ export default function PrivacyPage() {
             at{" "}
             <a
               href="mailto:hello@sortir.app"
-              className="text-brand-600 hover:text-brand-700"
+              className="text-lavender-600 hover:text-lavender-700"
             >
               hello@sortir.app
             </a>
@@ -339,7 +339,7 @@ export default function PrivacyPage() {
           contact us at{" "}
           <a
             href="mailto:hello@sortir.app"
-            className="text-brand-600 hover:text-brand-700"
+            className="text-lavender-600 hover:text-lavender-700"
           >
             hello@sortir.app
           </a>
@@ -433,7 +433,7 @@ export default function PrivacyPage() {
           <strong>Email:</strong>{" "}
           <a
             href="mailto:hello@sortir.app"
-            className="text-brand-600 hover:text-brand-700"
+            className="text-lavender-600 hover:text-lavender-700"
           >
             hello@sortir.app
           </a>

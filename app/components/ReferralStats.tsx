@@ -74,7 +74,7 @@ export default function ReferralStats({
 
       {/* Referral count */}
       <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-600 font-semibold">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lavender-50 text-lavender-600 font-semibold">
           {referralCount}
         </div>
         <div>

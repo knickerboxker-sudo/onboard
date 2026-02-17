@@ -417,7 +417,7 @@ export default function TermsPage() {
           will be removed from the Platform in accordance with our{" "}
           <Link
             href="/privacy"
-            className="text-brand-600 hover:text-brand-700 underline"
+            className="text-lavender-600 hover:text-lavender-700 underline"
           >
             Privacy Policy
           </Link>
@@ -478,7 +478,7 @@ export default function TermsPage() {
           Terms of Service, please contact us at{" "}
           <a
             href="mailto:hello@sortir.app"
-            className="text-brand-600 hover:text-brand-700"
+            className="text-lavender-600 hover:text-lavender-700"
           >
             hello@sortir.app
           </a>
