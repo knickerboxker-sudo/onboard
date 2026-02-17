@@ -4,8 +4,6 @@ import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getIcebreakers } from "@/lib/matching";
-import type { IcebreakerPrompt } from "@/lib/types";
 import { Send, MessageCircle } from "lucide-react";
 
 type MatchWithPartner = {
@@ -302,27 +300,6 @@ function MessagesPageContent() {
               ) : (
                 <div className="flex flex-col items-center gap-3 py-6">
                   <p className="text-center text-sm text-neutral-500">No messages yet. Start the conversation!</p>
-                  {activeMatch && (() => {
-                    const icebreakers: IcebreakerPrompt[] = getIcebreakers(
-                      matchesData?.businessPartnershipTypes ?? [],
-                      activeMatch.partnershipTypes,
-                    );
-                    if (icebreakers.length === 0) return null;
-                    return (
-                      <div className="mt-2 flex flex-wrap justify-center gap-2">
-                        {icebreakers.slice(0, 3).map((icebreaker) => (
-                          <button
-                            key={icebreaker.id}
-                            type="button"
-                            className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                            onClick={() => setNewMessage(icebreaker.prompt)}
-                          >
-                            {icebreaker.prompt}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })()}
                 </div>
               )}
               <div ref={messagesEndRef} />
