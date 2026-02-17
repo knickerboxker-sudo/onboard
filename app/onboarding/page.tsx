@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
+import { PARTNERSHIP_INTEREST_TAGS } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 import ImageUpload from "@/app/components/ImageUpload";
 
@@ -103,6 +104,11 @@ interface DraftState {
   targetIncomeBracket: string;
   customerInterests: string;
   yearsInOperation: string;
+  lookingFor: string;
+  canOffer: string;
+  partnershipIdeas: string;
+  partnershipInterestTags: string[];
+  businessStory: string;
   step: number;
 }
 
@@ -143,6 +149,13 @@ export default function OnboardingPage() {
   // Years in operation
   const [yearsInOperation, setYearsInOperation] = useState("");
 
+  // Enhanced profile fields
+  const [lookingFor, setLookingFor] = useState("");
+  const [canOffer, setCanOffer] = useState("");
+  const [partnershipIdeas, setPartnershipIdeas] = useState("");
+  const [partnershipInterestTags, setPartnershipInterestTags] = useState<string[]>([]);
+  const [businessStory, setBusinessStory] = useState("");
+
   // --- localStorage auto-save: restore on mount ---
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
@@ -171,6 +184,11 @@ export default function OnboardingPage() {
         setTargetIncomeBracket(draft.targetIncomeBracket ?? "");
         setCustomerInterests(draft.customerInterests ?? "");
         setYearsInOperation(draft.yearsInOperation ?? "");
+        setLookingFor(draft.lookingFor ?? "");
+        setCanOffer(draft.canOffer ?? "");
+        setPartnershipIdeas(draft.partnershipIdeas ?? "");
+        setPartnershipInterestTags(draft.partnershipInterestTags ?? []);
+        setBusinessStory(draft.businessStory ?? "");
         if (draft.step >= 1 && draft.step <= 4) setStep(draft.step);
       }
     } catch {
@@ -189,7 +207,8 @@ export default function OnboardingPage() {
         partnerships, collaborationIntents, hours, website, socialLinks, photos,
         followerCount, emailListSize, monthlyFootTraffic,
         targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
-        yearsInOperation, step,
+        yearsInOperation, lookingFor, canOffer, partnershipIdeas, partnershipInterestTags,
+        businessStory, step,
       };
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(draft)); } catch { /* quota exceeded */ }
     }, 400);
@@ -198,7 +217,8 @@ export default function OnboardingPage() {
     partnerships, collaborationIntents, hours, website, socialLinks, photos,
     followerCount, emailListSize, monthlyFootTraffic,
     targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
-    yearsInOperation, step,
+    yearsInOperation, lookingFor, canOffer, partnershipIdeas, partnershipInterestTags,
+    businessStory, step,
   ]);
 
   useEffect(() => {
@@ -300,6 +320,20 @@ export default function OnboardingPage() {
         .map((item) => item.trim())
         .filter(Boolean),
       years_in_operation: yearsInOperation ? Number(yearsInOperation) : null,
+      looking_for: lookingFor
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      can_offer: canOffer
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      partnership_ideas: partnershipIdeas
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      partnership_interest_tags: partnershipInterestTags,
+      business_story: businessStory || null,
     };
 
     const { error } = await supabase.from("businesses").upsert(payload, { onConflict: "owner_id" });
@@ -311,7 +345,7 @@ export default function OnboardingPage() {
     }
 
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
-    router.push("/swipe");
+    router.push("/discover");
   };
 
   return (
@@ -454,6 +488,61 @@ export default function OnboardingPage() {
                       })}
                     </div>
                   </fieldset>
+
+                  <div>
+                    <label className="label">What are you looking for? (comma separated)</label>
+                    <textarea
+                      className="input min-h-[80px]"
+                      onChange={(event) => setLookingFor(event.target.value)}
+                      value={lookingFor}
+                      placeholder="e.g. Cross-promotion partners, Event collaborators, Product suppliers"
+                    />
+                    <p className="mt-1 text-xs text-slate-400">Tell potential partners what you need</p>
+                  </div>
+                  <div>
+                    <label className="label">What can you offer? (comma separated)</label>
+                    <textarea
+                      className="input min-h-[80px]"
+                      onChange={(event) => setCanOffer(event.target.value)}
+                      value={canOffer}
+                      placeholder="e.g. Store shelf space, Social media promotion, Event venue"
+                    />
+                    <p className="mt-1 text-xs text-slate-400">Tell potential partners what you bring to the table</p>
+                  </div>
+                  <div>
+                    <label className="label">Partnership ideas (comma separated)</label>
+                    <textarea
+                      className="input min-h-[80px]"
+                      onChange={(event) => setPartnershipIdeas(event.target.value)}
+                      value={partnershipIdeas}
+                      placeholder="e.g. Joint pop-up event, Co-branded gift basket, Referral discount program"
+                    />
+                    <p className="mt-1 text-xs text-slate-400">Share specific partnership concepts you have in mind</p>
+                  </div>
+                  <fieldset>
+                    <legend className="label">Partnership interest tags</legend>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      {PARTNERSHIP_INTEREST_TAGS.map((tag) => {
+                        const checked = partnershipInterestTags.includes(tag);
+                        return (
+                          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={tag}>
+                            <input
+                              checked={checked}
+                              onChange={(event) => {
+                                if (event.target.checked) {
+                                  setPartnershipInterestTags((previous) => [...previous, tag]);
+                                } else {
+                                  setPartnershipInterestTags((previous) => previous.filter((item) => item !== tag));
+                                }
+                              }}
+                              type="checkbox"
+                            />
+                            {tag}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
                 </div>
               </motion.div>
             )}
@@ -469,6 +558,18 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
                 <div className="space-y-6">
+                  {/* About / Story */}
+                  <div>
+                    <label className="label">Your business story</label>
+                    <textarea
+                      className="input min-h-[100px]"
+                      onChange={(event) => setBusinessStory(event.target.value)}
+                      value={businessStory}
+                      placeholder="Share your journey — how you started, what drives you, and your vision for the future."
+                    />
+                    <p className="mt-1 text-xs text-slate-400">Help potential partners understand who you are</p>
+                  </div>
+
                   {/* Social proof */}
                   <fieldset>
                     <legend className="label">Social proof</legend>
@@ -590,6 +691,36 @@ export default function OnboardingPage() {
                         ))}
                       </div>
                     )}
+                    {lookingFor && (
+                      <div className="mt-3 border-t border-slate-100 pt-3">
+                        <p className="text-xs font-semibold text-slate-600">Looking For:</p>
+                        <div className="mt-1 flex flex-wrap gap-1.5">
+                          {lookingFor.split(",").map((item) => item.trim()).filter(Boolean).map((item) => (
+                            <span key={item} className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {canOffer && (
+                      <div className="mt-2">
+                        <p className="text-xs font-semibold text-slate-600">Can Offer:</p>
+                        <div className="mt-1 flex flex-wrap gap-1.5">
+                          {canOffer.split(",").map((item) => item.trim()).filter(Boolean).map((item) => (
+                            <span key={item} className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-700">{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {partnershipInterestTags.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs font-semibold text-slate-600">Interest Tags:</p>
+                        <div className="mt-1 flex flex-wrap gap-1.5">
+                          {partnershipInterestTags.map((tag) => (
+                            <span key={tag} className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700">{tag}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </ReviewSection>
 
                   <ReviewSection title="Social Proof & Demographics" onEdit={() => goToStep(3)}>
@@ -624,9 +755,10 @@ export default function OnboardingPage() {
                     )}
                   </ReviewSection>
 
-                  {(yearsInOperation || hours || website || socialLinks) && (
-                    <ReviewSection title="Operations" onEdit={() => goToStep(3)}>
-                      {yearsInOperation && <p>Years in operation: {yearsInOperation}</p>}
+                  {(yearsInOperation || hours || website || socialLinks || businessStory) && (
+                    <ReviewSection title="Operations & Story" onEdit={() => goToStep(3)}>
+                      {businessStory && <p className="italic text-slate-600">&ldquo;{businessStory}&rdquo;</p>}
+                      {yearsInOperation && <p className="mt-1">Years in operation: {yearsInOperation}</p>}
                       {hours && <p className="mt-1">Hours: {hours}</p>}
                       {website && <p className="mt-1">Website: {website}</p>}
                       {socialLinks && <p className="mt-1">Social: {socialLinks}</p>}
@@ -646,7 +778,7 @@ export default function OnboardingPage() {
           </button>
           <div className="flex items-center gap-3">
             {step === 4 ? (
-              <button className="btn-muted" onClick={() => router.push("/swipe")} type="button">
+              <button className="btn-muted" onClick={() => router.push("/discover")} type="button">
                 Skip for now
               </button>
             ) : null}

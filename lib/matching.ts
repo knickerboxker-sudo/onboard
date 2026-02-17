@@ -559,3 +559,193 @@ export function calculatePartnershipROI(input: ROIInput): ROIResult {
     verdict,
   };
 }
+
+// --- Profile Completion ---
+
+/** Calculate profile completion percentage for a business. */
+export function calculateProfileCompletion(business: BusinessRecord): number {
+  const checks = [
+    !!business.name,
+    !!business.business_type,
+    !!business.address,
+    !!business.description,
+    (business.products ?? []).length > 0,
+    (business.partnership_types ?? []).length > 0,
+    (business.collaboration_intents ?? []).length > 0,
+    (business.photos ?? []).length > 0,
+    !!business.website,
+    (business.social_links ?? []).length > 0,
+    !!business.follower_count,
+    !!business.monthly_foot_traffic,
+    !!business.years_in_operation,
+    !!business.operating_hours,
+    (business.looking_for ?? []).length > 0,
+    (business.can_offer ?? []).length > 0,
+    (business.partnership_interest_tags ?? []).length > 0,
+    !!business.business_story,
+  ];
+  const filled = checks.filter(Boolean).length;
+  return Math.round((filled / checks.length) * 100);
+}
+
+// --- Partnership Idea Examples ---
+
+export type PartnershipIdeaCategory =
+  | "Food & Beverage"
+  | "Retail"
+  | "Services"
+  | "Health & Wellness"
+  | "Arts & Entertainment"
+  | "Professional Services";
+
+export type PartnershipIdea = {
+  id: string;
+  category: PartnershipIdeaCategory;
+  businessA: string;
+  businessB: string;
+  idea: string;
+  description: string;
+};
+
+export const PARTNERSHIP_IDEAS: PartnershipIdea[] = [
+  // Food & Beverage
+  { id: "fb-1", category: "Food & Beverage", businessA: "Gym", businessB: "Meal Prep Service", idea: "Member nutrition package", description: "Gym offers discounted meal prep plans to members, meal prep service gets consistent bulk orders." },
+  { id: "fb-2", category: "Food & Beverage", businessA: "Brewery", businessB: "Food Truck", idea: "Weekend food & beer pairing events", description: "Brewery hosts food truck weekends, splitting event promotion and attracting each other's audiences." },
+  { id: "fb-3", category: "Food & Beverage", businessA: "Coffee Shop", businessB: "Bakery", idea: "Fresh pastry supply partnership", description: "Bakery supplies fresh pastries daily, coffee shop gets unique offerings without a kitchen." },
+  { id: "fb-4", category: "Food & Beverage", businessA: "Restaurant", businessB: "Local Farm", idea: "Farm-to-table menu feature", description: "Restaurant features locally-sourced ingredients, farm gets reliable wholesale buyer and brand exposure." },
+  // Retail
+  { id: "rt-1", category: "Retail", businessA: "Bookstore", businessB: "Coffee Shop", idea: "Reading events with refreshments", description: "Monthly book club events with coffee pairings, driving foot traffic to both businesses." },
+  { id: "rt-2", category: "Retail", businessA: "Boutique", businessB: "Jewelry Store", idea: "Complete outfit styling packages", description: "Joint styling sessions where customers get a complete look from head to accessories." },
+  { id: "rt-3", category: "Retail", businessA: "Gift Shop", businessB: "Florist", idea: "Custom gift bundles", description: "Pre-made gift bundles combining unique gifts with fresh flower arrangements." },
+  { id: "rt-4", category: "Retail", businessA: "Pet Store", businessB: "Dog Groomer", idea: "New pet welcome package", description: "Pet store refers new pet owners for grooming, groomer recommends products from the store." },
+  // Services
+  { id: "sv-1", category: "Services", businessA: "Auto Shop", businessB: "Car Wash", idea: "Full service maintenance deal", description: "Customers get a free car wash with every service, car wash refers customers needing repairs." },
+  { id: "sv-2", category: "Services", businessA: "Real Estate Agent", businessB: "Interior Designer", idea: "Move-in makeover package", description: "New homeowners get a discounted design consultation, designer gets a steady referral pipeline." },
+  { id: "sv-3", category: "Services", businessA: "Landscaper", businessB: "Garden Center", idea: "Design & plant package", description: "Landscaper designs and installs, garden center supplies plants at wholesale with brand signage." },
+  { id: "sv-4", category: "Services", businessA: "Photography Studio", businessB: "Event Planner", idea: "Event media package", description: "Bundled photography and event planning for weddings, corporate events, and celebrations." },
+  // Health & Wellness
+  { id: "hw-1", category: "Health & Wellness", businessA: "Salon", businessB: "Boutique", idea: "Style makeover packages", description: "Complete transformation packages — new hair, new outfit — promoted as the ultimate self-care day." },
+  { id: "hw-2", category: "Health & Wellness", businessA: "Yoga Studio", businessB: "Juice Bar", idea: "Post-class refresh deal", description: "Yoga members get a discount at the juice bar, juice bar promotes class schedules." },
+  { id: "hw-3", category: "Health & Wellness", businessA: "Spa", businessB: "Hotel", idea: "Guest relaxation package", description: "Hotel guests get discounted spa treatments, spa gets consistent bookings from travelers." },
+  { id: "hw-4", category: "Health & Wellness", businessA: "Dentist", businessB: "Orthodontist", idea: "Smile transformation referrals", description: "Cross-referral system where general dental care and orthodontic needs are seamlessly connected." },
+  // Arts & Entertainment
+  { id: "ae-1", category: "Arts & Entertainment", businessA: "Art Gallery", businessB: "Wine Bar", idea: "Art & wine evening events", description: "Monthly art opening nights with wine pairings, attracting culture-loving audiences." },
+  { id: "ae-2", category: "Arts & Entertainment", businessA: "Music School", businessB: "Instrument Store", idea: "Learn & play starter bundle", description: "New students get a discount on their first instrument, store refers aspiring musicians to lessons." },
+  { id: "ae-3", category: "Arts & Entertainment", businessA: "Theater", businessB: "Restaurant", idea: "Dinner & show package", description: "Pre-show dinner deals that drive traffic to both venues on performance nights." },
+  { id: "ae-4", category: "Arts & Entertainment", businessA: "Craft Studio", businessB: "Party Venue", idea: "Creative celebration packages", description: "Birthday parties and team events that combine crafting activities with venue rental." },
+  // Professional Services
+  { id: "ps-1", category: "Professional Services", businessA: "Accountant", businessB: "Attorney", idea: "Business startup bundle", description: "New businesses get legal formation and accounting setup as a discounted package." },
+  { id: "ps-2", category: "Professional Services", businessA: "Coworking Space", businessB: "Coffee Shop", idea: "Workspace & caffeine membership", description: "Coworking members get coffee credits, coffee shop gets a steady professional crowd." },
+  { id: "ps-3", category: "Professional Services", businessA: "Marketing Agency", businessB: "Web Designer", idea: "Full digital presence package", description: "Complete branding, website, and marketing strategy offered as a single service." },
+  { id: "ps-4", category: "Professional Services", businessA: "Print Shop", businessB: "Graphic Designer", idea: "Design-to-print pipeline", description: "Designer handles creative, print shop handles production — seamless client handoff." },
+];
+
+/** Get partnership ideas filtered by category. */
+export function getPartnershipIdeasByCategory(category?: PartnershipIdeaCategory): PartnershipIdea[] {
+  if (!category) return PARTNERSHIP_IDEAS;
+  return PARTNERSHIP_IDEAS.filter((idea) => idea.category === category);
+}
+
+// --- Proposal Templates ---
+
+export type ProposalTemplate = {
+  id: string;
+  title: string;
+  partnershipType: string;
+  description: string;
+  terms: string[];
+  nextSteps: string[];
+};
+
+export const PROPOSAL_TEMPLATES: ProposalTemplate[] = [
+  {
+    id: "pt-event",
+    title: "Event Collaboration Proposal",
+    partnershipType: "event-collab",
+    description: "A proposal for co-hosting an event that brings together both businesses' audiences for a shared experience.",
+    terms: [
+      "Both parties share event costs equally (venue, marketing, supplies)",
+      "Revenue from ticket sales or vendor fees split 50/50",
+      "Each party promotes the event through their channels",
+      "Post-event debrief within 1 week to review results",
+    ],
+    nextSteps: [
+      "Agree on event date, location, and theme",
+      "Create a shared budget and responsibility matrix",
+      "Design joint marketing materials",
+      "Set success metrics (attendance, revenue, new customers)",
+    ],
+  },
+  {
+    id: "pt-cross-promo",
+    title: "Cross-Promotion Proposal",
+    partnershipType: "cross-promotion",
+    description: "A mutual marketing agreement where both businesses promote each other through their respective channels.",
+    terms: [
+      "Each party posts about the other at least 2x per month on social media",
+      "In-store signage and flyer display at each location",
+      "Monthly email newsletter feature for each other",
+      "90-day trial period with option to extend",
+    ],
+    nextSteps: [
+      "Exchange brand guidelines and approved messaging",
+      "Create a shared content calendar",
+      "Set up tracking for referral metrics",
+      "Schedule monthly check-in calls",
+    ],
+  },
+  {
+    id: "pt-product-placement",
+    title: "Product Placement Proposal",
+    partnershipType: "product-bundle",
+    description: "An arrangement for one business to display and sell another business's products in their space.",
+    terms: [
+      "Products provided at wholesale cost with agreed markup",
+      "Minimum shelf/display space of [X] square feet",
+      "Monthly sales reporting and payment within 30 days",
+      "Unsold inventory returned or discounted after 60 days",
+    ],
+    nextSteps: [
+      "Select initial product assortment",
+      "Agree on pricing and margin structure",
+      "Set up display and point-of-sale materials",
+      "Schedule first inventory review after 30 days",
+    ],
+  },
+  {
+    id: "pt-revenue-share",
+    title: "Revenue Share Agreement",
+    partnershipType: "wholesale",
+    description: "A partnership where both businesses share revenue generated from collaborative activities.",
+    terms: [
+      "Revenue split of [X]% / [Y]% based on contribution assessment",
+      "Monthly revenue reporting with transparent accounting",
+      "Minimum 6-month commitment with quarterly reviews",
+      "Either party can exit with 30 days written notice",
+    ],
+    nextSteps: [
+      "Complete equity assessment using Partnership Builder",
+      "Draft formal agreement with legal review",
+      "Set up shared tracking for revenue attribution",
+      "Define KPIs and success benchmarks",
+    ],
+  },
+  {
+    id: "pt-referral",
+    title: "Referral Partnership Proposal",
+    partnershipType: "cross-promotion",
+    description: "A structured referral program where businesses recommend each other's services to their customers.",
+    terms: [
+      "Commission of [X]% on referred customer's first purchase",
+      "Unique referral codes or tracking links provided",
+      "Monthly payout of earned commissions",
+      "Quarterly review of referral quality and volume",
+    ],
+    nextSteps: [
+      "Set up referral tracking system (codes or links)",
+      "Train staff on partner's offerings and referral process",
+      "Create referral materials (cards, digital assets)",
+      "Establish monthly reporting cadence",
+    ],
+  },
+];

@@ -7,19 +7,20 @@ import { createClient } from "@/lib/supabase/client";
 import { haversineMiles, matchQualityScore, getTrustBadges } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge } from "@/lib/types";
 import {
-  Filter,
   Grid3X3,
   List,
   MapPin,
   Search,
   ShieldCheck,
   SlidersHorizontal,
-  Star,
   TrendingUp,
   X,
-  ArrowRight,
   Bookmark,
   Users,
+  Send,
+  Clock,
+  Sparkles,
+  Tag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,6 +30,11 @@ const PARTNERSHIP_TYPE_OPTIONS = [
   { value: "event-collab", label: "Event Collaboration" },
   { value: "wholesale", label: "Wholesale" },
   { value: "social-media-collab", label: "Social Media Collab" },
+];
+
+const INTEREST_TAG_OPTIONS = [
+  "Events", "Cross-Promotion", "Product Placement", "Revenue Share",
+  "Referral Program", "Joint Marketing", "Space Sharing", "Equipment Sharing", "Bulk Purchasing",
 ];
 
 const DISTANCE_OPTIONS = [
@@ -43,6 +49,8 @@ const SORT_OPTIONS = [
   { value: "match_score", label: "Match Score" },
   { value: "distance", label: "Distance" },
   { value: "newest", label: "Newest" },
+  { value: "most_active", label: "Most Active" },
+  { value: "recently_updated", label: "Recently Updated" },
   { value: "verified", label: "Most Verified" },
 ];
 
@@ -62,6 +70,7 @@ type SavedSearch = {
 type FilterState = {
   searchQuery: string;
   partnershipTypes: string[];
+  interestTags: string[];
   maxDistance: number;
   verifiedOnly: boolean;
   minYears: number;
@@ -71,6 +80,7 @@ type FilterState = {
 const defaultFilters: FilterState = {
   searchQuery: "",
   partnershipTypes: [],
+  interestTags: [],
   maxDistance: 50,
   verifiedOnly: false,
   minYears: 0,
@@ -93,6 +103,10 @@ function BusinessCard({
   const badges = getTrustBadges(business);
   const isGrid = view === "grid";
 
+  // Find matching interest tags between user and this business
+  const userTags = new Set(userBusiness?.partnership_interest_tags ?? []);
+  const matchingTags = (business.partnership_interest_tags ?? []).filter((t) => userTags.has(t));
+
   return (
     <motion.div
       layout
@@ -110,6 +124,11 @@ function BusinessCard({
             <p className="text-xs text-slate-500">{business.business_type}</p>
           </div>
           <div className="flex items-center gap-1">
+            {business.created_at && (
+              <span className="text-[10px] text-slate-400">
+                {new Date(business.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}
+              </span>
+            )}
             <button
               onClick={onToggleSelect}
               className={`rounded-lg p-1.5 transition-colors ${
@@ -128,6 +147,28 @@ function BusinessCard({
           </p>
         )}
 
+        {/* Looking For / Can Offer sections */}
+        {isGrid && (business.looking_for ?? []).length > 0 && (
+          <div className="mt-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Looking for</p>
+            <div className="mt-0.5 flex flex-wrap gap-1">
+              {(business.looking_for ?? []).slice(0, 2).map((item) => (
+                <span key={item} className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] text-amber-700">{item}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        {isGrid && (business.can_offer ?? []).length > 0 && (
+          <div className="mt-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-600">Can offer</p>
+            <div className="mt-0.5 flex flex-wrap gap-1">
+              {(business.can_offer ?? []).slice(0, 2).map((item) => (
+                <span key={item} className="rounded-full bg-teal-50 px-2 py-0.5 text-[10px] text-teal-700">{item}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {business.distanceMiles != null && (
             <span className="inline-flex items-center gap-1 text-xs text-slate-500">
@@ -144,7 +185,26 @@ function BusinessCard({
           ))}
         </div>
 
-        {business.partnership_types && business.partnership_types.length > 0 && (
+        {/* Partnership interest tags with matching highlighted */}
+        {(business.partnership_interest_tags ?? []).length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {(business.partnership_interest_tags ?? []).slice(0, 4).map((tag) => (
+              <span
+                key={tag}
+                className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  matchingTags.includes(tag)
+                    ? "bg-violet-100 text-violet-800 ring-1 ring-violet-300"
+                    : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                {matchingTags.includes(tag) && <Tag className="mr-0.5 inline h-2.5 w-2.5" />}
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {business.partnership_types && business.partnership_types.length > 0 && (business.partnership_interest_tags ?? []).length === 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {business.partnership_types.slice(0, 3).map((type) => (
               <span key={type} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
@@ -153,15 +213,19 @@ function BusinessCard({
             ))}
           </div>
         )}
+
+        {/* Request Connection button for grid view */}
+        {isGrid && (
+          <button className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700">
+            <Send className="h-3 w-3" /> Request Connection
+          </button>
+        )}
       </div>
 
       {!isGrid && (
-        <Link
-          href="/swipe"
-          className="flex-shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700"
-        >
-          View
-        </Link>
+        <button className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700">
+          <Send className="h-3 w-3" /> Connect
+        </button>
       )}
     </motion.div>
   );
@@ -213,13 +277,21 @@ export default function DiscoverPage() {
         (b) =>
           b.name.toLowerCase().includes(q) ||
           b.business_type.toLowerCase().includes(q) ||
-          (b.description ?? "").toLowerCase().includes(q)
+          (b.description ?? "").toLowerCase().includes(q) ||
+          (b.looking_for ?? []).some((lf) => lf.toLowerCase().includes(q)) ||
+          (b.can_offer ?? []).some((co) => co.toLowerCase().includes(q))
       );
     }
 
     if (filters.partnershipTypes.length > 0) {
       result = result.filter((b) =>
         (b.partnership_types ?? []).some((t) => filters.partnershipTypes.includes(t))
+      );
+    }
+
+    if (filters.interestTags.length > 0) {
+      result = result.filter((b) =>
+        (b.partnership_interest_tags ?? []).some((t) => filters.interestTags.includes(t))
       );
     }
 
@@ -244,6 +316,10 @@ export default function DiscoverPage() {
           return (a.distanceMiles ?? 999) - (b.distanceMiles ?? 999);
         case "newest":
           return new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime();
+        case "most_active":
+          return new Date(b.last_active_at ?? 0).getTime() - new Date(a.last_active_at ?? 0).getTime();
+        case "recently_updated":
+          return new Date(b.last_active_at ?? b.created_at ?? 0).getTime() - new Date(a.last_active_at ?? a.created_at ?? 0).getTime();
         case "verified":
           return (b.verified ? 1 : 0) - (a.verified ? 1 : 0);
         default:
@@ -291,6 +367,25 @@ export default function DiscoverPage() {
     }));
   }
 
+  function toggleInterestTag(tag: string) {
+    setFilters((prev) => ({
+      ...prev,
+      interestTags: prev.interestTags.includes(tag)
+        ? prev.interestTags.filter((t) => t !== tag)
+        : [...prev.interestTags, tag],
+    }));
+  }
+
+  // Recently joined businesses (last 7 days)
+  const recentlyJoined = useMemo(() => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return businesses
+      .filter((b) => userBusiness?.id !== b.id && b.created_at && new Date(b.created_at) > sevenDaysAgo)
+      .sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime())
+      .slice(0, 5);
+  }, [businesses, userBusiness]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -302,8 +397,8 @@ export default function DiscoverPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/swipe" className="btn-muted text-xs">
-            Swipe View
+          <Link href="/partnership-ideas" className="btn-muted text-xs">
+            <Sparkles className="mr-1 h-3 w-3" /> Partnership Ideas
           </Link>
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -331,11 +426,29 @@ export default function DiscoverPage() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           className="input pl-10"
-          placeholder="Search businesses by name, type, or description..."
+          placeholder="Search by name, type, what they offer, or what they're looking for..."
           value={filters.searchQuery}
           onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
         />
       </div>
+
+      {/* Recently Joined */}
+      {recentlyJoined.length > 0 && !filters.searchQuery && filters.interestTags.length === 0 && filters.partnershipTypes.length === 0 && (
+        <div className="rounded-2xl bg-gradient-to-r from-sky-50 to-violet-50 p-4 ring-1 ring-sky-100">
+          <div className="mb-3 flex items-center gap-2">
+            <Clock className="h-4 w-4 text-sky-600" />
+            <h3 className="text-sm font-semibold text-slate-900">Recently Joined</h3>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {recentlyJoined.map((b) => (
+              <div key={b.id} className="flex-shrink-0 rounded-xl bg-white px-3 py-2 shadow-sm ring-1 ring-slate-100">
+                <p className="text-sm font-medium text-slate-900">{b.name}</p>
+                <p className="text-[10px] text-slate-500">{b.business_type}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Selection actions bar */}
       {selectedIds.size > 0 && (
@@ -374,6 +487,24 @@ export default function DiscoverPage() {
                       <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Partnership Interest Tags */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-slate-700">Partnership Interests</p>
+                  <div className="space-y-1.5">
+                    {INTEREST_TAG_OPTIONS.map((tag) => (
+                      <label key={tag} className="flex items-center gap-2 text-xs text-slate-600">
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-300"
+                          checked={filters.interestTags.includes(tag)}
+                          onChange={() => toggleInterestTag(tag)}
+                        />
+                        {tag}
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Partnership Types */}

@@ -12,11 +12,16 @@ import {
   getTemplatesForType,
   calculatePartnershipROI,
   collaborationIntentScore,
+  calculateProfileCompletion,
+  getPartnershipIdeasByCategory,
   TIER_LIMITS,
   PARTNERSHIP_TEMPLATES,
   ICEBREAKER_PROMPTS,
+  PARTNERSHIP_IDEAS,
+  PROPOSAL_TEMPLATES,
 } from "@/lib/matching";
 import type { BusinessRecord, SwipeFilters } from "@/lib/types";
+import { PARTNERSHIP_INTEREST_TAGS } from "@/lib/types";
 
 const origin: BusinessRecord = {
   id: "a",
@@ -444,5 +449,118 @@ describe("contextual icebreaker", () => {
   it("returns null for non-complementary types", () => {
     const result = getContextualIcebreaker("plumber", "dentist", "Smiles Dental");
     expect(result).toBeNull();
+  });
+});
+
+describe("profile completion", () => {
+  it("returns 0% for empty business", () => {
+    const empty: BusinessRecord = {
+      id: "x",
+      owner_id: "o",
+      name: "",
+      description: null,
+      business_type: "",
+      address: "",
+      lat: null,
+      lng: null,
+      photos: [],
+      products: [],
+      partnership_types: [],
+    };
+    expect(calculateProfileCompletion(empty)).toBe(0);
+  });
+
+  it("returns higher completion for filled profiles", () => {
+    const partial: BusinessRecord = {
+      ...origin,
+      description: "A nice cafe",
+      website: "https://example.com",
+      photos: ["photo1.jpg"],
+      years_in_operation: 5,
+      looking_for: ["Cross-promotion partners"],
+      can_offer: ["Store shelf space"],
+      partnership_interest_tags: ["Events"],
+    };
+    const score = calculateProfileCompletion(partial);
+    expect(score).toBeGreaterThan(40);
+  });
+
+  it("returns 100% for fully filled profile", () => {
+    const full: BusinessRecord = {
+      ...origin,
+      description: "Great cafe",
+      products: ["Coffee", "Pastries"],
+      partnership_types: ["cross-promotion"],
+      collaboration_intents: ["sell"],
+      photos: ["photo.jpg"],
+      website: "https://example.com",
+      social_links: ["https://instagram.com/cafe"],
+      follower_count: 5000,
+      monthly_foot_traffic: 10000,
+      years_in_operation: 5,
+      operating_hours: "9-5",
+      looking_for: ["Partners"],
+      can_offer: ["Space"],
+      partnership_interest_tags: ["Events"],
+      business_story: "Founded in 2020",
+    };
+    expect(calculateProfileCompletion(full)).toBe(100);
+  });
+});
+
+describe("partnership ideas", () => {
+  it("has ideas for all categories", () => {
+    const categories = ["Food & Beverage", "Retail", "Services", "Health & Wellness", "Arts & Entertainment", "Professional Services"] as const;
+    for (const cat of categories) {
+      const ideas = getPartnershipIdeasByCategory(cat);
+      expect(ideas.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("returns all ideas when no category specified", () => {
+    const all = getPartnershipIdeasByCategory();
+    expect(all.length).toBe(PARTNERSHIP_IDEAS.length);
+    expect(all.length).toBeGreaterThan(10);
+  });
+
+  it("all ideas have required fields", () => {
+    for (const idea of PARTNERSHIP_IDEAS) {
+      expect(idea.id).toBeTruthy();
+      expect(idea.businessA).toBeTruthy();
+      expect(idea.businessB).toBeTruthy();
+      expect(idea.idea).toBeTruthy();
+      expect(idea.description.length).toBeGreaterThan(10);
+    }
+  });
+});
+
+describe("partnership interest tags", () => {
+  it("has all expected tags", () => {
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Events");
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Cross-Promotion");
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Revenue Share");
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Bulk Purchasing");
+    expect(PARTNERSHIP_INTEREST_TAGS.length).toBe(9);
+  });
+});
+
+describe("proposal templates", () => {
+  it("has templates for key partnership types", () => {
+    expect(PROPOSAL_TEMPLATES.length).toBeGreaterThanOrEqual(5);
+    const types = PROPOSAL_TEMPLATES.map((t) => t.partnershipType);
+    expect(types).toContain("event-collab");
+    expect(types).toContain("cross-promotion");
+    expect(types).toContain("product-bundle");
+    expect(types).toContain("wholesale");
+  });
+
+  it("all templates have required fields", () => {
+    for (const template of PROPOSAL_TEMPLATES) {
+      expect(template.id).toBeTruthy();
+      expect(template.title).toBeTruthy();
+      expect(template.description.length).toBeGreaterThan(10);
+      expect(template.terms.length).toBeGreaterThanOrEqual(1);
+      expect(template.nextSteps.length).toBeGreaterThanOrEqual(1);
+    }
   });
 });

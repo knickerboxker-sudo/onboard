@@ -331,7 +331,7 @@ export default function PartnershipsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Partnerships</h1>
           <p className="mt-1 text-sm text-slate-500">Track, manage, and grow your business partnerships.</p>
         </div>
-        <Link href="/swipe" className="btn-primary text-xs">
+        <Link href="/discover" className="btn-primary text-xs">
           <Plus className="mr-1 h-3.5 w-3.5" /> Find New Partners
         </Link>
       </div>
@@ -403,9 +403,9 @@ export default function PartnershipsPage() {
                 <div className="rounded-2xl bg-white p-12 text-center shadow-card ring-1 ring-slate-100">
                   <Users className="mx-auto h-12 w-12 text-slate-300" />
                   <p className="mt-4 text-sm font-medium text-slate-600">No partnerships yet</p>
-                  <p className="mt-1 text-xs text-slate-400">Start swiping to find your first partner!</p>
-                  <Link href="/swipe" className="btn-primary mt-4 text-xs">
-                    Start Swiping
+                  <p className="mt-1 text-xs text-slate-400">Discover businesses in your area to find your first partner!</p>
+                  <Link href="/discover" className="btn-primary mt-4 text-xs">
+                    Discover Partners
                   </Link>
                 </div>
               ) : (
