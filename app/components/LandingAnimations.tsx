@@ -4,6 +4,7 @@ import { useEffect, useRef, ReactNode } from "react";
 
 export function LandingAnimations({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -14,28 +15,24 @@ export function LandingAnimations({ children }: { children: ReactNode }) {
       const elements = container.querySelectorAll("[data-reveal]");
       if (elements.length === 0) return;
 
-      const observer = new IntersectionObserver(
+      observerRef.current = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add("is-visible");
-              observer.unobserve(entry.target);
+              observerRef.current?.unobserve(entry.target);
             }
           });
         },
         { threshold: 0.05, rootMargin: "0px 0px 50px 0px" }
       );
 
-      elements.forEach((el) => observer.observe(el));
-
-      // Store observer for cleanup
-      (container as HTMLDivElement & { _observer?: IntersectionObserver })._observer = observer;
+      elements.forEach((el) => observerRef.current?.observe(el));
     }, 100);
 
     return () => {
       clearTimeout(timeoutId);
-      const observer = (container as HTMLDivElement & { _observer?: IntersectionObserver })._observer;
-      if (observer) observer.disconnect();
+      observerRef.current?.disconnect();
     };
   }, []);
 

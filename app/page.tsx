@@ -398,7 +398,7 @@ export default function Home() {
         </div>
         <div className="overflow-hidden">
           <div className="marquee-track">
-            {/* Two identical sets for seamless loop */}
+            {/* Duplicated for seamless infinite scroll loop */}
             {[...partnershipExamples, ...partnershipExamples].map((ex, i) => (
               <div
                 key={`${ex.businesses}-${i}`}
