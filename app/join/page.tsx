@@ -97,21 +97,21 @@ export default function JoinPage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
           Join the Sortir Waitlist
         </h1>
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-3 text-neutral-500">
           Sign up to be part of your city&apos;s launch. No account needed yet.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm"
+        className="space-y-5 rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft sm:p-8"
       >
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-xl border border-red-100 bg-red-50 p-3.5 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -191,7 +191,7 @@ export default function JoinPage() {
             ))}
           </select>
           {formData.city === "Ann Arbor Area" && (
-            <p className="mt-1 text-xs text-neutral-400">
+            <p className="mt-1.5 text-xs text-neutral-400">
               Ann Arbor Area includes Ypsilanti, Dexter, Chelsea, Saline, Milan, Whitmore Lake, and surrounding communities
             </p>
           )}
@@ -205,10 +205,10 @@ export default function JoinPage() {
             {partnershipOptions.map((option) => (
               <label
                 key={option}
-                className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2.5 text-sm transition-all ${
+                className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition-all duration-200 ${
                   formData.partnership_interests.includes(option)
-                    ? "border-lavender-500 bg-lavender-50 text-lavender-700"
-                    : "border-neutral-200 text-neutral-700 hover:border-neutral-300"
+                    ? "border-lavender-400 bg-lavender-50 text-lavender-700 shadow-glow-sm"
+                    : "border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
                 }`}
               >
                 <input
@@ -218,7 +218,7 @@ export default function JoinPage() {
                   className="sr-only"
                 />
                 <div
-                  className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
+                  className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-all duration-200 ${
                     formData.partnership_interests.includes(option)
                       ? "border-lavender-500 bg-lavender-500 text-white"
                       : "border-neutral-300"
@@ -243,7 +243,7 @@ export default function JoinPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="btn-primary w-full py-3"
+          className="btn-primary w-full py-3.5 text-base shadow-lg hover:shadow-xl"
         >
           {submitting ? (
             "Joining..."

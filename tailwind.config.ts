@@ -79,12 +79,18 @@ const config: Config = {
         'soft': '0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.06)',
         'card': '0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.06)',
         'card-hover': '0 4px 10px rgb(0 0 0 / 0.08), 0 12px 24px rgb(0 0 0 / 0.08)',
+        'elevated': '0 0 0 1px rgb(0 0 0 / 0.03), 0 2px 4px rgb(0 0 0 / 0.04), 0 12px 24px rgb(0 0 0 / 0.06)',
+        'glow-sm': '0 0 12px rgb(139 92 246 / 0.15)',
+        'glow': '0 0 20px rgb(139 92 246 / 0.2)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.4s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'skeleton-pulse': 'skeleton-pulse 1.8s ease-in-out infinite',
+        'shimmer': 'shimmer 2.5s linear infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'gradient-x': 'gradient-x 8s ease infinite',
       },
       keyframes: {
         fadeIn: {
@@ -99,6 +105,25 @@ const config: Config = {
           '0%, 100%': { opacity: '0.4' },
           '50%': { opacity: '0.8' },
         },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        'gradient-x': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'dot-pattern': 'radial-gradient(circle, #e4e4e7 1px, transparent 1px)',
+      },
+      backgroundSize: {
+        'dot-sm': '20px 20px',
       },
     },
   },
@@ -109,6 +134,21 @@ const config: Config = {
           'background-color': '#FFFFFF',
           'border': '1px solid #f4f4f5',
           'box-shadow': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        },
+        '.glass-blur': {
+          'background': 'rgba(255, 255, 255, 0.8)',
+          'backdrop-filter': 'blur(12px)',
+          '-webkit-backdrop-filter': 'blur(12px)',
+          'border': '1px solid rgba(228, 228, 231, 0.5)',
+        },
+        '.gradient-border': {
+          'position': 'relative',
+          'background': '#ffffff',
+          'background-clip': 'padding-box',
+          'border': '1px solid transparent',
+        },
+        '.text-balance': {
+          'text-wrap': 'balance',
         },
       });
     }),
