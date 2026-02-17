@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getStripe } from "@/lib/stripe";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import Stripe from "stripe";
+
+const ALLOWED_TIERS = new Set(["starter", "professional", "business"]);
 
 export const dynamic = "force-dynamic";
 
@@ -16,18 +18,24 @@ export async function POST(request: Request) {
   }
 
   let event: Stripe.Event;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    return NextResponse.json({ error: "Webhook misconfigured" }, { status: 500 });
+  }
+
   try {
     event = getStripe().webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      webhookSecret
     );
   } catch (error) {
     console.error("Webhook signature verification failed:", error);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     switch (event.type) {
@@ -35,13 +43,15 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const businessId = session.metadata?.business_id;
         const tier = session.metadata?.tier;
+        const subscriptionId = typeof session.subscription === "string" ? session.subscription : null;
+        const isPaid = session.payment_status === "paid";
         
-        if (businessId && tier) {
+        if (businessId && tier && subscriptionId && ALLOWED_TIERS.has(tier) && isPaid) {
           await supabase
             .from("businesses")
             .update({
               subscription_tier: tier,
-              stripe_subscription_id: session.subscription as string,
+              stripe_subscription_id: subscriptionId,
             })
             .eq("id", businessId);
         }

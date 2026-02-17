@@ -51,6 +51,9 @@ export async function middleware(request: NextRequest) {
     "/profile-views",
     "/refer",
     "/analytics",
+    "/agreement",
+    "/partnership-builder",
+    "/partnership-agreement",
   ];
 
   const isProtectedRoute = protectedRoutes.some((route) =>
