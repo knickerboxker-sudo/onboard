@@ -7,7 +7,7 @@ export async function sendVerificationEmail(email: string, token: string) {
     from: 'Sortir <onboarding@sortir.app>',
     to: email,
     subject: 'Verify your Sortir account',
-    html: `<p>Click <a href="${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${encodeURIComponent(token)}">here</a> to verify your account.</p>`,
+    html: `<p>Click <a href="${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm?token_hash=${encodeURIComponent(token)}&type=signup&next=/onboarding">here</a> to verify your account.</p>`,
   });
 }
 
@@ -16,7 +16,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     from: 'Sortir <security@sortir.app>',
     to: email,
     subject: 'Reset your Sortir password',
-    html: `<p>Click <a href="${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${encodeURIComponent(token)}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+    html: `<p>Click <a href="${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm?token_hash=${encodeURIComponent(token)}&type=recovery">here</a> to reset your password. This link expires in 1 hour.</p>`,
   });
 }
 

@@ -1,11 +1,12 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createClient(), []);
   const [isSignup, setIsSignup] = useState(true);
   const [email, setEmail] = useState("");
@@ -14,6 +15,10 @@ export default function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const safeRedirect = searchParams.get("redirect")?.startsWith("/")
+    ? searchParams.get("redirect")
+    : "/discover";
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -21,7 +26,13 @@ export default function AuthPage() {
     setNotice(null);
 
     const response = isSignup
-      ? await supabase.auth.signUp({ email, password })
+      ? await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/confirm?next=/onboarding`,
+          },
+        })
       : await supabase.auth.signInWithPassword({ email, password });
 
     setLoading(false);
@@ -32,12 +43,35 @@ export default function AuthPage() {
     }
 
     if (isSignup) {
-      setNotice("Account created. Please check your email confirmation settings and continue onboarding.");
-      router.push("/onboarding");
+      setNotice("Account created. Check your email to confirm your account, then continue onboarding.");
       return;
     }
 
-    router.push("/discover");
+    router.push(safeRedirect ?? "/discover");
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setErrorMessage("Enter your email first, then click reset password.");
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage(null);
+    setNotice(null);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setErrorMessage(error.message);
+      return;
+    }
+
+    setNotice("Password reset email sent. Check your inbox for the secure reset link.");
   };
 
   return (
@@ -46,7 +80,7 @@ export default function AuthPage() {
         <h1 className="text-2xl font-semibold text-neutral-900">{isSignup ? "Create your business account" : "Sign in"}</h1>
         <p className="mt-2 text-sm text-neutral-600">
           {isSignup
-            ? "Join Sortir to connect, collaborate, and promote alongside other local businesses. After signup you\u2019ll set up your business profile."
+            ? "Join Sortir to connect, collaborate, and promote alongside other local businesses. After signup you'll set up your business profile."
             : "Welcome back. Sign in to manage your partnerships and discover new collaborators."}
         </p>
 
@@ -72,6 +106,17 @@ export default function AuthPage() {
             {loading ? "Working..." : isSignup ? "Create account" : "Sign in"}
           </button>
         </form>
+
+        {!isSignup && (
+          <button
+            className="mt-4 w-full text-sm text-neutral-600 underline-offset-2 hover:underline"
+            disabled={loading}
+            onClick={handlePasswordReset}
+            type="button"
+          >
+            Forgot password?
+          </button>
+        )}
 
         <button className="mt-4 w-full text-sm text-neutral-600 underline-offset-2 hover:underline" onClick={() => setIsSignup((value) => !value)} type="button">
           {isSignup ? "Already have an account? Sign in" : "Need an account? Create one"}

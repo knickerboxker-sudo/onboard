@@ -22,7 +22,6 @@ const features = [
     description:
       "Create a rich profile with your products, services, social links, and partnership preferences to attract the right collaborators.",
     gradient: "from-lavender-500/10 to-lavender-600/5",
-    iconBg: "bg-lavender-100",
     iconColor: "text-lavender-600",
     borderAccent: "group-hover:border-lavender-200",
   },
@@ -32,7 +31,6 @@ const features = [
     description:
       "Find complementary businesses in your city using location-based search and browse through potential partners.",
     gradient: "from-spearmint-500/10 to-spearmint-600/5",
-    iconBg: "bg-spearmint-100",
     iconColor: "text-spearmint-700",
     borderAccent: "group-hover:border-spearmint-200",
   },
@@ -42,7 +40,6 @@ const features = [
     description:
       "Send connection requests to businesses you'd like to partner with and start collaborating right away.",
     gradient: "from-creamsicle-500/10 to-creamsicle-600/5",
-    iconBg: "bg-creamsicle-100",
     iconColor: "text-creamsicle-700",
     borderAccent: "group-hover:border-creamsicle-200",
   },
@@ -52,7 +49,6 @@ const features = [
     description:
       "Chat directly with matched partners to discuss cross-promotion, product bundles, and collaboration opportunities.",
     gradient: "from-brand-500/10 to-brand-600/5",
-    iconBg: "bg-brand-100",
     iconColor: "text-brand-600",
     borderAccent: "group-hover:border-brand-200",
   },
@@ -62,7 +58,6 @@ const features = [
     description:
       "Use our equity assessment tool to structure fair deals — from revenue splits to commission models and performance benchmarks.",
     gradient: "from-lavender-500/10 to-spearmint-500/5",
-    iconBg: "bg-lavender-100",
     iconColor: "text-lavender-600",
     borderAccent: "group-hover:border-lavender-200",
   },
@@ -72,7 +67,6 @@ const features = [
     description:
       "Sell each other's products in-store, promote on each other's social media, and create collaboration products and services.",
     gradient: "from-spearmint-500/10 to-brand-500/5",
-    iconBg: "bg-spearmint-100",
     iconColor: "text-spearmint-700",
     borderAccent: "group-hover:border-spearmint-200",
   },
@@ -81,10 +75,9 @@ const features = [
     title: "Verified businesses",
     description:
       "Earn trust badges through verification — business license, storefront photos, and successful partnership track record.",
-    gradient: "from-spearmint-500/10 to-spearmint-600/5",
-    iconBg: "bg-spearmint-100",
-    iconColor: "text-spearmint-700",
-    borderAccent: "group-hover:border-spearmint-200",
+    gradient: "from-creamsicle-500/10 to-creamsicle-600/5",
+    iconColor: "text-creamsicle-700",
+    borderAccent: "group-hover:border-creamsicle-200",
   },
   {
     icon: BarChart3,
@@ -92,7 +85,6 @@ const features = [
     description:
       "Measure the real value of your partnerships with built-in ROI tracking — revenue generated, customers acquired, and performance benchmarks.",
     gradient: "from-brand-500/10 to-lavender-500/5",
-    iconBg: "bg-brand-100",
     iconColor: "text-brand-600",
     borderAccent: "group-hover:border-brand-200",
   },
@@ -102,7 +94,6 @@ const features = [
     description:
       "Get started quickly with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
     gradient: "from-creamsicle-500/10 to-lavender-500/5",
-    iconBg: "bg-creamsicle-100",
     iconColor: "text-creamsicle-700",
     borderAccent: "group-hover:border-creamsicle-200",
   },
@@ -235,8 +226,8 @@ export default function Home() {
               {/* Hover gradient overlay */}
               <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
               <div className="relative">
-                <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${feature.iconBg} transition-transform duration-300 group-hover:scale-110`}>
-                  <feature.icon className={`h-5 w-5 ${feature.iconColor}`} />
+                <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
+                  <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
                 </div>
                 <h3 className="text-[15px] font-semibold text-neutral-900">{feature.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-neutral-500">
@@ -271,8 +262,8 @@ export default function Home() {
               {i < steps.length - 1 && (
                 <div className="pointer-events-none absolute left-[calc(50%+2.5rem)] top-8 hidden h-px w-[calc(100%-5rem)] sm:block" style={{ background: "linear-gradient(90deg, #d4d4d8, transparent)" }} />
               )}
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-spearmint-100 bg-gradient-to-br from-spearmint-50 to-white shadow-sm transition-transform duration-300 hover:scale-110">
-                <step.icon className="h-7 w-7 text-spearmint-600" />
+              <div className="mx-auto mb-6 flex items-center justify-center transition-transform duration-300 hover:scale-110">
+                <step.icon className="h-9 w-9 text-spearmint-600" />
               </div>
               <span className="text-xs font-bold uppercase tracking-widest text-lavender-500">
                 Step {step.number}
