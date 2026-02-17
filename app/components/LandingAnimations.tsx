@@ -1,39 +1,32 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Children, ReactNode } from "react";
-
-const container = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.08,
-    },
-  },
-};
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 24, filter: "blur(4px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
+import { useEffect, ReactNode } from "react";
 
 export function LandingAnimations({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    const elements = document.querySelectorAll("[data-reveal]");
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <motion.div
-      className="space-y-20 sm:space-y-24"
-      variants={container}
-      initial="hidden"
-      animate="show"
-    >
-      {Children.map(children, (child) => (
-        <motion.div variants={fadeInUp}>{child}</motion.div>
-      ))}
-    </motion.div>
+    <div className="space-y-20 sm:space-y-24">
+      {children}
+    </div>
   );
 }

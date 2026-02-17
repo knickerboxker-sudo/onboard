@@ -1,19 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════════════
-   SORTIR DESIGN SYSTEM
-   A warm, community-focused brand identity.
-   Signature: Lavender-to-Spearmint gradient accents,
-   warm stone neutrals, soft rounded surfaces.
-   ═══════════════════════════════════════════════════════════ */
+:root {
+  --color-ink: #0d0d0d;
+  --color-paper: #f5f2eb;
+  --color-paper-dark: #ede9df;
+  --color-accent: #c8622a;
+  --color-accent-2: #1a3a2a;
+  --color-rule: rgba(13,13,13,0.12);
+  --color-muted: #6b6560;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
 
 @layer base {
   * {
-    @apply border-neutral-200;
+    border-color: var(--color-rule);
   }
 
   html {
@@ -26,141 +32,174 @@
     }
   }
 
-body {
-    @apply bg-neutral-50 text-neutral-900 antialiased;
-    background-image:
-      radial-gradient(1200px circle at 0% 0%, rgba(139, 92, 246, 0.06), transparent 50%),
-      radial-gradient(900px circle at 100% 100%, rgba(52, 211, 153, 0.05), transparent 45%);
-    font-feature-settings: "ss01", "ss02", "cv01";
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-semibold tracking-tight;
+    font-family: var(--font-display);
+    font-weight: 400;
   }
 
   ::selection {
-    @apply bg-lavender-100 text-lavender-900;
+    background-color: var(--color-accent);
+    color: var(--color-paper);
   }
 
-  /* Sortir signature focus ring — lavender glow */
   :focus-visible {
-    @apply outline-none ring-2 ring-lavender-400/30 ring-offset-2 ring-offset-neutral-50;
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: rgba(200, 98, 42, 0.3);
+    ring-offset-color: var(--color-paper);
   }
 }
 
 @layer components {
   /* ─── Buttons ──────────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
-    @apply focus-visible:ring-2 focus-visible:ring-lavender-400/30;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    border-radius: 2px;
   }
 
   .btn-primary {
-    @apply btn text-white shadow-sm;
-    @apply hover:shadow-lg active:scale-[0.97];
-    background: linear-gradient(135deg, #292524 0%, #1C1917 100%);
+    @apply btn shadow-sm;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 16px;
   }
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #44403C 0%, #292524 100%);
+    background: var(--color-accent);
   }
 
   .btn-secondary {
-    @apply btn bg-white text-neutral-700 border border-neutral-200 shadow-sm;
-    @apply hover:bg-neutral-50 hover:border-neutral-300 hover:shadow-md;
+    @apply btn;
+    background: transparent;
+    color: var(--color-muted);
+    font-family: var(--font-body);
+  }
+
+  .btn-secondary:hover {
+    color: var(--color-ink);
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900;
+    @apply btn bg-transparent;
+    color: var(--color-muted);
+  }
+
+  .btn-ghost:hover {
+    color: var(--color-ink);
   }
 
   .btn-muted {
-    @apply btn bg-white text-neutral-600 border border-neutral-200 shadow-sm font-semibold;
-    @apply hover:bg-neutral-50 hover:border-neutral-300;
+    @apply btn;
+    background: var(--color-paper);
+    color: var(--color-muted);
+    border: 1px solid var(--color-rule);
   }
 
-  /* Sortir's signature accent button — gradient */
   .btn-accent {
-    @apply btn text-white shadow-sm;
-    @apply hover:shadow-glow hover:brightness-110 active:scale-[0.97];
-    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #34d399 100%);
+    @apply btn shadow-sm;
+    background: var(--color-accent);
+    color: var(--color-paper);
+  }
+
+  .btn-accent:hover {
+    background: var(--color-accent-2);
   }
 
   /* ─── Form Elements ────────────────────────────────────── */
   .input {
-    @apply w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm shadow-sm;
-    @apply placeholder:text-neutral-400;
-    @apply focus:border-lavender-400 focus:ring-[3px] focus:ring-lavender-500/10 focus:outline-none;
-    @apply transition-all duration-200;
+    @apply w-full px-4 py-2.5 text-sm;
+    border: 1px solid var(--color-rule);
+    background: var(--color-paper);
+    border-radius: 2px;
+    font-family: var(--font-body);
+  }
+
+  .input::placeholder {
+    color: var(--color-muted);
+  }
+
+  .input:focus {
+    border-color: var(--color-ink);
+    outline: none;
   }
 
   .label {
-    @apply mb-1.5 block text-sm font-medium text-neutral-700;
+    @apply mb-1.5 block text-sm font-medium;
+    color: var(--color-ink);
   }
 
   /* ─── Cards & Surfaces ─────────────────────────────────── */
   .card {
-    @apply rounded-2xl bg-white border border-neutral-200/60 shadow-soft;
-    @apply hover:shadow-elevated transition-all duration-300;
+    border-top: 1px solid var(--color-rule);
+    padding: 24px 0;
+    @apply transition-all duration-300;
   }
 
   .glass {
-    @apply rounded-2xl bg-white border border-neutral-200/60 shadow-soft;
+    background: rgba(245, 242, 235, 0.92);
+    backdrop-filter: blur(8px);
   }
 
-  /* Sortir's signature card — subtle gradient left border on hover */
   .sortir-card {
-    @apply relative overflow-hidden rounded-2xl bg-white border border-neutral-200/60 shadow-soft;
-    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated;
-  }
-
-  .sortir-card::before {
-    content: "";
-    @apply absolute top-0 left-0 bottom-0 w-[3px] opacity-0 transition-opacity duration-300;
-    background: linear-gradient(180deg, #8b5cf6, #34d399);
-  }
-
-  .sortir-card:hover::before {
-    @apply opacity-100;
-  }
-
-  /* Stat card with top gradient line on hover */
-  .stat-card {
-    @apply relative overflow-hidden rounded-2xl bg-white border border-neutral-200/60 p-6 shadow-soft;
-    @apply transition-all duration-300 hover:shadow-elevated hover:-translate-y-0.5;
-  }
-
-  .stat-card::after {
-    content: "";
-    @apply absolute top-0 left-0 right-0 h-[2px] opacity-0 transition-opacity duration-300;
-    background: linear-gradient(90deg, #8b5cf6, #34d399);
-  }
-
-  .stat-card:hover::after {
-    @apply opacity-100;
+    border-top: 1px solid var(--color-rule);
+    padding: 24px 0;
+    background: transparent;
   }
 
   /* ─── Badges ───────────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium;
+    border-radius: 2px;
   }
 
   .badge-primary {
-    @apply badge bg-lavender-50 text-lavender-700 border border-lavender-100;
+    @apply badge;
+    background: var(--color-paper-dark);
+    color: var(--color-ink);
+    border: 1px solid var(--color-rule);
   }
 
   .badge-success {
-    @apply badge bg-spearmint-50 text-spearmint-700 border border-spearmint-100;
+    @apply badge;
+    background: var(--color-accent-2);
+    color: var(--color-paper);
   }
 
   .badge-neutral {
-    @apply badge bg-neutral-100 text-neutral-600 border border-neutral-200;
+    @apply badge;
+    background: var(--color-paper-dark);
+    color: var(--color-muted);
+    border: 1px solid var(--color-rule);
   }
 
   /* ─── Section Labels ───────────────────────────────────── */
   .section-label {
-    @apply inline-flex items-center gap-2 rounded-full border border-lavender-100 bg-lavender-50/80 px-4 py-1.5;
-    @apply text-xs font-semibold uppercase tracking-widest text-lavender-700;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
   }
 
   .hero-badge {
@@ -169,28 +208,74 @@ body {
 
   /* ─── Sortir Brand Elements ────────────────────────────── */
   .sortir-gradient-text {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 40%, #34d399 100%);
+    color: var(--color-ink);
+    font-style: italic;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700 bg-clip-text text-transparent;
+    color: var(--color-ink);
   }
 
-  /* Sortir signature section divider */
   .sortir-divider {
     @apply h-px w-full;
-    background: linear-gradient(90deg, transparent 0%, #ddd6fe 30%, #a7f3d0 70%, transparent 100%);
+    background: var(--color-rule);
   }
 
   /* ─── Backward-compatible ──────────────────────────────── */
   .testimonial-card {
-    @apply sortir-card p-6;
+    @apply sortir-card;
+    padding: 24px 0;
   }
 
   .hero-section {
-    @apply bg-white;
+    background: var(--color-paper);
   }
+
+  /* ─── Marquee ──────────────────────────────────────────── */
+  .marquee-track {
+    display: flex;
+    gap: 12px;
+    animation: marquee 28s linear infinite;
+    width: max-content;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* ─── CTA Outline Button ───────────────────────────────── */
+  .btn-cta-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2px solid var(--color-paper);
+    color: var(--color-paper);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 0;
+    padding: 12px 24px;
+    transition: all 0.2s;
+  }
+
+  .btn-cta-outline:hover {
+    background: var(--color-paper);
+    color: var(--color-accent);
+  }
+}
+
+/* ─── Scroll Reveal ──────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ─── Smooth scrollbar (WebKit) ──────────────────────────── */
@@ -204,10 +289,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D6D3D1;
+  background: var(--color-muted);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #A8A29E;
+  background: var(--color-ink);
 }

@@ -1,121 +1,74 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  BarChart3,
-  FileText,
-  Handshake,
-  Lightbulb,
-  MapPin,
-  MessageCircle,
-  ShieldCheck,
-  Store,
-  TrendingUp,
-  Users,
-  Zap,
-} from "lucide-react";
 import { LandingAnimations } from "./components/LandingAnimations";
 
 const features = [
   {
-    icon: Store,
+    number: "01",
     title: "Build your business profile",
     description:
       "Create a rich profile with your products, services, social links, and partnership preferences to attract the right collaborators.",
-    gradient: "from-lavender-500/10 to-lavender-600/5",
-    iconColor: "text-lavender-600",
-    borderAccent: "group-hover:border-lavender-200",
   },
   {
-    icon: MapPin,
+    number: "02",
     title: "Discover local partners",
     description:
       "Find complementary businesses in your city using location-based search and browse through potential partners.",
-    gradient: "from-spearmint-500/10 to-spearmint-600/5",
-    iconColor: "text-spearmint-700",
-    borderAccent: "group-hover:border-spearmint-200",
   },
   {
-    icon: Users,
+    number: "03",
     title: "Connect & collaborate",
     description:
       "Send connection requests to businesses you'd like to partner with and start collaborating right away.",
-    gradient: "from-creamsicle-500/10 to-creamsicle-600/5",
-    iconColor: "text-creamsicle-700",
-    borderAccent: "group-hover:border-creamsicle-200",
   },
   {
-    icon: MessageCircle,
+    number: "04",
     title: "Message your matches",
     description:
       "Chat directly with matched partners to discuss cross-promotion, product bundles, and collaboration opportunities.",
-    gradient: "from-brand-500/10 to-brand-600/5",
-    iconColor: "text-brand-600",
-    borderAccent: "group-hover:border-brand-200",
   },
   {
-    icon: Handshake,
+    number: "05",
     title: "Partnership builder",
     description:
       "Use our equity assessment tool to structure fair deals — from revenue splits to commission models and performance benchmarks.",
-    gradient: "from-lavender-500/10 to-spearmint-500/5",
-    iconColor: "text-lavender-600",
-    borderAccent: "group-hover:border-lavender-200",
   },
   {
-    icon: TrendingUp,
+    number: "06",
     title: "Grow together",
     description:
       "Sell each other's products in-store, promote on each other's social media, and create collaboration products and services.",
-    gradient: "from-spearmint-500/10 to-brand-500/5",
-    iconColor: "text-spearmint-700",
-    borderAccent: "group-hover:border-spearmint-200",
   },
   {
-    icon: ShieldCheck,
+    number: "07",
     title: "Verified businesses",
     description:
       "Earn trust badges through verification — business license, storefront photos, and successful partnership track record.",
-    gradient: "from-creamsicle-500/10 to-creamsicle-600/5",
-    iconColor: "text-creamsicle-700",
-    borderAccent: "group-hover:border-creamsicle-200",
   },
   {
-    icon: BarChart3,
+    number: "08",
     title: "Track partnership ROI",
     description:
       "Measure the real value of your partnerships with built-in ROI tracking — revenue generated, customers acquired, and performance benchmarks.",
-    gradient: "from-brand-500/10 to-lavender-500/5",
-    iconColor: "text-brand-600",
-    borderAccent: "group-hover:border-brand-200",
   },
   {
-    icon: FileText,
+    number: "09",
     title: "Ready-to-use templates",
     description:
       "Get started quickly with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
-    gradient: "from-creamsicle-500/10 to-lavender-500/5",
-    iconColor: "text-creamsicle-700",
-    borderAccent: "group-hover:border-creamsicle-200",
   },
 ];
 
 const partnershipExamples = [
-  { businesses: "Gym + Meal Prep Service", result: "Member nutrition package", accent: "lavender" },
-  { businesses: "Bookstore + Coffee Shop", result: "Reading events with refreshments", accent: "spearmint" },
-  { businesses: "Salon + Boutique", result: "Style makeover packages", accent: "creamsicle" },
-  { businesses: "Real Estate Agent + Mortgage Broker", result: "One-stop home buying experience", accent: "lavender" },
-  { businesses: "Accountant + Attorney", result: "Business startup bundle", accent: "spearmint" },
-  { businesses: "Dog Walker + Pet Groomer", result: "All-in pet care subscription", accent: "creamsicle" },
-  { businesses: "Personal Trainer + Nutritionist", result: "Total transformation package", accent: "lavender" },
-  { businesses: "Wedding Photographer + Florist", result: "Memory + beauty package", accent: "spearmint" },
-  { businesses: "Chiropractor + Massage Therapist", result: "Complete pain relief program", accent: "creamsicle" },
+  { businesses: "Gym + Meal Prep Service", result: "Member nutrition package" },
+  { businesses: "Bookstore + Coffee Shop", result: "Reading events with refreshments" },
+  { businesses: "Salon + Boutique", result: "Style makeover packages" },
+  { businesses: "Real Estate Agent + Mortgage Broker", result: "One-stop home buying experience" },
+  { businesses: "Accountant + Attorney", result: "Business startup bundle" },
+  { businesses: "Dog Walker + Pet Groomer", result: "All-in pet care subscription" },
+  { businesses: "Personal Trainer + Nutritionist", result: "Total transformation package" },
+  { businesses: "Wedding Photographer + Florist", result: "Memory + beauty package" },
+  { businesses: "Chiropractor + Massage Therapist", result: "Complete pain relief program" },
 ];
-
-const accentColors: Record<string, string> = {
-  lavender: "bg-lavender-500",
-  spearmint: "bg-spearmint-500",
-  creamsicle: "bg-creamsicle-500",
-};
 
 const steps = [
   {
@@ -123,138 +76,291 @@ const steps = [
     title: "Create your profile",
     description:
       "Set up your business profile with products, services, and partnership preferences in minutes.",
-    icon: Store,
   },
   {
     number: "02",
     title: "Discover & connect",
     description:
       "Browse nearby complementary businesses and send connection requests to potential partners you'd like to work with.",
-    icon: Zap,
   },
   {
     number: "03",
     title: "Collaborate & grow",
     description:
       "Once connected, chat, build agreements, and start growing together through smart partnerships.",
-    icon: Handshake,
   },
 ];
 
-const credibilitySignals = [
-  "Stop paying for ads — start partnering",
-  "Free advertising through every partnership",
-  "ROI tracking from day one",
+const trustSignals = [
+  { stat: "800+", label: "Local businesses waiting" },
+  { stat: "3 steps", label: "To your first partnership" },
+  { stat: "Free", label: "Always, to get started" },
 ];
 
 export default function Home() {
   return (
     <LandingAnimations>
       {/* Hero Section */}
-      <section className="relative px-6 py-20 sm:px-12 sm:py-32">
-        {/* Dot grid background */}
-        <div className="pointer-events-none absolute inset-0 bg-dot-pattern bg-dot-sm opacity-[0.25]" />
-        {/* Sortir signature gradient orbs */}
-        <div className="pointer-events-none absolute -top-20 right-0 h-[500px] w-[500px] rounded-full opacity-[0.06]" style={{ background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)" }} />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full opacity-[0.04]" style={{ background: "radial-gradient(circle, #34d399 0%, transparent 70%)" }} />
+      <section className="relative" data-reveal>
+        {/* Accent top rule */}
+        <div
+          className="w-full"
+          style={{ height: '2px', backgroundColor: 'var(--color-accent)' }}
+        />
 
-        <div className="relative max-w-3xl">
-          <div className="section-label mb-8">
-            <MapPin className="h-3.5 w-3.5" />
-            Ann Arbor Area Pre-Launch
-          </div>
-          <h1 className="mb-6 text-4xl font-extrabold leading-[1.06] tracking-tight text-neutral-900 sm:text-5xl lg:text-[3.5rem]">
-            Your neighborhood businesses,{" "}
-            <span className="sortir-gradient-text">
-              stronger together.
-            </span>
-          </h1>
-          <p className="mb-12 max-w-2xl text-lg leading-relaxed text-neutral-500">
-            Sortir helps you find your perfect local partner — cross-promote,
-            share customers, and build cooperative networks that help every
-            small business on the block thrive.
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              className="btn-primary px-8 py-4 text-[15px] shadow-lg hover:shadow-xl"
-              href="/join"
+        <div
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16"
+          style={{ paddingTop: '80px', paddingBottom: '120px', paddingLeft: '24px', paddingRight: '24px' }}
+        >
+          {/* Headline — columns 1-8 */}
+          <div className="lg:col-span-8">
+            <h1
+              className="leading-none"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(3rem, 6vw, 5.5rem)',
+                lineHeight: '1.0',
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+              }}
             >
-              Join the Waitlist
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              className="btn-secondary px-8 py-4 text-[15px]"
-              href="/coming-soon"
+              Your neighborhood businesses,{" "}
+              <em>stronger together.</em>
+            </h1>
+            <p
+              className="mt-8 max-w-2xl"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '18px',
+                lineHeight: '1.6',
+                color: 'var(--color-muted)',
+              }}
             >
-              See launch progress
-            </Link>
-          </div>
-          <div className="mt-8 flex flex-wrap gap-2.5">
-            {credibilitySignals.map((signal) => (
-              <span
-                key={signal}
-                className="inline-flex items-center rounded-full border border-neutral-200/80 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-neutral-600 shadow-sm backdrop-blur-sm"
+              Sortir helps you find your perfect local partner — cross-promote,
+              share customers, and build cooperative networks that help every
+              small business on the block thrive.
+            </p>
+            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <Link
+                className="inline-flex items-center gap-2 transition-all"
+                href="/join"
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '16px',
+                  color: 'var(--color-ink)',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '4px',
+                }}
               >
-                {signal}
-              </span>
+                Join the waitlist <span style={{ fontFamily: 'var(--font-mono)' }}>→</span>
+              </Link>
+              <Link
+                className="transition-colors"
+                href="/coming-soon"
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '14px',
+                  color: 'var(--color-muted)',
+                }}
+              >
+                See launch progress
+              </Link>
+            </div>
+          </div>
+
+          {/* Trust signals — columns 9-12 */}
+          <div className="lg:col-span-4 flex flex-col justify-center">
+            {trustSignals.map((signal, i) => (
+              <div
+                key={signal.stat}
+                className="py-6"
+                style={{
+                  borderTop: i === 0 ? '1px solid var(--color-rule)' : 'none',
+                  borderBottom: '1px solid var(--color-rule)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '28px',
+                    color: 'var(--color-ink)',
+                  }}
+                >
+                  {signal.stat}
+                </div>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '11px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase' as const,
+                    color: 'var(--color-muted)',
+                    marginTop: '4px',
+                  }}
+                >
+                  {signal.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Full-width rule below hero */}
+        <hr style={{ border: 'none', height: '1px', backgroundColor: 'var(--color-rule)' }} />
+      </section>
+
+      {/* Feature Cards — editorial grid */}
+      <section data-reveal>
+        <div className="px-6 sm:px-12">
+          <div className="mb-14">
+            <span className="section-label">Features</span>
+            <h2
+              className="mt-5"
+              data-reveal
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                color: 'var(--color-ink)',
+              }}
+            >
+              Everything you need to grow through partnerships
+            </h2>
+            <p
+              className="mt-3 max-w-2xl"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                color: 'var(--color-muted)',
+              }}
+            >
+              From discovering partners to tracking results, Sortir gives you the
+              complete toolkit for building successful business collaborations.
+            </p>
+          </div>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            style={{ gap: '0 48px' }}
+          >
+            {features.map((feature, i) => (
+              <div
+                className="py-6"
+                key={feature.title}
+                data-reveal
+                style={{
+                  borderTop: '1px solid var(--color-rule)',
+                  transitionDelay: `${i * 80}ms`,
+                } as React.CSSProperties}
+              >
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    color: 'var(--color-muted)',
+                  }}
+                >
+                  {feature.number}
+                </span>
+                <h3
+                  className="mt-2"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '20px',
+                    color: 'var(--color-ink)',
+                  }}
+                >
+                  {feature.title}
+                </h3>
+                <p
+                  className="mt-2"
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    color: 'var(--color-muted)',
+                  }}
+                >
+                  {feature.description}
+                </p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Free Advertising Hook Section */}
-      <section className="relative overflow-hidden rounded-2xl border border-spearmint-200/60 bg-gradient-to-br from-spearmint-50 to-white p-8 sm:p-12">
-        <div className="max-w-2xl">
-          <span className="section-label">
-            <TrendingUp className="h-3.5 w-3.5" />
-            The partnership advantage
+      {/* How It Works — dark forest green section */}
+      <section
+        id="how-it-works"
+        className="relative -mx-4 sm:-mx-6"
+        data-reveal
+        style={{
+          backgroundColor: 'var(--color-accent-2)',
+          padding: '100px 64px',
+        }}
+      >
+        <div className="mb-12">
+          <span
+            className="section-label"
+            style={{ color: 'rgba(245,242,235,0.5)' }}
+          >
+            How it works
           </span>
-          <h2 className="mt-5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-            Stop paying for ads.<br />
-            <span className="sortir-gradient-text">Start partnering.</span>
+          <h2
+            className="mt-5"
+            data-reveal
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              color: 'var(--color-paper)',
+            }}
+          >
+            Three steps to your first partnership
           </h2>
-          <p className="mt-4 text-neutral-500 leading-relaxed">
-            When a gym partners with a juice bar through Sortir, the gym promotes the juice bar to 800 Instagram followers — and the juice bar promotes the gym back. That&apos;s thousands of targeted impressions, zero ad spend, and customers who actually trust the recommendation because it came from a business they already love.
-          </p>
-          <p className="mt-3 text-neutral-500 leading-relaxed">
-            Every partnership you build on Sortir is free marketing for both sides. The more you partner, the more your name spreads — without spending a dollar.
-          </p>
         </div>
-      </section>
-
-      {/* Sortir signature divider */}
-      <div className="sortir-divider" />
-
-      {/* Feature Cards */}
-      <section>
-        <div className="mb-14 text-center">
-          <span className="section-label">
-            <Zap className="h-3.5 w-3.5" />
-            Features
-          </span>
-          <h2 className="mt-5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-            Everything you need to grow through partnerships
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-neutral-500">
-            From discovering partners to tracking results, Sortir gives you the
-            complete toolkit for building successful business collaborations.
-          </p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
+          {steps.map((step, i) => (
             <div
-              className={`group sortir-card border ${feature.borderAccent} p-6`}
-              key={feature.title}
+              key={step.number}
+              className="relative py-8 sm:px-8"
+              data-reveal
+              style={{
+                borderRight: i < steps.length - 1 ? '1px solid rgba(245,242,235,0.15)' : 'none',
+                transitionDelay: `${i * 80}ms`,
+              } as React.CSSProperties}
             >
-              {/* Hover gradient overlay */}
-              <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
-              <div className="relative">
-                <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
-                  <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
-                </div>
-                <h3 className="text-[15px] font-semibold text-neutral-900">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                  {feature.description}
+              {/* Watermark number */}
+              <span
+                className="absolute top-4 left-4 sm:left-8 select-none"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '64px',
+                  color: 'rgba(245,242,235,0.15)',
+                  lineHeight: '1',
+                }}
+              >
+                {step.number}
+              </span>
+              <div className="relative" style={{ paddingTop: '48px' }}>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '22px',
+                    fontStyle: 'italic',
+                    color: 'var(--color-paper)',
+                  }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  className="mt-3"
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    color: 'rgba(245,242,235,0.7)',
+                  }}
+                >
+                  {step.description}
                 </p>
               </div>
             </div>
@@ -262,114 +368,110 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sortir divider */}
-      <div className="sortir-divider" />
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-8 shadow-soft sm:p-16">
-        {/* Subtle brand glow */}
-        <div className="pointer-events-none absolute top-0 right-0 h-[300px] w-[300px] rounded-full opacity-[0.04]" style={{ background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)" }} />
-
-        <div className="relative text-center">
-          <span className="section-label">
-            <Zap className="h-3.5 w-3.5" />
-            How it works
-          </span>
-          <h2 className="mt-5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-            Three steps to your first partnership
-          </h2>
-        </div>
-        <div className="relative mt-16 grid gap-8 sm:grid-cols-3">
-          {steps.map((step, i) => (
-            <div key={step.number} className="relative text-center">
-              {i < steps.length - 1 && (
-                <div className="pointer-events-none absolute left-[calc(50%+2.5rem)] top-8 hidden h-px w-[calc(100%-5rem)] sm:block" style={{ background: "linear-gradient(90deg, #d4d4d8, transparent)" }} />
-              )}
-              <div className="mx-auto mb-6 flex items-center justify-center transition-transform duration-300 hover:scale-110">
-                <step.icon className="h-9 w-9 text-spearmint-600" />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-lavender-500">
-                Step {step.number}
-              </span>
-              <h3 className="mt-2 text-lg font-semibold text-neutral-900">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                {step.description}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-14 text-center">
-          <Link className="btn-primary px-8 py-3.5 shadow-lg hover:shadow-xl" href="/join">
-            Join the waitlist
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Sortir divider */}
-      <div className="sortir-divider" />
-
-      {/* Featured Partnership Ideas */}
-      <section>
-        <div className="mb-14 text-center">
-          <span className="section-label">
-            <Lightbulb className="h-3.5 w-3.5" />
-            Partnership ideas
-          </span>
-          <h2 className="mt-5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+      {/* Partnership Examples — scrolling marquee */}
+      <section data-reveal>
+        <div className="px-6 sm:px-12 mb-10">
+          <span className="section-label">Partnership ideas</span>
+          <h2
+            className="mt-5"
+            data-reveal
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              color: 'var(--color-ink)',
+            }}
+          >
             Every business can partner
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-neutral-500">
-            From coffee shops to accountants — there&apos;s a partnership waiting for every type of business.
-            Try something new, see what works.
+          <p
+            className="mt-3 max-w-2xl"
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '14px',
+              lineHeight: '1.6',
+              color: 'var(--color-muted)',
+            }}
+          >
+            From coffee shops to accountants — there&apos;s a partnership waiting
+            for every type of business.
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {partnershipExamples.map((ex) => (
-            <div key={ex.businesses} className="group relative overflow-hidden rounded-2xl border border-neutral-100 bg-white px-6 py-5 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated">
-              {/* Accent line */}
-              <div className={`absolute top-0 left-0 h-full w-[3px] ${accentColors[ex.accent]} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
-              <p className="text-sm font-semibold text-neutral-900">{ex.businesses}</p>
-              <p className="mt-1.5 text-xs text-neutral-500">{ex.result}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8 text-center">
-          <Link className="text-sm font-semibold text-lavender-600 transition-colors duration-200 hover:text-lavender-700" href="/partnership-ideas">
-            See all partnership ideas <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
-          </Link>
+        <div className="overflow-hidden">
+          <div className="marquee-track">
+            {/* Two identical sets for seamless loop */}
+            {[...partnershipExamples, ...partnershipExamples].map((ex, i) => (
+              <div
+                key={`${ex.businesses}-${i}`}
+                className="flex-shrink-0 whitespace-nowrap transition-colors duration-200 hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)] hover:border-[var(--color-ink)]"
+                style={{
+                  border: '1px solid var(--color-rule)',
+                  padding: '10px 20px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '12px',
+                  background: 'var(--color-paper)',
+                  color: 'var(--color-ink)',
+                }}
+              >
+                {ex.businesses} → {ex.result}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="relative overflow-hidden rounded-2xl bg-neutral-900 px-6 py-24 text-center sm:px-12">
-        {/* Brand gradient accents */}
-        <div className="pointer-events-none absolute -top-24 -right-24 h-[400px] w-[400px] rounded-full opacity-[0.12]" style={{ background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)" }} />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 h-[350px] w-[350px] rounded-full opacity-[0.08]" style={{ background: "radial-gradient(circle, #34d399 0%, transparent 70%)" }} />
-
-        <div className="relative">
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-            Ready to find your perfect{" "}
-            <br className="hidden sm:block" />
-            business partner?
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-neutral-400">
-            Join the waitlist for your city and be the first to know when Sortir launches in your neighborhood. Always free to get started.
-          </p>
-          <div className="mt-10">
-            <Link
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-semibold text-neutral-900 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
-              href="/join"
+      {/* Final CTA — terracotta */}
+      <section
+        className="relative -mx-4 sm:-mx-6"
+        data-reveal
+        style={{
+          backgroundColor: 'var(--color-accent)',
+          padding: '80px 64px',
+        }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7">
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                fontStyle: 'italic',
+                color: 'var(--color-paper)',
+                lineHeight: '1.1',
+              }}
             >
-              Join the Waitlist
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+              Ready to find your perfect business partner?
+            </h2>
           </div>
-          <p className="mt-6 text-xs text-neutral-500">
-            Free for all businesses &middot; No credit card ever required
-          </p>
+          <div className="lg:col-span-5 flex flex-col gap-6">
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '16px',
+                lineHeight: '1.6',
+                color: 'rgba(245,242,235,0.8)',
+              }}
+            >
+              Join the waitlist for your city and be the first to know when Sortir
+              launches in your neighborhood. Always free to get started.
+            </p>
+            <div>
+              <Link
+                className="btn-cta-outline"
+                href="/join"
+              >
+                Join the Waitlist
+              </Link>
+            </div>
+            <p
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: 'rgba(245,242,235,0.6)',
+              }}
+            >
+              Free for all businesses · No credit card ever required
+            </p>
+          </div>
         </div>
       </section>
     </LandingAnimations>
