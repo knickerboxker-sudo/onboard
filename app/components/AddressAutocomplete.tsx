@@ -106,10 +106,10 @@ export default function AddressAutocomplete({ value, onChange, onSelect, require
         value={value}
       />
       {open && suggestions.length > 0 && (
-        <ul className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-slate-200 bg-white/90 shadow-lg backdrop-blur-sm">
+        <ul className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-neutral-200 bg-white/90 shadow-lg backdrop-blur-sm">
           {suggestions.map((s, i) => (
             <li
-              className={`cursor-pointer px-3 py-2 text-sm text-slate-700 ${i === activeIndex ? "bg-sky-50 text-sky-800" : "hover:bg-slate-50"}`}
+              className={`cursor-pointer px-3 py-2 text-sm text-neutral-700 ${i === activeIndex ? "bg-sky-50 text-sky-800" : "hover:bg-neutral-50"}`}
               key={s.id}
               onMouseDown={() => handleSelect(s)}
               onMouseEnter={() => setActiveIndex(i)}

@@ -13,15 +13,18 @@ export default function ComingSoonPage() {
   const [selectedCity, setSelectedCity] = useState<string>("Ann Arbor Area");
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-14">
       {/* Hero */}
       <section className="text-center">
-        <div className="badge-primary mx-auto mb-4">
+        <div className="badge-primary mx-auto mb-5">
           <MapPin className="h-3 w-3" />
           Pre-Launch
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
-          Sortir is coming to Michigan
+          Sortir is coming to{" "}
+          <span className="bg-gradient-to-r from-lavender-600 to-spearmint-500 bg-clip-text text-transparent">
+            Michigan
+          </span>
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-lg text-neutral-500">
           We&apos;re launching city-by-city. When enough local businesses join,
@@ -36,10 +39,10 @@ export default function ComingSoonPage() {
             <button
               key={city}
               onClick={() => setSelectedCity(city)}
-              className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+              className={`rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
                 selectedCity === city
-                  ? "bg-neutral-900 text-white shadow-sm"
-                  : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50"
+                  ? "bg-neutral-900 text-white shadow-lg"
+                  : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 shadow-sm"
               }`}
             >
               {city}
@@ -52,8 +55,8 @@ export default function ComingSoonPage() {
       <section className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
         {/* Left: Progress + CTA */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-neutral-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-neutral-900">
+          <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
+            <h2 className="mb-5 text-lg font-semibold text-neutral-900">
               {selectedCity} launch progress
             </h2>
             <CityProgress city={selectedCity} />
@@ -64,25 +67,25 @@ export default function ComingSoonPage() {
 
           <Link
             href="/join"
-            className="btn-primary flex w-full items-center justify-center gap-2 py-3"
+            className="btn-primary flex w-full items-center justify-center gap-2 py-3.5 text-base shadow-lg hover:shadow-xl"
           >
             Join the Waitlist
             <ArrowRight className="h-4 w-4" />
           </Link>
 
           {/* Michigan cities map placeholder */}
-          <div className="rounded-xl border border-neutral-200 bg-white p-6">
-            <h3 className="mb-3 text-sm font-semibold text-neutral-900">
+          <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-soft">
+            <h3 className="mb-4 text-sm font-semibold text-neutral-900">
               Michigan Launch Cities
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {cities.map((city) => (
                 <button
                   key={city}
                   onClick={() => setSelectedCity(city)}
-                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all ${
+                  className={`flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200 ${
                     selectedCity === city
-                      ? "bg-lavender-50 text-lavender-700 font-medium"
+                      ? "bg-lavender-50 text-lavender-700 font-medium shadow-sm"
                       : "text-neutral-600 hover:bg-neutral-50"
                   }`}
                 >
@@ -96,15 +99,15 @@ export default function ComingSoonPage() {
 
         {/* Right: Recent signups */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-neutral-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-neutral-900">
+          <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
+            <h2 className="mb-5 text-lg font-semibold text-neutral-900">
               Recently joined in {selectedCity}
             </h2>
             <RecentSignups city={selectedCity} />
           </div>
 
           {/* Request your city */}
-          <div className="rounded-xl border border-neutral-200 bg-white p-6">
+          <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
             <CityRequestForm />
           </div>
         </div>

@@ -11,7 +11,7 @@ const TYPE_STYLES: Record<string, string> = {
   message: "bg-sky-50 text-sky-700",
   partnership_update: "bg-violet-50 text-violet-700",
   verification: "bg-amber-50 text-amber-700",
-  system: "bg-slate-50 text-slate-700",
+  system: "bg-neutral-50 text-neutral-700",
 };
 
 export default function NotificationBell() {
@@ -100,7 +100,7 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className="relative rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+        className="relative rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
         onClick={() => setIsOpen(!isOpen)}
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
       >
@@ -119,10 +119,10 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="glass absolute right-0 top-full z-50 mt-2 w-80 rounded-xl shadow-lg ring-1 ring-slate-200"
+            className="glass absolute right-0 top-full z-50 mt-2 w-80 rounded-xl shadow-lg ring-1 ring-neutral-200"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-              <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
+            <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+              <h3 className="text-sm font-semibold text-neutral-900">Notifications</h3>
               {unreadCount > 0 && (
                 <button onClick={markAllRead} className="text-xs font-medium text-sky-600 hover:text-sky-700">
                   Mark all read
@@ -131,31 +131,31 @@ export default function NotificationBell() {
             </div>
             <div className="max-h-80 overflow-y-auto">
               {notifications.length === 0 ? (
-                <p className="px-4 py-8 text-center text-sm text-slate-400">No notifications yet</p>
+                <p className="px-4 py-8 text-center text-sm text-neutral-400">No notifications yet</p>
               ) : (
                 notifications.map((n) => (
                   <div
                     key={n.id}
-                    className={`flex items-start gap-3 border-b border-slate-50 px-4 py-3 transition-colors hover:bg-slate-50 ${!n.read ? "bg-sky-50/30" : ""}`}
+                    className={`flex items-start gap-3 border-b border-neutral-50 px-4 py-3 transition-colors hover:bg-neutral-50 ${!n.read ? "bg-sky-50/30" : ""}`}
                   >
                     <span className={`mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${TYPE_STYLES[n.type] ?? TYPE_STYLES.system}`}>
                       {n.type.replace("_", " ")}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-slate-900">{n.title}</p>
-                      <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{n.message}</p>
-                      <p className="mt-1 text-[10px] text-slate-400">
+                      <p className="text-sm font-medium text-neutral-900">{n.title}</p>
+                      <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2">{n.message}</p>
+                      <p className="mt-1 text-[10px] text-neutral-400">
                         {new Date(n.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex flex-shrink-0 gap-1">
                       {n.link && (
-                        <a href={n.link} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                        <a href={n.link} className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600">
                           <ExternalLink className="h-3.5 w-3.5" />
                         </a>
                       )}
                       {!n.read && (
-                        <button onClick={() => markAsRead(n.id)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                        <button onClick={() => markAsRead(n.id)} className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600">
                           <Check className="h-3.5 w-3.5" />
                         </button>
                       )}

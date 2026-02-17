@@ -49,7 +49,7 @@ export default function ImageUpload({ photos, onChange, maxPhotos = 5 }: ImageUp
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <label className="label">Photos</label>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-neutral-500">
           {photos.length} of {maxPhotos} photos
         </span>
       </div>
@@ -57,7 +57,7 @@ export default function ImageUpload({ photos, onChange, maxPhotos = 5 }: ImageUp
       {photos.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {photos.map((url, i) => (
-            <div key={`${url}-${i}`} className="group relative h-20 w-20 overflow-hidden rounded-xl border border-slate-200">
+            <div key={`${url}-${i}`} className="group relative h-20 w-20 overflow-hidden rounded-xl border border-neutral-200">
               <img src={url} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
               <button
                 type="button"
@@ -80,7 +80,7 @@ export default function ImageUpload({ photos, onChange, maxPhotos = 5 }: ImageUp
               accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={(e) => handleFiles(e.target.files)}
-              className="block w-full text-sm text-slate-500 file:mr-3 file:rounded-xl file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+              className="block w-full text-sm text-neutral-500 file:mr-3 file:rounded-xl file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-neutral-700 hover:file:bg-neutral-200"
             />
           </div>
 

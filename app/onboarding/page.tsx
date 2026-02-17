@@ -48,18 +48,18 @@ function StepProgressBar({ step }: { step: number }) {
                   isComplete
                     ? "bg-emerald-500 text-white"
                     : isActive
-                      ? "bg-slate-900 text-white shadow-lg"
-                      : "border border-slate-300 bg-white text-slate-400"
+                      ? "bg-neutral-900 text-white shadow-lg"
+                      : "border border-neutral-300 bg-white text-neutral-400"
                 }`}
               >
                 {isComplete ? "✓" : stepNum}
               </div>
-              <span className={`mt-1 text-[10px] font-medium ${isActive ? "text-slate-900" : isComplete ? "text-emerald-600" : "text-slate-400"}`}>
+              <span className={`mt-1 text-[10px] font-medium ${isActive ? "text-neutral-900" : isComplete ? "text-emerald-600" : "text-neutral-400"}`}>
                 {label}
               </span>
             </div>
             {i < stepLabels.length - 1 && (
-              <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-slate-200"}`} />
+              <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-neutral-200"}`} />
             )}
           </div>
         );
@@ -70,14 +70,14 @@ function StepProgressBar({ step }: { step: number }) {
 
 function ReviewSection({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
   return (
-    <div className="mt-4 rounded-2xl border border-slate-200/60 bg-white/60 p-4 backdrop-blur-sm">
+    <div className="mt-4 rounded-2xl border border-neutral-200/60 bg-white/60 p-4 backdrop-blur-sm">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-slate-900">{title}</p>
+        <p className="text-sm font-semibold text-neutral-900">{title}</p>
         <button type="button" onClick={onEdit} className="text-xs font-medium text-sky-600 hover:text-sky-800 transition-colors">
           Edit
         </button>
       </div>
-      <div className="mt-2 text-sm text-slate-700">{children}</div>
+      <div className="mt-2 text-sm text-neutral-700">{children}</div>
     </div>
   );
 }
@@ -352,18 +352,18 @@ export default function OnboardingPage() {
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Step {step} of 4</p>
-        <h1 className="mt-2 text-2xl font-semibold text-slate-900">Set up your business profile</h1>
-        <p className="mt-1 text-sm text-slate-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
+        <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Set up your business profile</h1>
+        <p className="mt-1 text-sm text-neutral-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
 
         <StepProgressBar step={step} />
 
         <div className="mt-3">
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-xs text-neutral-500">
             <span>Profile completeness</span>
-            <span className="font-medium text-slate-700">{completeness}%</span>
+            <span className="font-medium text-neutral-700">{completeness}%</span>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
-            <div className={`h-full rounded-full transition-all ${completeness >= 75 ? "bg-emerald-500" : completeness >= 50 ? "bg-amber-500" : "bg-slate-400"}`} style={{ width: `${completeness}%` }} />
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
+            <div className={`h-full rounded-full transition-all ${completeness >= 75 ? "bg-emerald-500" : completeness >= 50 ? "bg-amber-500" : "bg-neutral-400"}`} style={{ width: `${completeness}%` }} />
           </div>
         </div>
 
@@ -446,7 +446,7 @@ export default function OnboardingPage() {
                       {partnershipOptions.map((option) => {
                         const checked = partnerships.includes(option);
                         return (
-                          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option}>
+                          <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700" key={option}>
                             <input
                               checked={checked}
                               onChange={(event) => {
@@ -470,7 +470,7 @@ export default function OnboardingPage() {
                       {collaborationIntentOptions.map((option) => {
                         const checked = collaborationIntents.includes(option.value);
                         return (
-                          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option.value}>
+                          <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700" key={option.value}>
                             <input
                               checked={checked}
                               onChange={(event) => {
@@ -497,7 +497,7 @@ export default function OnboardingPage() {
                       value={lookingFor}
                       placeholder="e.g. Cross-promotion partners, Event collaborators, Product suppliers"
                     />
-                    <p className="mt-1 text-xs text-slate-400">Tell potential partners what you need</p>
+                    <p className="mt-1 text-xs text-neutral-400">Tell potential partners what you need</p>
                   </div>
                   <div>
                     <label className="label">What can you offer? (comma separated)</label>
@@ -507,7 +507,7 @@ export default function OnboardingPage() {
                       value={canOffer}
                       placeholder="e.g. Store shelf space, Social media promotion, Event venue"
                     />
-                    <p className="mt-1 text-xs text-slate-400">Tell potential partners what you bring to the table</p>
+                    <p className="mt-1 text-xs text-neutral-400">Tell potential partners what you bring to the table</p>
                   </div>
                   <div>
                     <label className="label">Partnership ideas (comma separated)</label>
@@ -517,7 +517,7 @@ export default function OnboardingPage() {
                       value={partnershipIdeas}
                       placeholder="e.g. Joint pop-up event, Co-branded gift basket, Referral discount program"
                     />
-                    <p className="mt-1 text-xs text-slate-400">Share specific partnership concepts you have in mind</p>
+                    <p className="mt-1 text-xs text-neutral-400">Share specific partnership concepts you have in mind</p>
                   </div>
                   <fieldset>
                     <legend className="label">Partnership interest tags</legend>
@@ -525,7 +525,7 @@ export default function OnboardingPage() {
                       {PARTNERSHIP_INTEREST_TAGS.map((tag) => {
                         const checked = partnershipInterestTags.includes(tag);
                         return (
-                          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={tag}>
+                          <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700" key={tag}>
                             <input
                               checked={checked}
                               onChange={(event) => {
@@ -567,7 +567,7 @@ export default function OnboardingPage() {
                       value={businessStory}
                       placeholder="Share your journey — how you started, what drives you, and your vision for the future."
                     />
-                    <p className="mt-1 text-xs text-slate-400">Help potential partners understand who you are</p>
+                    <p className="mt-1 text-xs text-neutral-400">Help potential partners understand who you are</p>
                   </div>
 
                   {/* Social proof */}
@@ -657,17 +657,17 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
                 <div className="glass rounded-2xl p-5">
-                  <p className="text-lg font-semibold text-slate-900">Review your profile</p>
-                  <p className="mt-1 text-xs text-slate-500">Make sure everything looks good before finishing.</p>
+                  <p className="text-lg font-semibold text-neutral-900">Review your profile</p>
+                  <p className="mt-1 text-xs text-neutral-500">Make sure everything looks good before finishing.</p>
 
                   <ReviewSection title="Basic Info" onEdit={() => goToStep(1)}>
-                    <p className="font-medium text-slate-900">{businessName || "—"}</p>
-                    <p className="text-slate-500">{businessType || "—"}</p>
+                    <p className="font-medium text-neutral-900">{businessName || "—"}</p>
+                    <p className="text-neutral-500">{businessType || "—"}</p>
                     <p className="mt-1">{address || "—"}</p>
                   </ReviewSection>
 
                   <ReviewSection title="Offerings & Partnerships" onEdit={() => goToStep(2)}>
-                    <p>{description || <span className="italic text-slate-400">No description provided.</span>}</p>
+                    <p>{description || <span className="italic text-neutral-400">No description provided.</span>}</p>
                     {products && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {products.split(",").map((p) => p.trim()).filter(Boolean).map((p) => (
@@ -692,8 +692,8 @@ export default function OnboardingPage() {
                       </div>
                     )}
                     {lookingFor && (
-                      <div className="mt-3 border-t border-slate-100 pt-3">
-                        <p className="text-xs font-semibold text-slate-600">Looking For:</p>
+                      <div className="mt-3 border-t border-neutral-100 pt-3">
+                        <p className="text-xs font-semibold text-neutral-600">Looking For:</p>
                         <div className="mt-1 flex flex-wrap gap-1.5">
                           {lookingFor.split(",").map((item) => item.trim()).filter(Boolean).map((item) => (
                             <span key={item} className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">{item}</span>
@@ -703,7 +703,7 @@ export default function OnboardingPage() {
                     )}
                     {canOffer && (
                       <div className="mt-2">
-                        <p className="text-xs font-semibold text-slate-600">Can Offer:</p>
+                        <p className="text-xs font-semibold text-neutral-600">Can Offer:</p>
                         <div className="mt-1 flex flex-wrap gap-1.5">
                           {canOffer.split(",").map((item) => item.trim()).filter(Boolean).map((item) => (
                             <span key={item} className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-700">{item}</span>
@@ -713,7 +713,7 @@ export default function OnboardingPage() {
                     )}
                     {partnershipInterestTags.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-xs font-semibold text-slate-600">Interest Tags:</p>
+                        <p className="text-xs font-semibold text-neutral-600">Interest Tags:</p>
                         <div className="mt-1 flex flex-wrap gap-1.5">
                           {partnershipInterestTags.map((tag) => (
                             <span key={tag} className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700">{tag}</span>
@@ -726,26 +726,26 @@ export default function OnboardingPage() {
                   <ReviewSection title="Social Proof & Demographics" onEdit={() => goToStep(3)}>
                     <div className="grid gap-3 sm:grid-cols-3">
                       {followerCount && (
-                        <div className="rounded-xl bg-slate-50 p-3 text-center">
-                          <p className="text-lg font-bold text-slate-900">{Number(followerCount).toLocaleString()}</p>
-                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Followers</p>
+                        <div className="rounded-xl bg-neutral-50 p-3 text-center">
+                          <p className="text-lg font-bold text-neutral-900">{Number(followerCount).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500">Followers</p>
                         </div>
                       )}
                       {emailListSize && (
-                        <div className="rounded-xl bg-slate-50 p-3 text-center">
-                          <p className="text-lg font-bold text-slate-900">{Number(emailListSize).toLocaleString()}</p>
-                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Email list</p>
+                        <div className="rounded-xl bg-neutral-50 p-3 text-center">
+                          <p className="text-lg font-bold text-neutral-900">{Number(emailListSize).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500">Email list</p>
                         </div>
                       )}
                       {monthlyFootTraffic && (
-                        <div className="rounded-xl bg-slate-50 p-3 text-center">
-                          <p className="text-lg font-bold text-slate-900">{Number(monthlyFootTraffic).toLocaleString()}</p>
-                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Monthly traffic</p>
+                        <div className="rounded-xl bg-neutral-50 p-3 text-center">
+                          <p className="text-lg font-bold text-neutral-900">{Number(monthlyFootTraffic).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500">Monthly traffic</p>
                         </div>
                       )}
                     </div>
                     {(targetAgeMin || targetAgeMax || targetIncomeBracket || customerInterests) && (
-                      <div className="mt-3 border-t border-slate-100 pt-3">
+                      <div className="mt-3 border-t border-neutral-100 pt-3">
                         {(targetAgeMin || targetAgeMax) && (
                           <p>Target age: {targetAgeMin || "—"} – {targetAgeMax || "—"}</p>
                         )}
@@ -757,7 +757,7 @@ export default function OnboardingPage() {
 
                   {(yearsInOperation || hours || website || socialLinks || businessStory) && (
                     <ReviewSection title="Operations & Story" onEdit={() => goToStep(3)}>
-                      {businessStory && <p className="italic text-slate-600">&ldquo;{businessStory}&rdquo;</p>}
+                      {businessStory && <p className="italic text-neutral-600">&ldquo;{businessStory}&rdquo;</p>}
                       {yearsInOperation && <p className="mt-1">Years in operation: {yearsInOperation}</p>}
                       {hours && <p className="mt-1">Hours: {hours}</p>}
                       {website && <p className="mt-1">Website: {website}</p>}

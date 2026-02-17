@@ -161,7 +161,7 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl">
-        <div className="glass rounded-3xl p-8 text-center text-slate-500">Loading profile…</div>
+        <div className="glass rounded-3xl p-8 text-center text-neutral-500">Loading profile…</div>
       </div>
     );
   }
@@ -179,8 +179,8 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={handleSubmit}>
-        <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
-        <p className="mt-1 text-sm text-slate-600">Edit your business profile below.</p>
+        <h1 className="text-2xl font-semibold text-neutral-900">Settings</h1>
+        <p className="mt-1 text-sm text-neutral-600">Edit your business profile below.</p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -221,7 +221,7 @@ export default function SettingsPage() {
               {partnershipOptions.map((option) => {
                 const checked = partnerships.includes(option);
                 return (
-                  <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option}>
+                  <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700" key={option}>
                     <input
                       checked={checked}
                       onChange={(e) => {
@@ -245,7 +245,7 @@ export default function SettingsPage() {
               {collaborationIntentOptions.map((option) => {
                 const checked = collaborationIntents.includes(option.value);
                 return (
-                  <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" key={option.value}>
+                  <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700" key={option.value}>
                     <input
                       checked={checked}
                       onChange={(e) => {

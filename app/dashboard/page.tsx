@@ -168,17 +168,17 @@ export default function DashboardPage() {
 
   if (isLoading)
     return (
-      <div className="space-y-4">
-        <div className="glass rounded-3xl p-6">
-          <div className="h-4 w-40 animate-skeleton-pulse rounded bg-slate-200" />
-          <div className="mt-2 h-6 w-56 animate-skeleton-pulse rounded bg-slate-200" />
-          <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded bg-slate-200" />
+      <div className="space-y-5">
+        <div className="glass rounded-2xl p-7">
+          <div className="h-4 w-40 animate-skeleton-pulse rounded-lg bg-neutral-200" />
+          <div className="mt-3 h-6 w-56 animate-skeleton-pulse rounded-lg bg-neutral-200" />
+          <div className="mt-2 h-4 w-72 animate-skeleton-pulse rounded-lg bg-neutral-200" />
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div className="glass rounded-2xl p-5" key={i}>
-              <div className="h-4 w-24 animate-skeleton-pulse rounded bg-slate-200" />
-              <div className="mt-3 h-8 w-16 animate-skeleton-pulse rounded bg-slate-200" />
+            <div className="glass rounded-2xl p-6" key={i}>
+              <div className="h-4 w-24 animate-skeleton-pulse rounded-lg bg-neutral-200" />
+              <div className="mt-3 h-8 w-16 animate-skeleton-pulse rounded-lg bg-neutral-200" />
             </div>
           ))}
         </div>
@@ -186,7 +186,7 @@ export default function DashboardPage() {
     );
   if (error)
     return (
-      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+      <p className="rounded-2xl bg-red-50 px-5 py-4 text-sm text-red-700 border border-red-100">
         {error.message}
       </p>
     );
@@ -223,7 +223,7 @@ export default function DashboardPage() {
     completed: "bg-blue-100 text-blue-800",
     paused: "bg-yellow-100 text-yellow-800",
     cancelled: "bg-red-100 text-red-800",
-    archived: "bg-slate-100 text-slate-600",
+    archived: "bg-neutral-100 text-neutral-600",
   };
 
   const verificationLabel: Record<string, string> = {
@@ -235,20 +235,20 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="glass rounded-3xl p-6">
-        <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-creamsicle-600">Your partnership hub</p>
-        <h1 className="text-2xl font-semibold text-slate-900">
+      <div className="glass rounded-2xl p-7">
+        <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-lavender-600">Your partnership hub</p>
+        <h1 className="text-2xl font-semibold text-neutral-900">
           {data?.business.name}
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-neutral-500">
           {data?.business.business_type}
         </p>
         {data?.business.created_at && (
-          <p className="mt-0.5 text-xs text-slate-400">Member since {new Date(data.business.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</p>
+          <p className="mt-0.5 text-xs text-neutral-400">Member since {new Date(data.business.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</p>
         )}
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-neutral-500">
           Track your active partnerships, see who&apos;s collaborating with you, and measure the impact of every connection.
         </p>
       </div>
@@ -257,21 +257,21 @@ export default function DashboardPage() {
       {data?.business && (() => {
         const completion = calculateProfileCompletion(data.business);
         return completion < 100 ? (
-          <div className="glass rounded-2xl p-5">
+          <div className="glass rounded-2xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Profile Completion</h3>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <h3 className="text-sm font-semibold text-neutral-900">Profile Completion</h3>
+                <p className="mt-0.5 text-xs text-neutral-500">
                   Complete your profile to attract more partnership opportunities.
                 </p>
               </div>
-              <span className={`text-lg font-bold ${completion >= 75 ? "text-emerald-600" : completion >= 50 ? "text-amber-600" : "text-slate-600"}`}>
+              <span className={`text-lg font-bold ${completion >= 75 ? "text-spearmint-600" : completion >= 50 ? "text-warning" : "text-neutral-600"}`}>
                 {completion}%
               </span>
             </div>
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-neutral-100">
               <div
-                className={`h-full rounded-full transition-all ${completion >= 75 ? "bg-emerald-500" : completion >= 50 ? "bg-amber-500" : "bg-slate-400"}`}
+                className={`h-full rounded-full transition-all duration-500 ${completion >= 75 ? "bg-spearmint-500" : completion >= 50 ? "bg-warning" : "bg-neutral-400"}`}
                 style={{ width: `${completion}%` }}
               />
             </div>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                 Edit Profile →
               </Link>
               {(data.business.looking_for ?? []).length === 0 && (
-                <span className="text-xs text-slate-400">Add &quot;Looking For&quot; and &quot;Can Offer&quot; sections to stand out</span>
+                <span className="text-xs text-neutral-400">Add &quot;Looking For&quot; and &quot;Can Offer&quot; sections to stand out</span>
               )}
             </div>
           </div>
@@ -288,14 +288,16 @@ export default function DashboardPage() {
       })()}
 
       {/* Performance Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {statCards.map((item) => (
-          <div className="glass rounded-2xl p-5" key={item.label}>
-            <div className="flex items-center gap-2">
-              <item.icon className="h-4 w-4 text-slate-400" />
-              <p className="text-sm text-slate-500">{item.label}</p>
+          <div className="stat-card" key={item.label}>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-100">
+                <item.icon className="h-4 w-4 text-neutral-500" />
+              </div>
+              <p className="text-sm text-neutral-500">{item.label}</p>
             </div>
-            <p className="mt-2 text-3xl font-semibold text-slate-900">
+            <p className="mt-3 text-3xl font-bold text-neutral-900">
               {item.value}
             </p>
           </div>
@@ -304,12 +306,12 @@ export default function DashboardPage() {
 
       {/* ROI Summary */}
       {(data?.completedPartnerships ?? 0) > 0 && (
-        <div className="glass rounded-3xl p-6">
-          <h2 className="text-lg font-semibold text-slate-900">ROI Summary</h2>
-          <div className="mt-3 grid gap-4 sm:grid-cols-3">
-            <div>
-              <p className="text-sm text-slate-500">Revenue per Partnership</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
+        <div className="glass rounded-2xl p-7">
+          <h2 className="text-lg font-semibold text-neutral-900">ROI Summary</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl bg-neutral-50 p-4">
+              <p className="text-sm text-neutral-500">Revenue per Partnership</p>
+              <p className="mt-1 text-xl font-semibold text-neutral-900">
                 $
                 {data?.completedPartnerships
                   ? Math.round(
@@ -318,16 +320,16 @@ export default function DashboardPage() {
                   : 0}
               </p>
             </div>
-            <div>
-              <p className="text-sm text-slate-500">Total Partnerships</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
+            <div className="rounded-xl bg-neutral-50 p-4">
+              <p className="text-sm text-neutral-500">Total Partnerships</p>
+              <p className="mt-1 text-xl font-semibold text-neutral-900">
                 {(data?.activePartnerships ?? 0) +
                   (data?.completedPartnerships ?? 0)}
               </p>
             </div>
-            <div>
-              <p className="text-sm text-slate-500">Total Revenue</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
+            <div className="rounded-xl bg-neutral-50 p-4">
+              <p className="text-sm text-neutral-500">Total Revenue</p>
+              <p className="mt-1 text-xl font-semibold text-neutral-900">
                 ${(data?.totalRevenue ?? 0).toLocaleString()}
               </p>
             </div>
@@ -337,21 +339,21 @@ export default function DashboardPage() {
 
       {/* Partnership Activity */}
       {(data?.recentPartnerships?.length ?? 0) > 0 && (
-        <div className="glass rounded-3xl p-6">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <div className="glass rounded-2xl p-7">
+          <h2 className="text-lg font-semibold text-neutral-900">
             Partnership Activity
           </h2>
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-3">
             {data?.recentPartnerships.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center justify-between rounded-xl border border-slate-100 bg-white/60 px-4 py-3"
+                className="flex items-center justify-between rounded-xl border border-neutral-100 bg-white px-5 py-3.5 transition-all duration-200 hover:shadow-sm"
               >
                 <div>
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-neutral-900">
                     {p.partnership_type}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-neutral-500">
                     Started {new Date(p.start_date).toLocaleDateString()}
                     {p.end_date &&
                       ` · Ended ${new Date(p.end_date).toLocaleDateString()}`}
@@ -359,12 +361,12 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   {p.revenue_generated > 0 && (
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-neutral-700">
                       ${Number(p.revenue_generated).toLocaleString()}
                     </span>
                   )}
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor[p.status] ?? "bg-slate-100 text-slate-700"}`}
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor[p.status] ?? "bg-neutral-100 text-neutral-700"}`}
                   >
                     {p.status}
                   </span>
@@ -376,56 +378,56 @@ export default function DashboardPage() {
       )}
 
       {/* Saved Assessments */}
-      <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Saved Assessments</h2>
+      <div className="glass rounded-2xl p-7">
+        <h2 className="text-lg font-semibold text-neutral-900">Saved Assessments</h2>
         {(data?.savedAssessments?.length ?? 0) > 0 ? (
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-3">
             {data?.savedAssessments.map((a) => (
               <div
                 key={a.id}
-                className="rounded-xl border border-slate-100 bg-white/60 px-4 py-3"
+                className="rounded-xl border border-neutral-100 bg-white px-5 py-4"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-lavender-100 px-2.5 py-0.5 text-xs font-medium text-lavender-800">
+                    <span className="rounded-full bg-lavender-50 px-2.5 py-0.5 text-xs font-medium text-lavender-700 border border-lavender-100">
                       {a.scenario}
                     </span>
                     {a.shared_with_match && (
-                      <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                      <span className="flex items-center gap-1 rounded-full bg-spearmint-50 px-2.5 py-0.5 text-xs font-medium text-spearmint-700 border border-spearmint-100">
                         <Share2 className="h-3 w-3" /> Shared
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-neutral-500">
                     {new Date(a.created_at).toLocaleDateString()}
                   </p>
                 </div>
 
-                <div className="mt-2">
-                  <div className="flex items-center justify-between text-xs text-slate-600">
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-neutral-600">
                     <span>A: {a.business_a_percent}%</span>
                     <span>B: {a.business_b_percent}%</span>
                   </div>
-                  <div className="mt-1 flex h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="mt-1.5 flex h-2 overflow-hidden rounded-full bg-neutral-100">
                     <div
-                      className="bg-sky-500 transition-all"
+                      className="bg-lavender-500 transition-all"
                       style={{ width: `${a.business_a_percent}%` }}
                     />
                     <div
-                      className="bg-indigo-400 transition-all"
+                      className="bg-spearmint-400 transition-all"
                       style={{ width: `${a.business_b_percent}%` }}
                     />
                   </div>
                 </div>
 
                 {a.proposed_split_a != null && (
-                  <p className="mt-2 text-xs text-slate-600">
+                  <p className="mt-2 text-xs text-neutral-600">
                     Proposed split: {a.proposed_split_a}% / {100 - a.proposed_split_a}%
                   </p>
                 )}
 
                 {a.notes && (
-                  <p className="mt-1 text-xs text-slate-500">{a.notes}</p>
+                  <p className="mt-1 text-xs text-neutral-500">{a.notes}</p>
                 )}
 
                 <div className="mt-3 flex items-center gap-2">
@@ -438,14 +440,14 @@ export default function DashboardPage() {
                       ...(a.proposed_split_a != null && { split: String(a.proposed_split_a) }),
                       ...(a.match_id && { match: a.match_id }),
                     }).toString()}`}
-                    className="rounded-lg bg-lavender-50 px-3 py-1.5 text-xs font-medium text-lavender-700 hover:bg-lavender-100"
+                    className="rounded-xl bg-lavender-50 px-3 py-1.5 text-xs font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
                   >
                     View / Edit
                   </Link>
                   <button
                     onClick={() => deleteAssessment.mutate(a.id)}
                     disabled={deleteAssessment.isPending}
-                    className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                    className="flex items-center gap-1 rounded-xl bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50"
                   >
                     <Trash2 className="h-3 w-3" /> Delete
                   </button>
@@ -454,8 +456,8 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="mt-3">
-            <p className="text-sm text-slate-500">
+          <div className="mt-4">
+            <p className="text-sm text-neutral-500">
               No saved assessments yet. Use the Partnership Builder to create one.
             </p>
             <Link href="/partnership-builder" className="btn-primary mt-3 inline-block">
@@ -466,18 +468,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Trust & Verification */}
-      <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">
+      <div className="glass rounded-2xl p-7">
+        <h2 className="text-lg font-semibold text-neutral-900">
           Trust & Verification
         </h2>
 
         {/* Trust Badges */}
         {badges.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {badges.map((badge) => (
               <div
                 key={badge.type}
-                className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800"
+                className="flex items-center gap-1.5 rounded-full bg-spearmint-50 px-3 py-1.5 text-xs font-medium text-spearmint-700 border border-spearmint-100"
                 title={badge.description}
               >
                 <BadgeCheck className="h-3.5 w-3.5" />
@@ -493,19 +495,19 @@ export default function DashboardPage() {
             {data?.verifications.map((v) => (
               <div
                 key={v.verification_type}
-                className="flex items-center justify-between rounded-lg border border-slate-100 bg-white/60 px-4 py-2"
+                className="flex items-center justify-between rounded-xl border border-neutral-100 bg-white px-5 py-3"
               >
-                <span className="text-sm text-slate-700">
+                <span className="text-sm text-neutral-700">
                   {verificationLabel[v.verification_type] ??
                     v.verification_type}
                 </span>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     v.status === "approved"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-spearmint-50 text-spearmint-700"
                       : v.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
+                        ? "bg-yellow-50 text-yellow-700"
+                        : "bg-red-50 text-red-700"
                   }`}
                 >
                   {v.status}
@@ -514,39 +516,45 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-3 text-sm text-neutral-500">
             No verifications submitted yet.
           </p>
         )}
 
-        <Link href="/verify" className="btn-primary mt-4 inline-block">
+        <Link href="/verify" className="btn-primary mt-5 inline-block">
           Submit Verification
         </Link>
       </div>
 
       {/* Quick Actions */}
-      <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Quick Actions</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          <Link href="/discover" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 transition-colors hover:bg-slate-50">
-            <Users className="h-5 w-5 text-sky-500" />
+      <div className="glass rounded-2xl p-7">
+        <h2 className="text-lg font-semibold text-neutral-900">Quick Actions</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <Link href="/discover" className="group flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white px-5 py-4 transition-all duration-200 hover:shadow-elevated">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50">
+              <Users className="h-5 w-5 text-brand-600" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">Discover Partners</p>
-              <p className="text-xs text-slate-500">Browse businesses near you</p>
+              <p className="text-sm font-medium text-neutral-900">Discover Partners</p>
+              <p className="text-xs text-neutral-500">Browse businesses near you</p>
             </div>
           </Link>
-          <Link href="/partnership-ideas" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 transition-colors hover:bg-slate-50">
-            <Handshake className="h-5 w-5 text-violet-500" />
+          <Link href="/partnership-ideas" className="group flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white px-5 py-4 transition-all duration-200 hover:shadow-elevated">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lavender-50">
+              <Handshake className="h-5 w-5 text-lavender-600" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">Partnership Ideas</p>
-              <p className="text-xs text-slate-500">Get inspired by examples</p>
+              <p className="text-sm font-medium text-neutral-900">Partnership Ideas</p>
+              <p className="text-xs text-neutral-500">Get inspired by examples</p>
             </div>
           </Link>
-          <Link href="/partnership-builder" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 transition-colors hover:bg-slate-50">
-            <TrendingUp className="h-5 w-5 text-emerald-500" />
+          <Link href="/partnership-builder" className="group flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white px-5 py-4 transition-all duration-200 hover:shadow-elevated">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-spearmint-50">
+              <TrendingUp className="h-5 w-5 text-spearmint-600" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">Partnership Builder</p>
-              <p className="text-xs text-slate-500">Structure fair deals</p>
+              <p className="text-sm font-medium text-neutral-900">Partnership Builder</p>
+              <p className="text-xs text-neutral-500">Structure fair deals</p>
             </div>
           </Link>
         </div>

@@ -12,21 +12,23 @@ export default function ErrorPage({
 }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="glass max-w-md rounded-3xl p-8 text-center">
-        <AlertTriangle className="mx-auto h-10 w-10 text-amber-500" />
-        <h1 className="mt-4 text-xl font-semibold text-slate-900">
+      <div className="glass max-w-md rounded-2xl p-10 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-creamsicle-50">
+          <AlertTriangle className="h-7 w-7 text-creamsicle-600" />
+        </div>
+        <h1 className="mt-5 text-xl font-semibold text-neutral-900">
           Something went wrong
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-neutral-500">
           {process.env.NODE_ENV === "development"
             ? error.message
             : "An unexpected error occurred. Please try again."}
         </p>
-        <div className="mt-6 flex items-center justify-center gap-3">
+        <div className="mt-8 flex items-center justify-center gap-3">
           <button onClick={reset} className="btn-primary">
             Try Again
           </button>
-          <Link href="/" className="btn-muted">
+          <Link href="/" className="btn-secondary">
             Go Home
           </Link>
         </div>

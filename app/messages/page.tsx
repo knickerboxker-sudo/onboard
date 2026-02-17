@@ -188,12 +188,12 @@ function MessagesPageContent() {
     return (
       <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
         <div className="glass min-w-0 rounded-3xl p-5">
-          <div className="h-6 w-32 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="h-6 w-32 animate-skeleton-pulse rounded bg-neutral-200" />
           <div className="mt-4 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div className="rounded-xl border border-slate-200 px-4 py-3" key={i}>
-                <div className="h-4 w-28 animate-skeleton-pulse rounded bg-slate-200" />
-                <div className="mt-1 h-3 w-20 animate-skeleton-pulse rounded bg-slate-200" />
+              <div className="rounded-xl border border-neutral-200 px-4 py-3" key={i}>
+                <div className="h-4 w-28 animate-skeleton-pulse rounded bg-neutral-200" />
+                <div className="mt-1 h-3 w-20 animate-skeleton-pulse rounded bg-neutral-200" />
               </div>
             ))}
           </div>
@@ -201,13 +201,13 @@ function MessagesPageContent() {
         <div className="glass flex min-w-0 flex-col rounded-3xl p-5">
           <div className="space-y-3">
             <div className="flex justify-start">
-              <div className="h-10 w-48 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+              <div className="h-10 w-48 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
             </div>
             <div className="flex justify-end">
-              <div className="h-10 w-40 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+              <div className="h-10 w-40 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
             </div>
             <div className="flex justify-start">
-              <div className="h-10 w-56 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+              <div className="h-10 w-56 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
             </div>
           </div>
         </div>
@@ -220,12 +220,12 @@ function MessagesPageContent() {
   return (
     <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
       <div className="glass min-w-0 rounded-3xl p-5">
-        <h2 className="text-lg font-semibold text-slate-900">Conversations</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Conversations</h2>
         {matchesData?.matches.length === 0 ? (
           <div className="mt-6 flex flex-col items-center gap-2 text-center">
-            <MessageCircle className="h-8 w-8 text-slate-300" />
-            <p className="text-sm font-medium text-slate-900">No conversations yet</p>
-            <p className="text-xs text-slate-500">Match with businesses to start messaging.</p>
+            <MessageCircle className="h-8 w-8 text-neutral-300" />
+            <p className="text-sm font-medium text-neutral-900">No conversations yet</p>
+            <p className="text-xs text-neutral-500">Match with businesses to start messaging.</p>
             <a href="/matches" className="btn-primary mt-2 text-xs">View Matches</a>
           </div>
         ) : (
@@ -236,13 +236,13 @@ function MessagesPageContent() {
                   className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition ${
                     activeMatchId === match.id
                       ? "border-sky-200 bg-sky-50 text-sky-800"
-                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
                   }`}
                   onClick={() => setActiveMatchId(match.id)}
                   type="button"
                 >
                   <p className="font-medium">{match.partnerName}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">{match.partnerType}</p>
+                  <p className="mt-0.5 text-xs text-neutral-500">{match.partnerType}</p>
                 </button>
               </li>
             ))}
@@ -253,13 +253,13 @@ function MessagesPageContent() {
       <div className="glass flex min-w-0 flex-col rounded-3xl">
         {!activeMatchId ? (
           <div className="flex flex-1 items-center justify-center p-8">
-            <p className="text-sm text-slate-500">Select a conversation to start messaging your partner.</p>
+            <p className="text-sm text-neutral-500">Select a conversation to start messaging your partner.</p>
           </div>
         ) : (
           <>
-            <div className="border-b border-slate-200 px-5 py-4">
-              <h3 className="font-semibold text-slate-900">{activeMatch?.partnerName ?? "Conversation"}</h3>
-              <p className="text-xs text-slate-500">
+            <div className="border-b border-neutral-200 px-5 py-4">
+              <h3 className="font-semibold text-neutral-900">{activeMatch?.partnerName ?? "Conversation"}</h3>
+              <p className="text-xs text-neutral-500">
                 Matched {activeMatch ? new Date(activeMatch.matched_at).toLocaleDateString() : ""}
               </p>
               {activeMatch && (() => {
@@ -270,7 +270,7 @@ function MessagesPageContent() {
                 }
                 if (activeMatch.avgResponseTimeMinutes != null) {
                   const hours = Math.max(1, Math.round(activeMatch.avgResponseTimeMinutes / 60));
-                  return <p className="mt-1 text-xs text-slate-400">Usually responds within {hours}h</p>;
+                  return <p className="mt-1 text-xs text-neutral-400">Usually responds within {hours}h</p>;
                 }
                 return null;
               })()}
@@ -278,7 +278,7 @@ function MessagesPageContent() {
 
             <div className="flex-1 space-y-3 overflow-y-auto p-5" style={{ maxHeight: "calc(100vh - 340px)" }}>
               {messagesLoading ? (
-                <div className="h-20 w-full animate-skeleton-pulse rounded-2xl bg-slate-200" />
+                <div className="h-20 w-full animate-skeleton-pulse rounded-2xl bg-neutral-200" />
               ) : messages && messages.length > 0 ? (
                 messages.map((msg) => {
                   const isMine = msg.sender_business_id === matchesData?.businessId;
@@ -287,12 +287,12 @@ function MessagesPageContent() {
                       <div
                         className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
                           isMine
-                            ? "bg-slate-900 text-white"
-                            : "border border-slate-200 bg-white text-slate-700"
+                            ? "bg-neutral-900 text-white"
+                            : "border border-neutral-200 bg-white text-neutral-700"
                         }`}
                       >
                         <p>{msg.content}</p>
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p className="mt-1 text-xs text-neutral-400">
                           {new Date(msg.sent_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
@@ -301,7 +301,7 @@ function MessagesPageContent() {
                 })
               ) : (
                 <div className="flex flex-col items-center gap-3 py-6">
-                  <p className="text-center text-sm text-slate-500">No messages yet. Start the conversation!</p>
+                  <p className="text-center text-sm text-neutral-500">No messages yet. Start the conversation!</p>
                   {activeMatch && (() => {
                     const icebreakers: IcebreakerPrompt[] = getIcebreakers(
                       matchesData?.businessPartnershipTypes ?? [],
@@ -314,7 +314,7 @@ function MessagesPageContent() {
                           <button
                             key={icebreaker.id}
                             type="button"
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                            className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
                             onClick={() => setNewMessage(icebreaker.prompt)}
                           >
                             {icebreaker.prompt}
@@ -328,7 +328,7 @@ function MessagesPageContent() {
               <div ref={messagesEndRef} />
             </div>
 
-            <form className="border-t border-slate-200 p-4" onSubmit={handleSend}>
+            <form className="border-t border-neutral-200 p-4" onSubmit={handleSend}>
               <div className="flex gap-3">
                 <input
                   className="input flex-1"
@@ -360,12 +360,12 @@ export default function MessagesPage() {
     <Suspense fallback={
       <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
         <div className="glass min-w-0 rounded-3xl p-5">
-          <div className="h-6 w-32 animate-skeleton-pulse rounded bg-slate-200" />
+          <div className="h-6 w-32 animate-skeleton-pulse rounded bg-neutral-200" />
           <div className="mt-4 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div className="rounded-xl border border-slate-200 px-4 py-3" key={i}>
-                <div className="h-4 w-28 animate-skeleton-pulse rounded bg-slate-200" />
-                <div className="mt-1 h-3 w-20 animate-skeleton-pulse rounded bg-slate-200" />
+              <div className="rounded-xl border border-neutral-200 px-4 py-3" key={i}>
+                <div className="h-4 w-28 animate-skeleton-pulse rounded bg-neutral-200" />
+                <div className="mt-1 h-3 w-20 animate-skeleton-pulse rounded bg-neutral-200" />
               </div>
             ))}
           </div>
@@ -373,13 +373,13 @@ export default function MessagesPage() {
         <div className="glass flex min-w-0 flex-col rounded-3xl p-5">
           <div className="space-y-3">
             <div className="flex justify-start">
-              <div className="h-10 w-48 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+              <div className="h-10 w-48 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
             </div>
             <div className="flex justify-end">
-              <div className="h-10 w-40 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+              <div className="h-10 w-40 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
             </div>
             <div className="flex justify-start">
-              <div className="h-10 w-56 animate-skeleton-pulse rounded-2xl bg-slate-200" />
+              <div className="h-10 w-56 animate-skeleton-pulse rounded-2xl bg-neutral-200" />
             </div>
           </div>
         </div>

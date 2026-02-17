@@ -122,8 +122,8 @@ export default function VerifyPage() {
     <div className="space-y-4">
       <div className="glass rounded-3xl p-6">
         <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Trust & Verification</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Submit Verification</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="text-2xl font-semibold text-neutral-900">Submit Verification</h1>
+        <p className="mt-2 text-sm text-neutral-600">
           Verify your business to build trust with potential partners. Submit documents or links for review.
         </p>
       </div>
@@ -137,23 +137,23 @@ export default function VerifyPage() {
         return (
           <div key={config.type} className="glass rounded-3xl p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">{config.label}</h2>
+              <h2 className="text-lg font-semibold text-neutral-900">{config.label}</h2>
               {existing && (
                 <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge[existing.status]}`}>
                   {existing.status}
                 </span>
               )}
             </div>
-            <p className="mt-1 text-sm text-slate-500">{config.description}</p>
+            <p className="mt-1 text-sm text-neutral-500">{config.description}</p>
 
             {existing && (
-              <div className="mt-3 space-y-1 text-sm text-slate-600">
+              <div className="mt-3 space-y-1 text-sm text-neutral-600">
                 <p>Submitted {new Date(existing.submitted_at).toLocaleDateString()}</p>
                 {existing.verified_at && (
                   <p>Verified {new Date(existing.verified_at).toLocaleDateString()}</p>
                 )}
                 {existing.reviewer_notes && (
-                  <p className="text-sm text-slate-500">Reviewer: {existing.reviewer_notes}</p>
+                  <p className="text-sm text-neutral-500">Reviewer: {existing.reviewer_notes}</p>
                 )}
               </div>
             )}

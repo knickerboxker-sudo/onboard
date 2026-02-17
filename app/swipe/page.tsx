@@ -27,7 +27,7 @@ const BADGE_STYLES: Record<TrustBadge["type"], string> = {
 function scoreColor(score: number): string {
   if (score >= 80) return "bg-emerald-500";
   if (score >= 50) return "bg-amber-500";
-  return "bg-slate-400";
+  return "bg-neutral-400";
 }
 
 function ActivityIndicator({ business }: { business: BusinessRecord }) {
@@ -39,7 +39,7 @@ function ActivityIndicator({ business }: { business: BusinessRecord }) {
   }
   if (business.avg_response_time_minutes != null) {
     const hours = Math.max(1, Math.round(business.avg_response_time_minutes / 60));
-    return <span className="text-xs text-slate-500">Responds in ~{hours}h</span>;
+    return <span className="text-xs text-neutral-500">Responds in ~{hours}h</span>;
   }
   return null;
 }
@@ -103,21 +103,21 @@ function SwipeCard({
         Pass
       </motion.div>
 
-      <div className="mb-4 h-52 overflow-hidden rounded-2xl bg-slate-200">
+      <div className="mb-4 h-52 overflow-hidden rounded-2xl bg-neutral-200">
         {business.photos?.[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img alt={business.name} className="h-full w-full object-cover" src={business.photos[0]} />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-slate-500">No image uploaded</div>
+          <div className="flex h-full items-center justify-center text-sm text-neutral-500">No image uploaded</div>
         )}
       </div>
 
-      <h2 className="text-xl font-semibold text-slate-900">{business.name}</h2>
-      <p className="mt-1 text-sm text-slate-500">
+      <h2 className="text-xl font-semibold text-neutral-900">{business.name}</h2>
+      <p className="mt-1 text-sm text-neutral-500">
         {business.business_type}
         {business.distanceMiles != null ? ` · ${business.distanceMiles.toFixed(1)} mi away` : ""}
       </p>
-      <p className="mt-3 text-sm text-slate-600">{business.description || "No description yet."}</p>
+      <p className="mt-3 text-sm text-neutral-600">{business.description || "No description yet."}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {(business.partnership_types ?? []).map((type) => (
@@ -143,11 +143,11 @@ function SwipeCard({
 
       <div className="mt-3 flex items-center gap-3">
         <div className="flex-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-xs text-neutral-500">
             <span>Match Quality</span>
-            <span className="font-medium text-slate-700">{matchScore}%</span>
+            <span className="font-medium text-neutral-700">{matchScore}%</span>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
             <div className={`h-full rounded-full ${scoreColor(matchScore)}`} style={{ width: `${matchScore}%` }} />
           </div>
         </div>
@@ -166,7 +166,7 @@ function SwipeCard({
       {icebreakerPrompts.length > 0 && (
         <div className="mt-3">
           <button
-            className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+            className="flex w-full items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-700"
             onClick={() => setShowIcebreakers((v) => !v)}
             type="button"
           >
@@ -191,10 +191,10 @@ function SwipeCard({
                 transition={{ duration: 0.2 }}
               >
                 {icebreakerPrompts.map((prompt, idx) => (
-                  <div className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2" key={idx}>
-                    <p className="flex-1 text-xs text-slate-600">&ldquo;{prompt}&rdquo;</p>
+                  <div className="flex items-start gap-2 rounded-xl bg-neutral-50 px-3 py-2" key={idx}>
+                    <p className="flex-1 text-xs text-neutral-600">&ldquo;{prompt}&rdquo;</p>
                     <button
-                      className="shrink-0 rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500 shadow-sm hover:text-slate-700"
+                      className="shrink-0 rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-500 shadow-sm hover:text-neutral-700"
                       onClick={() => copyPrompt(prompt, idx)}
                       type="button"
                     >
@@ -379,7 +379,7 @@ export default function SwipePage() {
         </Link>
       </div>
       <aside className="glass min-w-0 rounded-3xl p-5">
-        <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
         <label className="label mt-4">Distance radius</label>
         <select
           className="input"
@@ -414,7 +414,7 @@ export default function SwipePage() {
       </aside>
 
       <div className="flex min-h-[560px] items-center justify-center">
-        {isLoading ? <div className="h-96 w-full max-w-md animate-skeleton-pulse rounded-3xl bg-slate-200" /> : null}
+        {isLoading ? <div className="h-96 w-full max-w-md animate-skeleton-pulse rounded-3xl bg-neutral-200" /> : null}
         {!isLoading && error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error.message}</p> : null}
 
         <AnimatePresence mode="wait">
@@ -436,17 +436,17 @@ export default function SwipePage() {
 
         {!isLoading && swipeLimitReached ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">
-            <h3 className="text-xl font-semibold text-slate-900">Daily swipe limit reached</h3>
-            <p className="mt-2 text-sm text-slate-600">Upgrade to Pro for unlimited swipes.</p>
+            <h3 className="text-xl font-semibold text-neutral-900">Daily swipe limit reached</h3>
+            <p className="mt-2 text-sm text-neutral-600">Upgrade to Pro for unlimited swipes.</p>
           </div>
         ) : null}
         {actionError ? <p className="fixed bottom-6 left-6 z-40 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{actionError}</p> : null}
 
         {!isLoading && !activeCard && !error && !swipeLimitReached ? (
           <div className="glass max-w-md rounded-3xl p-8 text-center">
-            <MapPin className="mx-auto h-10 w-10 text-slate-300" />
-            <h3 className="mt-3 text-xl font-semibold text-slate-900">No more businesses in this stack</h3>
-            <p className="mt-2 text-sm text-slate-600">Try a wider radius, update your filters, or invite more local businesses to Sortir.</p>
+            <MapPin className="mx-auto h-10 w-10 text-neutral-300" />
+            <h3 className="mt-3 text-xl font-semibold text-neutral-900">No more businesses in this stack</h3>
+            <p className="mt-2 text-sm text-neutral-600">Try a wider radius, update your filters, or invite more local businesses to Sortir.</p>
           </div>
         ) : null}
       </div>
@@ -462,8 +462,8 @@ export default function SwipePage() {
             <p className="text-sm font-semibold text-emerald-700">It&apos;s a match with {matchName}</p>
             {icebreaker ? (
               <div className="mt-2">
-                <p className="text-xs text-slate-500">Suggested icebreaker:</p>
-                <p className="mt-1 text-xs italic text-slate-700">&ldquo;{icebreaker}&rdquo;</p>
+                <p className="text-xs text-neutral-500">Suggested icebreaker:</p>
+                <p className="mt-1 text-xs italic text-neutral-700">&ldquo;{icebreaker}&rdquo;</p>
                 <button
                   className="mt-1.5 rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100"
                   onClick={() => { navigator.clipboard.writeText(icebreaker).catch(() => { /* clipboard not available */ }); }}
@@ -474,7 +474,7 @@ export default function SwipePage() {
               </div>
             ) : null}
             <button
-              className="mt-1 text-xs text-slate-500 underline"
+              className="mt-1 text-xs text-neutral-500 underline"
               onClick={() => {
                 setMatchName(null);
                 setIcebreaker(null);

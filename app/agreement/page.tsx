@@ -193,7 +193,7 @@ function AgreementForm() {
   if (!matchId) {
     return (
       <div className="glass rounded-3xl p-6">
-        <p className="text-sm text-slate-500">No match ID provided.</p>
+        <p className="text-sm text-neutral-500">No match ID provided.</p>
         <Link href="/matches" className="btn-primary mt-3 inline-block">
           Back to Matches
         </Link>
@@ -210,8 +210,8 @@ function AgreementForm() {
   return (
     <div className="space-y-6">
       <div className="glass rounded-3xl p-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Partnership Agreement</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-neutral-900">Partnership Agreement</h1>
+        <p className="mt-1 text-sm text-neutral-500">
           Generate a partnership agreement between matched businesses.
         </p>
         <Link href={`/partnership-agreement${matchId ? `?matchId=${matchId}` : ""}`} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:text-sky-700">
@@ -223,23 +223,23 @@ function AgreementForm() {
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Parties</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Parties</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Party A</label>
             <input className="input w-full" value={businessA.name} readOnly />
-            <p className="mt-1 text-xs text-slate-500">{businessA.business_type}</p>
+            <p className="mt-1 text-xs text-neutral-500">{businessA.business_type}</p>
           </div>
           <div>
             <label className="label">Party B</label>
             <input className="input w-full" value={businessB.name} readOnly />
-            <p className="mt-1 text-xs text-slate-500">{businessB.business_type}</p>
+            <p className="mt-1 text-xs text-neutral-500">{businessB.business_type}</p>
           </div>
         </div>
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Partnership Type</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Partnership Type</h2>
         <select
           className="input mt-2 w-full"
           value={partnershipType}
@@ -255,20 +255,20 @@ function AgreementForm() {
           ))}
         </select>
         {templates.length > 0 && (
-          <p className="mt-2 text-xs text-slate-500">{templates[0].description}</p>
+          <p className="mt-2 text-xs text-neutral-500">{templates[0].description}</p>
         )}
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Template Terms</h2>
-        <p className="mt-1 text-xs text-slate-500">Select the terms to include in your agreement.</p>
+        <h2 className="text-lg font-semibold text-neutral-900">Template Terms</h2>
+        <p className="mt-1 text-xs text-neutral-500">Select the terms to include in your agreement.</p>
         {allTerms.length > 0 ? (
           <div className="mt-3 space-y-2">
             {allTerms.map((term) => (
-              <label key={term} className="flex items-start gap-2 text-sm text-slate-700">
+              <label key={term} className="flex items-start gap-2 text-sm text-neutral-700">
                 <input
                   type="checkbox"
-                  className="mt-0.5 rounded border-slate-300"
+                  className="mt-0.5 rounded border-neutral-300"
                   checked={selectedTerms.has(term)}
                   onChange={() => toggleTerm(term)}
                 />
@@ -277,12 +277,12 @@ function AgreementForm() {
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-400">No templates available for this type.</p>
+          <p className="mt-3 text-sm text-neutral-400">No templates available for this type.</p>
         )}
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Revenue Split</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Revenue Split</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">{businessA.name} (%)</label>
@@ -311,14 +311,14 @@ function AgreementForm() {
           <p className="mt-2 text-xs text-red-600">Revenue split must sum to 100%.</p>
         )}
         {templates.length > 0 && (
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-neutral-500">
             Suggested: {templates[0].suggestedSplit}
           </p>
         )}
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Duration</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Duration</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Start Date</label>
@@ -342,7 +342,7 @@ function AgreementForm() {
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Custom Terms</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Custom Terms</h2>
         <textarea
           className="input mt-2 w-full"
           rows={4}
@@ -353,7 +353,7 @@ function AgreementForm() {
       </div>
 
       <div className="glass rounded-3xl p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Digital Signatures</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Digital Signatures</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">{businessA.name} — Signed by</label>

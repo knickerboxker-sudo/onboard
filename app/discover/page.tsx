@@ -113,26 +113,29 @@ function BusinessCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={`group rounded-2xl bg-white shadow-card ring-1 ring-slate-100 transition-all hover:shadow-card-hover ${
-        isGrid ? "p-5" : "flex items-center gap-4 p-4"
-      } ${selected ? "ring-2 ring-lavender-500" : ""}`}
+      className={`group relative overflow-hidden rounded-2xl bg-white border border-neutral-100 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated ${
+        isGrid ? "p-6" : "flex items-center gap-4 p-5"
+      } ${selected ? "ring-2 ring-lavender-400 border-lavender-200" : ""}`}
     >
+      {/* Top accent line on hover */}
+      <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-lavender-400 via-spearmint-400 to-lavender-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
       <div className={isGrid ? "" : "min-w-0 flex-1"}>
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-slate-900">{business.name}</h3>
-            <p className="text-xs text-slate-500">{business.business_type}</p>
+            <h3 className="font-semibold text-neutral-900">{business.name}</h3>
+            <p className="text-xs text-neutral-500">{business.business_type}</p>
           </div>
           <div className="flex items-center gap-1">
             {business.created_at && (
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[10px] text-neutral-400">
                 {new Date(business.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}
               </span>
             )}
             <button
               onClick={onToggleSelect}
-              className={`rounded-lg p-1.5 transition-colors ${
-                selected ? "bg-lavender-100 text-lavender-600" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              className={`rounded-xl p-1.5 transition-all duration-200 ${
+                selected ? "bg-lavender-100 text-lavender-600" : "text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
               }`}
               aria-label={selected ? "Deselect business" : "Select business"}
             >
@@ -142,28 +145,28 @@ function BusinessCard({
         </div>
 
         {business.description && (
-          <p className={`mt-2 text-sm text-slate-500 ${isGrid ? "line-clamp-2" : "line-clamp-1"}`}>
+          <p className={`mt-2 text-sm text-neutral-500 ${isGrid ? "line-clamp-2" : "line-clamp-1"}`}>
             {business.description}
           </p>
         )}
 
         {/* Looking For / Can Offer sections */}
         {isGrid && (business.looking_for ?? []).length > 0 && (
-          <div className="mt-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Looking for</p>
+          <div className="mt-2.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-creamsicle-600">Looking for</p>
             <div className="mt-0.5 flex flex-wrap gap-1">
               {(business.looking_for ?? []).slice(0, 2).map((item) => (
-                <span key={item} className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] text-amber-700">{item}</span>
+                <span key={item} className="rounded-full bg-creamsicle-50 px-2 py-0.5 text-[10px] text-creamsicle-700">{item}</span>
               ))}
             </div>
           </div>
         )}
         {isGrid && (business.can_offer ?? []).length > 0 && (
           <div className="mt-1.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-600">Can offer</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-spearmint-600">Can offer</p>
             <div className="mt-0.5 flex flex-wrap gap-1">
               {(business.can_offer ?? []).slice(0, 2).map((item) => (
-                <span key={item} className="rounded-full bg-teal-50 px-2 py-0.5 text-[10px] text-teal-700">{item}</span>
+                <span key={item} className="rounded-full bg-spearmint-50 px-2 py-0.5 text-[10px] text-spearmint-700">{item}</span>
               ))}
             </div>
           </div>
@@ -171,11 +174,11 @@ function BusinessCard({
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {business.distanceMiles != null && (
-            <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1 text-xs text-neutral-500">
               <MapPin className="h-3 w-3" /> {business.distanceMiles.toFixed(1)} mi
             </span>
           )}
-          <span className="inline-flex items-center gap-1 rounded-full bg-spearmint-50 px-2 py-0.5 text-[10px] font-semibold text-spearmint-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-spearmint-50 px-2 py-0.5 text-[10px] font-semibold text-spearmint-700 border border-spearmint-100">
             <TrendingUp className="h-3 w-3" /> {Math.round(business.score)}% match
           </span>
           {badges.map((badge) => (
@@ -193,8 +196,8 @@ function BusinessCard({
                 key={tag}
                 className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                   matchingTags.includes(tag)
-                    ? "bg-violet-100 text-violet-800 ring-1 ring-violet-300"
-                    : "bg-slate-100 text-slate-600"
+                    ? "bg-lavender-100 text-lavender-700 ring-1 ring-lavender-200"
+                    : "bg-neutral-100 text-neutral-600"
                 }`}
               >
                 {matchingTags.includes(tag) && <Tag className="mr-0.5 inline h-2.5 w-2.5" />}
@@ -207,7 +210,7 @@ function BusinessCard({
         {business.partnership_types && business.partnership_types.length > 0 && (business.partnership_interest_tags ?? []).length === 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {business.partnership_types.slice(0, 3).map((type) => (
-              <span key={type} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+              <span key={type} className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-600">
                 {type}
               </span>
             ))}
@@ -216,14 +219,14 @@ function BusinessCard({
 
         {/* Request Connection button for grid view */}
         {isGrid && (
-          <button className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700">
+          <button className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-neutral-800 hover:shadow-md active:scale-[0.98]">
             <Send className="h-3 w-3" /> Request Connection
           </button>
         )}
       </div>
 
       {!isGrid && (
-        <button className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700">
+        <button className="flex flex-shrink-0 items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-neutral-800 hover:shadow-md active:scale-[0.98]">
           <Send className="h-3 w-3" /> Connect
         </button>
       )}
@@ -391,8 +394,8 @@ export default function DiscoverPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Discover Partners</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Discover Partners</h1>
+          <p className="mt-1 text-sm text-neutral-500">
             Find and connect with complementary businesses in your area.
           </p>
         </div>
@@ -402,19 +405,19 @@ export default function DiscoverPage() {
           </Link>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`rounded-lg p-2 transition-colors ${showFilters ? "bg-lavender-50 text-lavender-600" : "text-slate-400 hover:bg-slate-100"}`}
+            className={`rounded-xl p-2 transition-all duration-200 ${showFilters ? "bg-lavender-50 text-lavender-600 shadow-sm" : "text-neutral-400 hover:bg-neutral-100"}`}
           >
             <SlidersHorizontal className="h-4 w-4" />
           </button>
           <button
             onClick={() => setView("grid")}
-            className={`rounded-lg p-2 transition-colors ${view === "grid" ? "bg-lavender-50 text-lavender-600" : "text-slate-400 hover:bg-slate-100"}`}
+            className={`rounded-xl p-2 transition-all duration-200 ${view === "grid" ? "bg-lavender-50 text-lavender-600 shadow-sm" : "text-neutral-400 hover:bg-neutral-100"}`}
           >
             <Grid3X3 className="h-4 w-4" />
           </button>
           <button
             onClick={() => setView("list")}
-            className={`rounded-lg p-2 transition-colors ${view === "list" ? "bg-lavender-50 text-lavender-600" : "text-slate-400 hover:bg-slate-100"}`}
+            className={`rounded-xl p-2 transition-all duration-200 ${view === "list" ? "bg-lavender-50 text-lavender-600 shadow-sm" : "text-neutral-400 hover:bg-neutral-100"}`}
           >
             <List className="h-4 w-4" />
           </button>
@@ -423,9 +426,9 @@ export default function DiscoverPage() {
 
       {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <input
-          className="input pl-10"
+          className="input pl-11"
           placeholder="Search by name, type, what they offer, or what they're looking for..."
           value={filters.searchQuery}
           onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
@@ -434,16 +437,16 @@ export default function DiscoverPage() {
 
       {/* Recently Joined */}
       {recentlyJoined.length > 0 && !filters.searchQuery && filters.interestTags.length === 0 && filters.partnershipTypes.length === 0 && (
-        <div className="rounded-2xl bg-gradient-to-r from-creamsicle-50 to-lavender-50 p-4 ring-1 ring-creamsicle-100">
+        <div className="rounded-2xl bg-gradient-to-r from-creamsicle-50 to-lavender-50 p-5 border border-creamsicle-100/50">
           <div className="mb-3 flex items-center gap-2">
             <Clock className="h-4 w-4 text-creamsicle-600" />
-            <h3 className="text-sm font-semibold text-slate-900">Recently Joined</h3>
+            <h3 className="text-sm font-semibold text-neutral-900">Recently Joined</h3>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {recentlyJoined.map((b) => (
-              <div key={b.id} className="flex-shrink-0 rounded-xl bg-white px-3 py-2 shadow-sm ring-1 ring-slate-100">
-                <p className="text-sm font-medium text-slate-900">{b.name}</p>
-                <p className="text-[10px] text-slate-500">{b.business_type}</p>
+              <div key={b.id} className="flex-shrink-0 rounded-xl bg-white px-4 py-2.5 shadow-sm border border-neutral-100">
+                <p className="text-sm font-medium text-neutral-900">{b.name}</p>
+                <p className="text-[10px] text-neutral-500">{b.business_type}</p>
               </div>
             ))}
           </div>
@@ -452,9 +455,9 @@ export default function DiscoverPage() {
 
       {/* Selection actions bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 rounded-xl bg-lavender-50 px-4 py-3 ring-1 ring-lavender-200">
-          <span className="text-sm font-medium text-lavender-800">{selectedIds.size} selected</span>
-          <button onClick={() => setSelectedIds(new Set())} className="text-xs text-lavender-600 hover:text-lavender-700">
+        <div className="flex items-center gap-3 rounded-xl bg-lavender-50 px-5 py-3 border border-lavender-100">
+          <span className="text-sm font-medium text-lavender-700">{selectedIds.size} selected</span>
+          <button onClick={() => setSelectedIds(new Set())} className="text-xs font-medium text-lavender-600 hover:text-lavender-700">
             Clear
           </button>
         </div>
@@ -468,13 +471,13 @@ export default function DiscoverPage() {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 256, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
               className="hidden flex-shrink-0 overflow-hidden lg:block"
             >
-              <div className="w-64 space-y-5 rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-100">
+              <div className="w-64 space-y-5 rounded-2xl bg-white p-6 shadow-soft border border-neutral-100">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
-                  <button onClick={() => setFilters(defaultFilters)} className="text-xs text-lavender-600 hover:text-lavender-700">
+                  <h3 className="text-sm font-semibold text-neutral-900">Filters</h3>
+                  <button onClick={() => setFilters(defaultFilters)} className="text-xs font-medium text-lavender-600 hover:text-lavender-700">
                     Reset
                   </button>
                 </div>
@@ -491,13 +494,13 @@ export default function DiscoverPage() {
 
                 {/* Partnership Interest Tags */}
                 <div>
-                  <p className="mb-2 text-xs font-medium text-slate-700">Partnership Interests</p>
+                  <p className="mb-2 text-xs font-medium text-neutral-700">Partnership Interests</p>
                   <div className="space-y-1.5">
                     {INTEREST_TAG_OPTIONS.map((tag) => (
-                      <label key={tag} className="flex items-center gap-2 text-xs text-slate-600">
+                      <label key={tag} className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
                         <input
                           type="checkbox"
-                          className="rounded border-slate-300"
+                          className="rounded border-neutral-300 text-lavender-600 focus:ring-lavender-500/20"
                           checked={filters.interestTags.includes(tag)}
                           onChange={() => toggleInterestTag(tag)}
                         />
@@ -509,13 +512,13 @@ export default function DiscoverPage() {
 
                 {/* Partnership Types */}
                 <div>
-                  <p className="mb-2 text-xs font-medium text-slate-700">Partnership Type</p>
+                  <p className="mb-2 text-xs font-medium text-neutral-700">Partnership Type</p>
                   <div className="space-y-1.5">
                     {PARTNERSHIP_TYPE_OPTIONS.map((opt) => (
-                      <label key={opt.value} className="flex items-center gap-2 text-xs text-slate-600">
+                      <label key={opt.value} className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
                         <input
                           type="checkbox"
-                          className="rounded border-slate-300"
+                          className="rounded border-neutral-300 text-lavender-600 focus:ring-lavender-500/20"
                           checked={filters.partnershipTypes.includes(opt.value)}
                           onChange={() => togglePartnershipType(opt.value)}
                         />
@@ -540,14 +543,14 @@ export default function DiscoverPage() {
                 </div>
 
                 {/* Verified */}
-                <label className="flex items-center gap-2 text-xs text-slate-600">
+                <label className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="rounded border-slate-300"
+                    className="rounded border-neutral-300 text-lavender-600 focus:ring-lavender-500/20"
                     checked={filters.verifiedOnly}
                     onChange={(e) => setFilters((prev) => ({ ...prev, verifiedOnly: e.target.checked }))}
                   />
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-spearmint-600" />
                   Verified only
                 </label>
 
@@ -564,8 +567,8 @@ export default function DiscoverPage() {
                 </div>
 
                 {/* Save search */}
-                <div className="border-t border-slate-100 pt-4">
-                  <p className="mb-2 text-xs font-medium text-slate-700">Save Search</p>
+                <div className="border-t border-neutral-100 pt-4">
+                  <p className="mb-2 text-xs font-medium text-neutral-700">Save Search</p>
                   <div className="flex gap-2">
                     <input
                       className="input flex-1 text-xs"
@@ -580,11 +583,11 @@ export default function DiscoverPage() {
                   {savedSearches.length > 0 && (
                     <div className="mt-2 space-y-1">
                       {savedSearches.map((s) => (
-                        <div key={s.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-2 py-1.5 text-xs">
-                          <button onClick={() => loadSavedSearch(s)} className="text-slate-700 hover:text-sky-600">
+                        <div key={s.id} className="flex items-center justify-between rounded-xl bg-neutral-50 px-3 py-1.5 text-xs">
+                          <button onClick={() => loadSavedSearch(s)} className="text-neutral-700 hover:text-lavender-600">
                             {s.name}
                           </button>
-                          <button onClick={() => removeSavedSearch(s.id)} className="text-slate-400 hover:text-red-500">
+                          <button onClick={() => removeSavedSearch(s.id)} className="text-neutral-400 hover:text-red-500">
                             <X className="h-3 w-3" />
                           </button>
                         </div>
@@ -600,7 +603,7 @@ export default function DiscoverPage() {
         {/* Results */}
         <div className="min-w-0 flex-1">
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-neutral-500">
               {isLoading ? "Loading..." : `${filtered.length} business${filtered.length !== 1 ? "es" : ""} found`}
             </p>
           </div>
@@ -608,14 +611,14 @@ export default function DiscoverPage() {
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="animate-skeleton-pulse rounded-2xl bg-slate-100 p-5 h-40" />
+                <div key={i} className="animate-skeleton-pulse rounded-2xl bg-neutral-100 p-6 h-44" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-2xl bg-white p-12 text-center shadow-card ring-1 ring-slate-100">
-              <Users className="mx-auto h-12 w-12 text-slate-300" />
-              <p className="mt-4 text-sm font-medium text-slate-600">No businesses match your filters</p>
-              <p className="mt-1 text-xs text-slate-400">Try adjusting your search criteria</p>
+            <div className="rounded-2xl bg-white p-14 text-center shadow-soft border border-neutral-100">
+              <Users className="mx-auto h-12 w-12 text-neutral-300" />
+              <p className="mt-4 text-sm font-medium text-neutral-600">No businesses match your filters</p>
+              <p className="mt-1 text-xs text-neutral-400">Try adjusting your search criteria</p>
               <button onClick={() => setFilters(defaultFilters)} className="btn-muted mt-4 text-xs">
                 Reset Filters
               </button>
