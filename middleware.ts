@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
     "/dashboard",
     "/discover",
     "/messages",
+    "/matches",
     "/connections",
     "/onboarding",
     "/settings",

@@ -6,7 +6,7 @@ const footerLinks = {
     { label: "How it works", href: "/#how-it-works" },
     { label: "Launch Progress", href: "/coming-soon" },
     { label: "Success Stories", href: "/success-stories" },
-    { label: "Dashboard Preview", href: "/dashboard-preview" },
+    { label: "Partnership Ideas", href: "/partnership-ideas" },
   ],
   Company: [
     { label: "About", href: "/about" },

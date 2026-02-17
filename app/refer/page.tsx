@@ -20,10 +20,10 @@ import {
 import type { ReferralRecord } from "@/lib/types";
 
 const REFERRAL_MILESTONES = [
-  { count: 1, reward: "Extended profile visibility", icon: Star },
-  { count: 3, reward: "Free Pro month", icon: Gift },
-  { count: 5, reward: "Priority in match results", icon: Zap },
-  { count: 10, reward: "Lifetime Pro features", icon: Trophy },
+  { count: 1, reward: "Extended profile visibility boost", icon: Star },
+  { count: 3, reward: "Priority placement in discover results", icon: Zap },
+  { count: 5, reward: "Featured in city spotlight", icon: Gift },
+  { count: 10, reward: "Founding Partner badge on profile", icon: Trophy },
 ];
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
