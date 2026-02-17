@@ -146,7 +146,8 @@ export async function POST(request: Request) {
         .single();
 
       if (receiverOwner) {
-        const { data: { user: receiverUser } } = await supabase.auth.admin.getUserById(receiverOwner.owner_id);
+        const adminResult = await supabase.auth.admin.getUserById(receiverOwner.owner_id);
+        const receiverUser = adminResult.data?.user;
         if (receiverUser?.email) {
           const { sendEmail } = await import("@/lib/resend");
           const { newConnectionRequestEmail } = await import("@/lib/email-templates");

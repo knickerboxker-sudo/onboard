@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
-    return NextResponse.redirect(`${origin}/auth?error=auth_failed`);
+    return NextResponse.redirect(`${origin}/auth?error=oauth_exchange_failed`);
   }
 
   // Handle email OTP verification (token_hash flow)
