@@ -31,7 +31,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="relative z-50 mb-8 flex items-center justify-between gap-3 rounded-2xl border border-neutral-100 bg-white/80 px-5 py-3 shadow-soft backdrop-blur-xl">
+    <header className="relative z-50 mb-8 flex items-center justify-between gap-3 rounded-2xl border border-neutral-200/60 bg-white/90 px-5 py-3 shadow-soft backdrop-blur-xl">
       <div className="flex items-center gap-3">
         <Link className="flex items-center gap-2.5" href="/">
           <Image

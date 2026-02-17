@@ -20,6 +20,12 @@
     scroll-behavior: smooth;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply bg-neutral-50 text-neutral-900 antialiased;
     font-feature-settings: "ss01", "ss02", "cv01";

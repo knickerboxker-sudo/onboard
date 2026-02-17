@@ -125,7 +125,7 @@ const config: Config = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'dot-pattern': 'radial-gradient(circle, #e4e4e7 1px, transparent 1px)',
+        'dot-pattern': 'radial-gradient(circle, #E7E5E4 1px, transparent 1px)',
       },
       backgroundSize: {
         'dot-sm': '20px 20px',
@@ -137,7 +137,7 @@ const config: Config = {
       addUtilities({
         '.glass-pure': {
           'background-color': '#FFFFFF',
-          'border': '1px solid #f4f4f5',
+          'border': '1px solid #F5F5F3',
           'box-shadow': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
         },
         '.glass-blur': {
