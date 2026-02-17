@@ -1,16 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import CityProgress from "../components/CityProgress";
 import RecentSignups from "../components/RecentSignups";
 import CityRequestForm from "../components/CityRequestForm";
 
-const cities = ["Ann Arbor Area", "Detroit Area", "Grand Rapids Area"] as const;
-
 export default function ComingSoonPage() {
-  const [selectedCity, setSelectedCity] = useState<string>("Ann Arbor Area");
+  const city = "Ann Arbor Area";
 
   return (
     <div className="space-y-14">
@@ -21,34 +18,14 @@ export default function ComingSoonPage() {
           Pre-Launch
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
-          Sortir is coming to{" "}
+          Sortir is launching in the{" "}
           <span className="bg-gradient-to-r from-lavender-600 to-spearmint-500 bg-clip-text text-transparent">
-            Michigan
+            Ann Arbor Area
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-lg text-neutral-500">
-          We&apos;re launching city-by-city. When enough local businesses join,
-          we go live. Be part of your city&apos;s launch.
+          We&apos;re starting in Ann Arbor, Ypsilanti, Saline, Milan, Dexter, Chelsea, Whitmore Lake, and surrounding Washtenaw County communities. When enough local businesses join, we go live.
         </p>
-      </section>
-
-      {/* City selector */}
-      <section className="mx-auto max-w-2xl">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {cities.map((city) => (
-            <button
-              key={city}
-              onClick={() => setSelectedCity(city)}
-              className={`rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
-                selectedCity === city
-                  ? "bg-neutral-900 text-white shadow-lg"
-                  : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 shadow-sm"
-              }`}
-            >
-              {city}
-            </button>
-          ))}
-        </div>
       </section>
 
       {/* Progress + signups grid */}
@@ -57,9 +34,9 @@ export default function ComingSoonPage() {
         <div className="space-y-6">
           <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
             <h2 className="mb-5 text-lg font-semibold text-neutral-900">
-              {selectedCity} launch progress
+              {city} launch progress
             </h2>
-            <CityProgress city={selectedCity} />
+            <CityProgress city={city} />
             <p className="mt-4 text-sm text-neutral-500">
               Launch happens when we hit the target number of businesses.
             </p>
@@ -73,26 +50,47 @@ export default function ComingSoonPage() {
             <ArrowRight className="h-4 w-4" />
           </Link>
 
-          {/* Michigan cities map placeholder */}
+          {/* Ann Arbor Area communities */}
           <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-soft">
             <h3 className="mb-4 text-sm font-semibold text-neutral-900">
-              Michigan Launch Cities
+              Ann Arbor Area Communities
             </h3>
-            <div className="space-y-1.5">
-              {cities.map((city) => (
-                <button
-                  key={city}
-                  onClick={() => setSelectedCity(city)}
-                  className={`flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200 ${
-                    selectedCity === city
-                      ? "bg-lavender-50 text-lavender-700 font-medium shadow-sm"
-                      : "text-neutral-600 hover:bg-neutral-50"
-                  }`}
-                >
-                  <MapPin className="h-3.5 w-3.5" />
-                  {city}, MI
-                </button>
-              ))}
+            <div className="grid grid-cols-2 gap-2 text-xs text-neutral-600">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Ann Arbor
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Ypsilanti
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Saline
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Milan
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Dexter
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Chelsea
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Whitmore Lake
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-lavender-500" />
+                Pittsfield Twp.
+              </div>
+              <div className="col-span-2 text-center italic text-neutral-400">
+                + surrounding areas
+              </div>
             </div>
           </div>
         </div>
@@ -101,9 +99,9 @@ export default function ComingSoonPage() {
         <div className="space-y-6">
           <div className="rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft">
             <h2 className="mb-5 text-lg font-semibold text-neutral-900">
-              Recently joined in {selectedCity}
+              Recently joined in {city}
             </h2>
-            <RecentSignups city={selectedCity} />
+            <RecentSignups city={city} />
           </div>
 
           {/* Request your city */}

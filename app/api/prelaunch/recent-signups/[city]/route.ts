@@ -9,12 +9,22 @@ export async function GET(
 ) {
   try {
     const city = decodeURIComponent(params.city);
+    
+    // Only accept ann-arbor-area
+    const normalizedCity = city.toLowerCase().replace(/\s+/g, '-');
+    if (normalizedCity !== 'ann-arbor-area') {
+      return NextResponse.json(
+        { error: "City not found. Sortir is currently only launching in the Ann Arbor Area." },
+        { status: 404 }
+      );
+    }
+
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from("pre_launch_signups")
       .select("id, business_name, business_type, city, created_at")
-      .eq("city", city)
+      .eq("city", "Ann Arbor Area")
       .order("created_at", { ascending: false })
       .limit(10);
 
