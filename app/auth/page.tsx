@@ -37,7 +37,7 @@ export default function AuthPage() {
       return;
     }
 
-    router.push("/swipe");
+    router.push("/discover");
   };
 
   return (

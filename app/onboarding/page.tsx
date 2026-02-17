@@ -345,7 +345,7 @@ export default function OnboardingPage() {
     }
 
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
-    router.push("/swipe");
+    router.push("/discover");
   };
 
   return (
@@ -778,7 +778,7 @@ export default function OnboardingPage() {
           </button>
           <div className="flex items-center gap-3">
             {step === 4 ? (
-              <button className="btn-muted" onClick={() => router.push("/swipe")} type="button">
+              <button className="btn-muted" onClick={() => router.push("/discover")} type="button">
                 Skip for now
               </button>
             ) : null}

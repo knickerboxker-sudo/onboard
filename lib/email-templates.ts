@@ -126,7 +126,7 @@ export function LaunchEmail({
           </h2>
           <ol style="font-size: 14px; color: #71717a; line-height: 1.8; padding-left: 20px; margin: 0;">
             <li>Complete your business profile</li>
-            <li>Start swiping through potential partners</li>
+            <li>Discover and connect with potential partners</li>
             <li>Send your first partnership message</li>
           </ol>
         </div>

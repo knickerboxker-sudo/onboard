@@ -7,7 +7,6 @@ import { getTrustBadges } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge, SavedAssessmentRecord } from "@/lib/types";
 import Link from "next/link";
 import {
-  Activity,
   Award,
   BadgeCheck,
   DollarSign,
@@ -18,6 +17,7 @@ import {
   Star,
   Trash2,
   TrendingUp,
+  Users,
 } from "lucide-react";
 
 type Partnership = {
@@ -63,7 +63,6 @@ export default function DashboardPage() {
       const matchIds = (matchRows ?? []).map((m: { id: string }) => m.id);
 
       const [
-        { count: swipeCount },
         { count: matchCount },
         { count: sentCount },
         { count: receivedCount },
@@ -72,11 +71,8 @@ export default function DashboardPage() {
         { data: verifications },
         { data: reviews },
         { data: savedAssessments },
+        { count: connectionRequestCount },
       ] = await Promise.all([
-        supabase
-          .from("swipes")
-          .select("id", { count: "exact", head: true })
-          .eq("swiper_business_id", bizId),
         supabase
           .from("matches")
           .select("id", { count: "exact", head: true })
@@ -112,6 +108,11 @@ export default function DashboardPage() {
           .select("*")
           .eq("creator_business_id", bizId)
           .order("created_at", { ascending: false }),
+        supabase
+          .from("connection_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("receiver_business_id", bizId)
+          .eq("status", "pending"),
       ]);
 
       const activePartnerships = (partnerships ?? []).filter(
@@ -139,11 +140,11 @@ export default function DashboardPage() {
 
       return {
         business: business as BusinessRecord,
-        swipeCount: swipeCount ?? 0,
         matchCount: matchCount ?? 0,
         sentCount: sentCount ?? 0,
         receivedCount: receivedCount ?? 0,
         profileViewCount: profileViewCount ?? 0,
+        connectionRequestCount: connectionRequestCount ?? 0,
         activePartnerships: activePartnerships.length,
         completedPartnerships: completedPartnerships.length,
         pendingPartnerships: pendingPartnerships.length,
@@ -195,8 +196,8 @@ export default function DashboardPage() {
     : [];
 
   const statCards = [
-    { label: "Total Swipes", value: data?.swipeCount, icon: Activity },
-    { label: "Matches", value: data?.matchCount, icon: Handshake },
+    { label: "Connections", value: data?.matchCount, icon: Handshake },
+    { label: "Connection Requests", value: data?.connectionRequestCount, icon: Users },
     { label: "Messages Sent", value: data?.sentCount, icon: MessageCircle },
     { label: "Messages Received", value: data?.receivedCount, icon: MessageCircle },
     { label: "Pending Partnerships", value: data?.pendingPartnerships, icon: Handshake },

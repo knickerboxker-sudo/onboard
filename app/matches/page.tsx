@@ -613,8 +613,8 @@ export default function MatchesPage() {
               <div className="flex flex-col items-center gap-2">
                 <Users className="h-8 w-8 text-slate-300" />
                 <h3 className="text-base font-semibold text-slate-900">Discover Partners</h3>
-                <p className="text-sm text-slate-500">Start swiping to discover businesses that complement yours.</p>
-                <Link href="/swipe" className="btn-primary mt-2">Start Swiping</Link>
+                <p className="text-sm text-slate-500">Browse businesses in your area to find your next collaboration partner.</p>
+                <Link href="/discover" className="btn-primary mt-2">Discover Partners</Link>
               </div>
             )}
           </li>

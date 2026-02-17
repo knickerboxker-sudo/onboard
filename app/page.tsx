@@ -26,13 +26,13 @@ const features = [
     icon: MapPin,
     title: "Discover local partners",
     description:
-      "Find complementary businesses in your city using location-based matching and swipe through potential partners.",
+      "Find complementary businesses in your city using location-based search and browse through potential partners.",
   },
   {
     icon: Users,
-    title: "Match & connect",
+    title: "Connect & collaborate",
     description:
-      "When both businesses express interest, a mutual match is created instantly so you can start collaborating right away.",
+      "Send connection requests to businesses you'd like to partner with and start collaborating right away.",
   },
   {
     icon: MessageCircle,
@@ -82,16 +82,16 @@ const steps = [
   },
   {
     number: "02",
-    title: "Discover & swipe",
+    title: "Discover & connect",
     description:
-      "Browse nearby complementary businesses and swipe right on potential partners you'd like to work with.",
+      "Browse nearby complementary businesses and send connection requests to potential partners you'd like to work with.",
     icon: Zap,
   },
   {
     number: "03",
-    title: "Match & collaborate",
+    title: "Collaborate & grow",
     description:
-      "When both businesses swipe right, you match — then chat, build agreements, and start growing together.",
+      "Once connected, chat, build agreements, and start growing together through smart partnerships.",
     icon: Handshake,
   },
 ];

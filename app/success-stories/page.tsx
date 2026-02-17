@@ -69,7 +69,7 @@ export default function SuccessStoriesPage() {
           partnerships on Sortir.
         </p>
         <Link
-          href="/swipe"
+          href="/discover"
           className="mt-2 inline-flex rounded-xl bg-white px-8 py-4 text-sm font-semibold text-slate-900 shadow-lg shadow-white/10 transition-all hover:-translate-y-0.5 hover:shadow-xl"
         >
           Create Your Success Story

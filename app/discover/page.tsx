@@ -165,12 +165,11 @@ function BusinessCard({
       </div>
 
       {!isGrid && (
-        <Link
-          href="/swipe"
+        <button
           className="flex-shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700"
         >
-          View
-        </Link>
+          Connect
+        </button>
       )}
     </motion.div>
   );
@@ -311,9 +310,6 @@ export default function DiscoverPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/swipe" className="btn-muted text-xs">
-            Swipe View
-          </Link>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`rounded-lg p-2 transition-colors ${showFilters ? "bg-sky-50 text-sky-600" : "text-slate-400 hover:bg-slate-100"}`}

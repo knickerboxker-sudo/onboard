@@ -112,10 +112,10 @@ export default function ProfileViewsPage() {
         <div className="glass rounded-3xl p-8 text-center">
           <h3 className="text-xl font-semibold text-slate-900">No profile views yet</h3>
           <p className="mt-2 text-sm text-slate-600">
-            When other businesses view your profile while swiping, they&apos;ll appear here.
+            When other businesses view your profile while browsing, they&apos;ll appear here.
           </p>
-          <Link href="/swipe" className="btn-primary mt-4 inline-block">
-            Start swiping
+          <Link href="/discover" className="btn-primary mt-4 inline-block">
+            Discover businesses
           </Link>
         </div>
       ) : null}
@@ -132,7 +132,7 @@ export default function ProfileViewsPage() {
                   {view.viewer?.business_type ?? "Business"} · {formatTimeAgo(view.viewed_at)}
                 </p>
               </div>
-              <Link href="/swipe" className="btn-muted ml-3 shrink-0 text-sm">
+              <Link href="/discover" className="btn-muted ml-3 shrink-0 text-sm">
                 View Their Profile
               </Link>
             </div>
