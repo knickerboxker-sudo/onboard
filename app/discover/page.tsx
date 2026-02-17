@@ -31,6 +31,11 @@ const PARTNERSHIP_TYPE_OPTIONS = [
   { value: "social-media-collab", label: "Social Media Collab" },
 ];
 
+const INTEREST_TAG_OPTIONS = [
+  "Events", "Cross-Promotion", "Product Placement", "Revenue Share",
+  "Referral Program", "Joint Marketing", "Space Sharing", "Equipment Sharing", "Bulk Purchasing",
+];
+
 const DISTANCE_OPTIONS = [
   { value: 5, label: "5 miles" },
   { value: 10, label: "10 miles" },
@@ -43,6 +48,8 @@ const SORT_OPTIONS = [
   { value: "match_score", label: "Match Score" },
   { value: "distance", label: "Distance" },
   { value: "newest", label: "Newest" },
+  { value: "most_active", label: "Most Active" },
+  { value: "recently_updated", label: "Recently Updated" },
   { value: "verified", label: "Most Verified" },
 ];
 
@@ -62,6 +69,7 @@ type SavedSearch = {
 type FilterState = {
   searchQuery: string;
   partnershipTypes: string[];
+  interestTags: string[];
   maxDistance: number;
   verifiedOnly: boolean;
   minYears: number;
@@ -71,6 +79,7 @@ type FilterState = {
 const defaultFilters: FilterState = {
   searchQuery: "",
   partnershipTypes: [],
+  interestTags: [],
   maxDistance: 50,
   verifiedOnly: false,
   minYears: 0,
