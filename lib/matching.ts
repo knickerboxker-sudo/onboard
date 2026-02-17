@@ -793,7 +793,7 @@ export function generatePartnershipInsights(
     insights.push({
       type: "growth_opportunity",
       title: "Start your first partnership",
-      description: "Businesses with at least one active partnership see 40% more profile views. Start swiping to find your perfect match!",
+      description: "Businesses with active partnerships get more profile views and engagement. Start swiping to find your perfect match!",
       priority: "high",
       actionLabel: "Find Partners",
       actionHref: "/swipe",
@@ -883,7 +883,7 @@ export function generatePartnershipInsights(
     insights.push({
       type: "diversify",
       title: "Diversify your partnership types",
-      description: `All ${partnerships.length} of your partnerships are ${typeKeys[0]}. Businesses with diverse partnership types report 25% higher overall satisfaction.`,
+      description: `All ${partnerships.length} of your partnerships are ${typeKeys[0]}. Businesses with diverse partnership types tend to report higher overall satisfaction.`,
       priority: "medium",
       actionLabel: "Explore Ideas",
       actionHref: "/partnership-ideas",

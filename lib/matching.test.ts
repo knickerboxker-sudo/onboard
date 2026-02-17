@@ -836,7 +836,7 @@ describe("buildActivityFeed", () => {
       partnerships: [],
       matches: Array.from({ length: 30 }, (_, i) => ({
         id: `m${i}`,
-        created_at: `2025-12-${String(i + 1).padStart(2, "0")}T10:00:00Z`,
+        created_at: new Date(2025, 11, (i % 28) + 1, 10).toISOString(),
       })),
       recentMessages: [],
     };
