@@ -14,12 +14,15 @@ import {
   collaborationIntentScore,
   calculateProfileCompletion,
   getPartnershipIdeasByCategory,
+  generatePartnershipInsights,
+  buildActivityFeed,
   TIER_LIMITS,
   PARTNERSHIP_TEMPLATES,
   ICEBREAKER_PROMPTS,
   PARTNERSHIP_IDEAS,
   PROPOSAL_TEMPLATES,
 } from "@/lib/matching";
+import type { PartnershipDataForInsights, RawActivityData } from "@/lib/matching";
 import type { BusinessRecord, SwipeFilters } from "@/lib/types";
 import { PARTNERSHIP_INTEREST_TAGS } from "@/lib/types";
 
@@ -562,5 +565,319 @@ describe("proposal templates", () => {
       expect(template.terms.length).toBeGreaterThanOrEqual(1);
       expect(template.nextSteps.length).toBeGreaterThanOrEqual(1);
     }
+  });
+});
+
+// --- Partnership Insights Engine Tests ---
+
+describe("generatePartnershipInsights", () => {
+  const now = new Date("2026-01-15");
+
+  it("suggests starting first partnership when no partnerships exist", () => {
+    const insights = generatePartnershipInsights([], now);
+    expect(insights).toHaveLength(1);
+    expect(insights[0].type).toBe("growth_opportunity");
+    expect(insights[0].priority).toBe("high");
+    expect(insights[0].actionHref).toBe("/swipe");
+  });
+
+  it("identifies top revenue-generating partnership type", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 5000, customers_acquired: 20, start_date: "2025-12-01", end_date: null },
+      { partnership_type: "cross-promotion", status: "completed", revenue_generated: 3000, customers_acquired: 15, start_date: "2025-10-01", end_date: "2025-12-01" },
+      { partnership_type: "wholesale", status: "active", revenue_generated: 1000, customers_acquired: 5, start_date: "2025-11-01", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const topType = insights.find((i) => i.type === "top_type");
+    expect(topType).toBeDefined();
+    expect(topType!.title).toContain("cross-promotion");
+    expect(topType!.description).toContain("8x");
+  });
+
+  it("does not generate top_type insight when revenue difference is small", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 1000, customers_acquired: 10, start_date: "2025-12-01", end_date: null },
+      { partnership_type: "wholesale", status: "active", revenue_generated: 900, customers_acquired: 5, start_date: "2025-11-01", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const topType = insights.find((i) => i.type === "top_type");
+    expect(topType).toBeUndefined();
+  });
+
+  it("detects dormant activity when no partnerships started recently", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "cross-promotion", status: "completed", revenue_generated: 2000, customers_acquired: 10, start_date: "2025-06-01", end_date: "2025-09-01" },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const dormant = insights.find((i) => i.type === "dormant_alert");
+    expect(dormant).toBeDefined();
+    expect(dormant!.priority).toBe("high");
+    expect(dormant!.actionHref).toBe("/swipe");
+  });
+
+  it("does not trigger dormant alert when partnership started recently", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 500, customers_acquired: 5, start_date: "2026-01-05", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const dormant = insights.find((i) => i.type === "dormant_alert");
+    expect(dormant).toBeUndefined();
+  });
+
+  it("suggests diversifying when all partnerships are same type", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "wholesale", status: "active", revenue_generated: 500, customers_acquired: 5, start_date: "2026-01-05", end_date: null },
+      { partnership_type: "wholesale", status: "completed", revenue_generated: 800, customers_acquired: 8, start_date: "2025-10-01", end_date: "2025-12-15" },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const diversify = insights.find((i) => i.type === "diversify");
+    expect(diversify).toBeDefined();
+    expect(diversify!.description).toContain("wholesale");
+    expect(diversify!.actionHref).toBe("/partnership-ideas");
+  });
+
+  it("highlights high-performing active partnerships", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "event-collab", status: "active", revenue_generated: 3500, customers_acquired: 25, start_date: "2025-12-01", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const highPerformer = insights.find((i) => i.type === "high_performer");
+    expect(highPerformer).toBeDefined();
+    expect(highPerformer!.description).toContain("$3,500");
+    expect(highPerformer!.description).toContain("25 customers");
+  });
+
+  it("suggests milestones for active partnerships", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 100, customers_acquired: 3, start_date: "2026-01-01", end_date: null },
+      { partnership_type: "wholesale", status: "active", revenue_generated: 200, customers_acquired: 5, start_date: "2026-01-10", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const milestone = insights.find((i) => i.type === "milestone_suggestion");
+    expect(milestone).toBeDefined();
+    expect(milestone!.description).toContain("2 active partnerships");
+  });
+
+  it("sorts insights by priority (high first)", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 5000, customers_acquired: 20, start_date: "2025-06-01", end_date: null },
+      { partnership_type: "wholesale", status: "active", revenue_generated: 500, customers_acquired: 5, start_date: "2025-06-01", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    expect(insights.length).toBeGreaterThan(1);
+    const priorities = insights.map((i) => i.priority);
+    const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    for (let i = 1; i < priorities.length; i++) {
+      expect(priorityOrder[priorities[i]]).toBeGreaterThanOrEqual(priorityOrder[priorities[i - 1]]);
+    }
+  });
+
+  it("detects declining revenue trend", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      // Older: high revenue
+      { partnership_type: "cross-promotion", status: "completed", revenue_generated: 5000, customers_acquired: 30, start_date: "2025-06-01", end_date: "2025-09-01" },
+      { partnership_type: "wholesale", status: "completed", revenue_generated: 4000, customers_acquired: 20, start_date: "2025-07-01", end_date: "2025-10-01" },
+      // Recent: low revenue
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 500, customers_acquired: 5, start_date: "2025-11-01", end_date: null },
+      { partnership_type: "wholesale", status: "active", revenue_generated: 400, customers_acquired: 3, start_date: "2025-12-01", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const trend = insights.find((i) => i.type === "revenue_trend");
+    expect(trend).toBeDefined();
+    expect(trend!.title).toContain("declining");
+    expect(trend!.priority).toBe("high");
+  });
+
+  it("detects growing revenue trend", () => {
+    const partnerships: PartnershipDataForInsights[] = [
+      // Older: low revenue
+      { partnership_type: "cross-promotion", status: "completed", revenue_generated: 500, customers_acquired: 5, start_date: "2025-06-01", end_date: "2025-09-01" },
+      // Recent: high revenue
+      { partnership_type: "cross-promotion", status: "active", revenue_generated: 5000, customers_acquired: 30, start_date: "2025-11-01", end_date: null },
+    ];
+    const insights = generatePartnershipInsights(partnerships, now);
+    const trend = insights.find((i) => i.type === "revenue_trend");
+    expect(trend).toBeDefined();
+    expect(trend!.title).toContain("growing");
+    expect(trend!.priority).toBe("medium");
+  });
+});
+
+// --- Activity Feed Tests ---
+
+describe("buildActivityFeed", () => {
+  it("returns empty array when no data provided", () => {
+    const feed = buildActivityFeed({ partnerships: [], matches: [], recentMessages: [] });
+    expect(feed).toEqual([]);
+  });
+
+  it("creates feed items for active partnerships", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p1", partnership_type: "cross-promotion", status: "active", revenue_generated: 500, customers_acquired: 5, start_date: "2025-12-01", end_date: null },
+      ],
+      matches: [],
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data);
+    expect(feed.length).toBeGreaterThanOrEqual(1);
+    const started = feed.find((f) => f.type === "partnership_started");
+    expect(started).toBeDefined();
+    expect(started!.description).toContain("cross-promotion");
+  });
+
+  it("creates feed items for completed partnerships with revenue", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p2", partnership_type: "wholesale", status: "completed", revenue_generated: 2500, customers_acquired: 15, start_date: "2025-10-01", end_date: "2025-12-15" },
+      ],
+      matches: [],
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data);
+    const completed = feed.find((f) => f.type === "partnership_completed");
+    expect(completed).toBeDefined();
+    expect(completed!.description).toContain("$2,500");
+  });
+
+  it("creates revenue milestone items for high-revenue partnerships", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p3", partnership_type: "event-collab", status: "active", revenue_generated: 3500, customers_acquired: 5, start_date: "2025-11-01", end_date: null },
+      ],
+      matches: [],
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data);
+    const milestone = feed.find((f) => f.type === "revenue_milestone");
+    expect(milestone).toBeDefined();
+    expect(milestone!.title).toContain("$3,000");
+  });
+
+  it("creates customer milestone items for partnerships with many customers", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p4", partnership_type: "cross-promotion", status: "active", revenue_generated: 500, customers_acquired: 25, start_date: "2025-11-01", end_date: null },
+      ],
+      matches: [],
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data);
+    const milestone = feed.find((f) => f.type === "customer_milestone");
+    expect(milestone).toBeDefined();
+    expect(milestone!.title).toContain("20 customers");
+  });
+
+  it("includes match events in the feed", () => {
+    const data: RawActivityData = {
+      partnerships: [],
+      matches: [
+        { id: "m1", created_at: "2025-12-20T10:00:00Z" },
+      ],
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data);
+    expect(feed).toHaveLength(1);
+    expect(feed[0].type).toBe("new_match");
+    expect(feed[0].actionHref).toBe("/messages");
+  });
+
+  it("includes message events and truncates long content", () => {
+    const longContent = "A".repeat(100);
+    const data: RawActivityData = {
+      partnerships: [],
+      matches: [],
+      recentMessages: [
+        { id: "msg1", match_id: "m1", content: longContent, created_at: "2025-12-21T10:00:00Z", sender_name: "Bakery Co" },
+      ],
+    };
+    const feed = buildActivityFeed(data);
+    expect(feed).toHaveLength(1);
+    expect(feed[0].type).toBe("message_received");
+    expect(feed[0].title).toContain("Bakery Co");
+    expect(feed[0].description.length).toBeLessThanOrEqual(80);
+    expect(feed[0].description).toContain("…");
+  });
+
+  it("does not truncate short messages", () => {
+    const data: RawActivityData = {
+      partnerships: [],
+      matches: [],
+      recentMessages: [
+        { id: "msg2", match_id: "m1", content: "Hello!", created_at: "2025-12-21T10:00:00Z" },
+      ],
+    };
+    const feed = buildActivityFeed(data);
+    expect(feed[0].description).toBe("Hello!");
+  });
+
+  it("sorts feed items by timestamp descending (newest first)", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p1", partnership_type: "wholesale", status: "active", revenue_generated: 100, customers_acquired: 2, start_date: "2025-10-01", end_date: null },
+      ],
+      matches: [
+        { id: "m1", created_at: "2025-12-20T10:00:00Z" },
+      ],
+      recentMessages: [
+        { id: "msg1", match_id: "m1", content: "Hi!", created_at: "2025-12-25T10:00:00Z" },
+      ],
+    };
+    const feed = buildActivityFeed(data);
+    for (let i = 1; i < feed.length; i++) {
+      expect(new Date(feed[i - 1].timestamp).getTime()).toBeGreaterThanOrEqual(
+        new Date(feed[i].timestamp).getTime(),
+      );
+    }
+  });
+
+  it("limits feed to specified number of items", () => {
+    const data: RawActivityData = {
+      partnerships: [],
+      matches: Array.from({ length: 30 }, (_, i) => ({
+        id: `m${i}`,
+        created_at: `2025-12-${String(i + 1).padStart(2, "0")}T10:00:00Z`,
+      })),
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data, 5);
+    expect(feed).toHaveLength(5);
+  });
+
+  it("creates paused partnership feed items", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p5", partnership_type: "event-collab", status: "paused", revenue_generated: 0, customers_acquired: 0, start_date: "2025-11-01", end_date: null, updated_at: "2025-12-15T10:00:00Z" },
+      ],
+      matches: [],
+      recentMessages: [],
+    };
+    const feed = buildActivityFeed(data);
+    const paused = feed.find((f) => f.type === "partnership_paused");
+    expect(paused).toBeDefined();
+    expect(paused!.description).toContain("paused");
+  });
+
+  it("combines all event types and maintains order", () => {
+    const data: RawActivityData = {
+      partnerships: [
+        { id: "p1", partnership_type: "cross-promotion", status: "active", revenue_generated: 2000, customers_acquired: 15, start_date: "2025-11-01", end_date: null },
+        { id: "p2", partnership_type: "wholesale", status: "completed", revenue_generated: 1500, customers_acquired: 10, start_date: "2025-09-01", end_date: "2025-12-01" },
+      ],
+      matches: [
+        { id: "m1", created_at: "2025-12-10T10:00:00Z" },
+      ],
+      recentMessages: [
+        { id: "msg1", match_id: "m1", content: "Let's collaborate!", created_at: "2025-12-20T10:00:00Z", sender_name: "Coffee Co" },
+      ],
+    };
+    const feed = buildActivityFeed(data);
+    expect(feed.length).toBeGreaterThanOrEqual(4);
+
+    const types = new Set(feed.map((f) => f.type));
+    expect(types.has("partnership_started")).toBe(true);
+    expect(types.has("partnership_completed")).toBe(true);
+    expect(types.has("new_match")).toBe(true);
+    expect(types.has("message_received")).toBe(true);
   });
 });

@@ -749,3 +749,335 @@ export const PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     ],
   },
 ];
+
+// --- Retention Feature 1: Partnership Insights Engine ---
+
+export type PartnershipInsightType =
+  | "top_type"
+  | "revenue_trend"
+  | "dormant_alert"
+  | "milestone_suggestion"
+  | "diversify"
+  | "high_performer"
+  | "growth_opportunity";
+
+export type PartnershipInsight = {
+  type: PartnershipInsightType;
+  title: string;
+  description: string;
+  priority: "high" | "medium" | "low";
+  actionLabel?: string;
+  actionHref?: string;
+};
+
+export type PartnershipDataForInsights = {
+  partnership_type: string;
+  status: string;
+  revenue_generated: number;
+  customers_acquired: number;
+  start_date: string;
+  end_date: string | null;
+};
+
+/**
+ * Analyze a business's partnership history and produce actionable insights
+ * that encourage return visits and deeper platform engagement.
+ */
+export function generatePartnershipInsights(
+  partnerships: PartnershipDataForInsights[],
+  now: Date = new Date(),
+): PartnershipInsight[] {
+  const insights: PartnershipInsight[] = [];
+
+  if (partnerships.length === 0) {
+    insights.push({
+      type: "growth_opportunity",
+      title: "Start your first partnership",
+      description: "Businesses with at least one active partnership see 40% more profile views. Start swiping to find your perfect match!",
+      priority: "high",
+      actionLabel: "Find Partners",
+      actionHref: "/swipe",
+    });
+    return insights;
+  }
+
+  // --- Top performing partnership type ---
+  const revenueByType: Record<string, number> = {};
+  const countByType: Record<string, number> = {};
+  for (const p of partnerships) {
+    revenueByType[p.partnership_type] = (revenueByType[p.partnership_type] || 0) + (Number(p.revenue_generated) || 0);
+    countByType[p.partnership_type] = (countByType[p.partnership_type] || 0) + 1;
+  }
+
+  const sortedTypes = Object.entries(revenueByType).sort((a, b) => b[1] - a[1]);
+  if (sortedTypes.length >= 2 && sortedTypes[0][1] > 0) {
+    const topType = sortedTypes[0][0];
+    const topRevenue = sortedTypes[0][1];
+    const secondRevenue = sortedTypes[1][1] || 1;
+    const multiplier = Math.round((topRevenue / secondRevenue) * 10) / 10;
+    if (multiplier >= 1.5) {
+      insights.push({
+        type: "top_type",
+        title: `${topType} is your revenue powerhouse`,
+        description: `Your ${topType} partnerships generate ${multiplier}x more revenue than your next best type. Consider doubling down on this category.`,
+        priority: "high",
+        actionLabel: "Find More Partners",
+        actionHref: "/swipe",
+      });
+    }
+  }
+
+  // --- Revenue trend (recent vs older) ---
+  const cutoff = new Date(now);
+  cutoff.setDate(cutoff.getDate() - 90);
+  const recent = partnerships.filter((p) => new Date(p.start_date) >= cutoff);
+  const older = partnerships.filter((p) => new Date(p.start_date) < cutoff);
+
+  if (recent.length > 0 && older.length > 0) {
+    const recentAvg = recent.reduce((s, p) => s + (Number(p.revenue_generated) || 0), 0) / recent.length;
+    const olderAvg = older.reduce((s, p) => s + (Number(p.revenue_generated) || 0), 0) / older.length;
+
+    if (olderAvg > 0) {
+      const changePercent = Math.round(((recentAvg - olderAvg) / olderAvg) * 100);
+      if (changePercent > 20) {
+        insights.push({
+          type: "revenue_trend",
+          title: "Revenue per partnership is growing",
+          description: `Your recent partnerships earn ${changePercent}% more on average than earlier ones. Your strategy is working!`,
+          priority: "medium",
+        });
+      } else if (changePercent < -20) {
+        insights.push({
+          type: "revenue_trend",
+          title: "Revenue per partnership is declining",
+          description: `Recent partnerships are earning ${Math.abs(changePercent)}% less on average. Review your partnership terms or try a different partnership type.`,
+          priority: "high",
+          actionLabel: "Partnership Builder",
+          actionHref: "/partnership-builder",
+        });
+      }
+    }
+  }
+
+  // --- Dormant alert (no new partnerships recently) ---
+  const latestStartDate = partnerships.reduce((latest, p) => {
+    const d = new Date(p.start_date);
+    return d > latest ? d : latest;
+  }, new Date(0));
+  const daysSinceLast = Math.floor((now.getTime() - latestStartDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysSinceLast > 30) {
+    insights.push({
+      type: "dormant_alert",
+      title: `${daysSinceLast} days since your last partnership`,
+      description: "Staying active helps you appear in more searches. Swipe through new businesses to keep your momentum going.",
+      priority: "high",
+      actionLabel: "Discover Partners",
+      actionHref: "/swipe",
+    });
+  }
+
+  // --- Diversify suggestion ---
+  const typeKeys = Object.keys(countByType);
+  if (typeKeys.length === 1 && partnerships.length >= 2) {
+    insights.push({
+      type: "diversify",
+      title: "Diversify your partnership types",
+      description: `All ${partnerships.length} of your partnerships are ${typeKeys[0]}. Businesses with diverse partnership types report 25% higher overall satisfaction.`,
+      priority: "medium",
+      actionLabel: "Explore Ideas",
+      actionHref: "/partnership-ideas",
+    });
+  }
+
+  // --- High performer shoutout ---
+  const highPerformers = partnerships.filter(
+    (p) => p.status === "active" && (Number(p.revenue_generated) || 0) > 0 && (Number(p.customers_acquired) || 0) > 0,
+  );
+  if (highPerformers.length > 0) {
+    const best = highPerformers.sort(
+      (a, b) => (Number(b.revenue_generated) || 0) - (Number(a.revenue_generated) || 0),
+    )[0];
+    insights.push({
+      type: "high_performer",
+      title: "You have a star partnership",
+      description: `Your top active partnership has generated $${Number(best.revenue_generated).toLocaleString()} in revenue and acquired ${best.customers_acquired} customers. Keep it going!`,
+      priority: "low",
+    });
+  }
+
+  // --- Milestone suggestion for active partnerships ---
+  const activeCount = partnerships.filter((p) => p.status === "active").length;
+  if (activeCount > 0) {
+    insights.push({
+      type: "milestone_suggestion",
+      title: "Set milestones for your active partnerships",
+      description: `You have ${activeCount} active partnership${activeCount > 1 ? "s" : ""}. Setting milestones helps track progress and celebrate wins together.`,
+      priority: "medium",
+      actionLabel: "View Partnerships",
+      actionHref: "/partnerships",
+    });
+  }
+
+  return insights.sort((a, b) => {
+    const order: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    return order[a.priority] - order[b.priority];
+  });
+}
+
+// --- Retention Feature 2: Activity Feed ---
+
+export type ActivityFeedItemType =
+  | "partnership_started"
+  | "partnership_completed"
+  | "partnership_paused"
+  | "revenue_milestone"
+  | "customer_milestone"
+  | "new_match"
+  | "message_received";
+
+export type ActivityFeedItem = {
+  id: string;
+  type: ActivityFeedItemType;
+  title: string;
+  description: string;
+  timestamp: string;
+  icon: ActivityFeedItemType;
+  actionHref?: string;
+};
+
+export type RawActivityData = {
+  partnerships: Array<{
+    id: string;
+    partnership_type: string;
+    status: string;
+    revenue_generated: number;
+    customers_acquired: number;
+    start_date: string;
+    end_date: string | null;
+    updated_at?: string;
+  }>;
+  matches: Array<{
+    id: string;
+    created_at: string;
+  }>;
+  recentMessages: Array<{
+    id: string;
+    match_id: string;
+    content: string;
+    created_at: string;
+    sender_name?: string;
+  }>;
+};
+
+/**
+ * Build a chronological activity feed from raw partnership, match, and message data.
+ * Creates a "home feed" experience that encourages daily visits.
+ */
+export function buildActivityFeed(
+  data: RawActivityData,
+  limit: number = 20,
+): ActivityFeedItem[] {
+  const items: ActivityFeedItem[] = [];
+
+  // Partnership events
+  for (const p of data.partnerships) {
+    const revenue = Number(p.revenue_generated) || 0;
+    const customers = Number(p.customers_acquired) || 0;
+
+    if (p.status === "active") {
+      items.push({
+        id: `p-started-${p.id}`,
+        type: "partnership_started",
+        title: "Partnership started",
+        description: `Your ${p.partnership_type} partnership is now active.`,
+        timestamp: p.start_date,
+        icon: "partnership_started",
+        actionHref: "/partnerships",
+      });
+    }
+
+    if (p.status === "completed" && p.end_date) {
+      items.push({
+        id: `p-completed-${p.id}`,
+        type: "partnership_completed",
+        title: "Partnership completed",
+        description: `Your ${p.partnership_type} partnership wrapped up${revenue > 0 ? ` with $${revenue.toLocaleString()} in revenue` : ""}.`,
+        timestamp: p.end_date,
+        icon: "partnership_completed",
+        actionHref: "/partnerships",
+      });
+    }
+
+    if (p.status === "paused" && p.updated_at) {
+      items.push({
+        id: `p-paused-${p.id}`,
+        type: "partnership_paused",
+        title: "Partnership paused",
+        description: `Your ${p.partnership_type} partnership has been paused.`,
+        timestamp: p.updated_at,
+        icon: "partnership_paused",
+        actionHref: "/partnerships",
+      });
+    }
+
+    // Revenue milestones
+    if (revenue >= 1000) {
+      const milestoneAmount = Math.floor(revenue / 1000) * 1000;
+      items.push({
+        id: `rev-${p.id}-${milestoneAmount}`,
+        type: "revenue_milestone",
+        title: `$${milestoneAmount.toLocaleString()} revenue milestone`,
+        description: `Your ${p.partnership_type} partnership crossed $${milestoneAmount.toLocaleString()} in total revenue!`,
+        timestamp: p.updated_at ?? p.start_date,
+        icon: "revenue_milestone",
+        actionHref: "/partnerships",
+      });
+    }
+
+    // Customer milestones
+    if (customers >= 10) {
+      const milestoneCount = Math.floor(customers / 10) * 10;
+      items.push({
+        id: `cust-${p.id}-${milestoneCount}`,
+        type: "customer_milestone",
+        title: `${milestoneCount} customers acquired`,
+        description: `Your ${p.partnership_type} partnership has brought in ${milestoneCount}+ new customers.`,
+        timestamp: p.updated_at ?? p.start_date,
+        icon: "customer_milestone",
+        actionHref: "/partnerships",
+      });
+    }
+  }
+
+  // Match events
+  for (const m of data.matches) {
+    items.push({
+      id: `match-${m.id}`,
+      type: "new_match",
+      title: "New match!",
+      description: "You have a new business match. Start a conversation to explore partnership opportunities.",
+      timestamp: m.created_at,
+      icon: "new_match",
+      actionHref: "/messages",
+    });
+  }
+
+  // Message events
+  for (const msg of data.recentMessages) {
+    items.push({
+      id: `msg-${msg.id}`,
+      type: "message_received",
+      title: msg.sender_name ? `Message from ${msg.sender_name}` : "New message",
+      description: msg.content.length > 80 ? msg.content.slice(0, 77) + "…" : msg.content,
+      timestamp: msg.created_at,
+      icon: "message_received",
+      actionHref: `/messages`,
+    });
+  }
+
+  // Sort by timestamp descending (newest first) and limit
+  return items
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, limit);
+}

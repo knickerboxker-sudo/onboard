@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { TIER_LIMITS } from "@/lib/matching";
+import { TIER_LIMITS, generatePartnershipInsights } from "@/lib/matching";
+import type { PartnershipInsight } from "@/lib/matching";
 import type { BusinessRecord, SubscriptionTier } from "@/lib/types";
 import Link from "next/link";
 import {
@@ -14,6 +15,8 @@ import {
   Handshake,
   Clock,
   TrendingUp,
+  Lightbulb,
+  ArrowRight,
 } from "lucide-react";
 import {
   LineChart,
@@ -259,6 +262,47 @@ export default function AnalyticsPage() {
           </div>
         ))}
       </div>
+
+      {/* Partnership Insights */}
+      {(() => {
+        const insights: PartnershipInsight[] = generatePartnershipInsights(filtered);
+        if (insights.length === 0) return null;
+        const priorityColor: Record<string, string> = {
+          high: "border-l-red-400 bg-red-50/50",
+          medium: "border-l-amber-400 bg-amber-50/50",
+          low: "border-l-spearmint-400 bg-spearmint-50/50",
+        };
+        return (
+          <div className="glass rounded-3xl p-6">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-amber-500" />
+              <h2 className="text-lg font-semibold text-neutral-900">Insights & Recommendations</h2>
+            </div>
+            <p className="mt-1 text-sm text-neutral-500">
+              Actionable insights based on your partnership performance.
+            </p>
+            <div className="mt-4 space-y-3">
+              {insights.map((insight, idx) => (
+                <div
+                  key={idx}
+                  className={`rounded-xl border-l-4 px-5 py-4 ${priorityColor[insight.priority] ?? "border-l-neutral-300 bg-neutral-50"}`}
+                >
+                  <p className="text-sm font-semibold text-neutral-900">{insight.title}</p>
+                  <p className="mt-1 text-sm text-neutral-600">{insight.description}</p>
+                  {insight.actionLabel && insight.actionHref && (
+                    <Link
+                      href={insight.actionHref}
+                      className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-lavender-600 hover:text-lavender-700"
+                    >
+                      {insight.actionLabel} <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="glass rounded-3xl p-6">
         <h2 className="text-lg font-semibold text-neutral-900">Revenue Over Time</h2>

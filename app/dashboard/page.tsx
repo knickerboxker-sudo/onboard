@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { getTrustBadges, calculateProfileCompletion } from "@/lib/matching";
+import { getTrustBadges, calculateProfileCompletion, buildActivityFeed } from "@/lib/matching";
+import type { ActivityFeedItem } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge, SavedAssessmentRecord } from "@/lib/types";
 import Link from "next/link";
 import {
@@ -18,6 +19,12 @@ import {
   Trash2,
   TrendingUp,
   Users,
+  Zap,
+  PartyPopper,
+  Pause,
+  Trophy,
+  UserPlus,
+  ArrowRight,
 } from "lucide-react";
 
 type Partnership = {
@@ -25,8 +32,23 @@ type Partnership = {
   partnership_type: string;
   status: string;
   revenue_generated: number;
+  customers_acquired: number;
   start_date: string;
   end_date: string | null;
+  updated_at?: string;
+};
+
+type MatchRow = {
+  id: string;
+  created_at: string;
+};
+
+type RecentMessage = {
+  id: string;
+  match_id: string;
+  content: string;
+  created_at: string;
+  sender_name?: string;
 };
 
 type Verification = {
@@ -72,6 +94,8 @@ export default function DashboardPage() {
         { data: reviews },
         { data: savedAssessments },
         { count: connectionRequestCount },
+        { data: recentMatchRows },
+        { data: recentMsgRows },
       ] = await Promise.all([
         supabase
           .from("matches")
@@ -92,7 +116,7 @@ export default function DashboardPage() {
           .eq("viewed_business_id", bizId),
         supabase
           .from("partnerships")
-          .select("id, partnership_type, status, revenue_generated, start_date, end_date")
+          .select("id, partnership_type, status, revenue_generated, customers_acquired, start_date, end_date, updated_at")
           .in("match_id", matchIds)
           .order("start_date", { ascending: false }),
         supabase
@@ -113,6 +137,19 @@ export default function DashboardPage() {
           .select("id", { count: "exact", head: true })
           .eq("receiver_business_id", bizId)
           .eq("status", "pending"),
+        supabase
+          .from("matches")
+          .select("id, created_at")
+          .or(`business_1_id.eq.${bizId},business_2_id.eq.${bizId}`)
+          .order("created_at", { ascending: false })
+          .limit(10),
+        supabase
+          .from("messages")
+          .select("id, match_id, content, created_at")
+          .neq("sender_business_id", bizId)
+          .in("match_id", matchIds)
+          .order("created_at", { ascending: false })
+          .limit(10),
       ]);
 
       const activePartnerships = (partnerships ?? []).filter(
@@ -138,6 +175,12 @@ export default function DashboardPage() {
           ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
           : null;
 
+      const activityFeed = buildActivityFeed({
+        partnerships: (partnerships ?? []) as Partnership[],
+        matches: (recentMatchRows ?? []) as MatchRow[],
+        recentMessages: (recentMsgRows ?? []) as RecentMessage[],
+      });
+
       return {
         business: business as BusinessRecord,
         matchCount: matchCount ?? 0,
@@ -154,6 +197,7 @@ export default function DashboardPage() {
         recentPartnerships: (partnerships ?? []).slice(0, 5) as Partnership[],
         verifications: (verifications ?? []) as Verification[],
         savedAssessments: (savedAssessments ?? []) as SavedAssessmentRecord[],
+        activityFeed,
       };
     },
   });
@@ -303,6 +347,67 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Activity Feed */}
+      {(data?.activityFeed?.length ?? 0) > 0 && (
+        <div className="glass rounded-2xl p-7">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-amber-500" />
+            <h2 className="text-lg font-semibold text-neutral-900">Activity Feed</h2>
+          </div>
+          <p className="mt-1 text-sm text-neutral-500">
+            Recent activity across your partnerships and connections.
+          </p>
+          <div className="mt-4 space-y-3">
+            {data?.activityFeed.slice(0, 10).map((item: ActivityFeedItem) => {
+              const iconMap: Record<string, typeof Zap> = {
+                partnership_started: Handshake,
+                partnership_completed: PartyPopper,
+                partnership_paused: Pause,
+                revenue_milestone: Trophy,
+                customer_milestone: Users,
+                new_match: UserPlus,
+                message_received: MessageCircle,
+              };
+              const colorMap: Record<string, string> = {
+                partnership_started: "bg-spearmint-50 text-spearmint-600",
+                partnership_completed: "bg-blue-50 text-blue-600",
+                partnership_paused: "bg-yellow-50 text-yellow-600",
+                revenue_milestone: "bg-amber-50 text-amber-600",
+                customer_milestone: "bg-indigo-50 text-indigo-600",
+                new_match: "bg-lavender-50 text-lavender-600",
+                message_received: "bg-neutral-100 text-neutral-600",
+              };
+              const Icon = iconMap[item.type] ?? Zap;
+              const color = colorMap[item.type] ?? "bg-neutral-100 text-neutral-600";
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-white px-5 py-3.5 transition-all duration-200 hover:shadow-sm"
+                >
+                  <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-neutral-900">{item.title}</p>
+                    <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2">{item.description}</p>
+                    <div className="mt-1.5 flex items-center gap-3">
+                      <span className="text-xs text-neutral-400">
+                        {new Date(item.timestamp).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                      </span>
+                      {item.actionHref && (
+                        <Link href={item.actionHref} className="inline-flex items-center gap-1 text-xs font-medium text-lavender-600 hover:text-lavender-700">
+                          View <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ROI Summary */}
       {(data?.completedPartnerships ?? 0) > 0 && (
