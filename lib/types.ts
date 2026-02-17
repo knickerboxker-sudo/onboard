@@ -63,8 +63,6 @@ export type BusinessRecord = {
   successful_partnerships_count?: number;
   // Subscription
   subscription_tier?: "free" | "starter" | "professional" | "business" | "pro" | "premium";
-  daily_swipes_used?: number;
-  last_swipe_reset_at?: string | null;
   // Stripe
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
@@ -87,13 +85,7 @@ export type ConnectionRequestRecord = {
   updated_at: string;
 };
 
-export type SwipeDirection = "left" | "right";
 
-export type SwipeFilters = {
-  radiusMiles: 5 | 10 | 25 | 50;
-  categories: string[];
-  partnershipTypes: string[];
-};
 
 // Partnership outcome tracking
 export type PartnershipStatus = "pending" | "active" | "paused" | "completed" | "cancelled" | "archived";
@@ -208,12 +200,7 @@ export type PartnershipTemplate = {
   suggestedSplit: string;
 };
 
-// Icebreaker prompts
-export type IcebreakerPrompt = {
-  id: string;
-  partnershipType: PartnershipType;
-  prompt: string;
-};
+
 
 // Notification types
 export type NotificationType = 'match' | 'message' | 'partnership_update' | 'verification' | 'system';

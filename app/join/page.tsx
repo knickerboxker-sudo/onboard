@@ -28,8 +28,6 @@ const partnershipOptions = [
 
 const cities = [
   { name: "Ann Arbor Area", state: "MI" },
-  { name: "Detroit Area", state: "MI" },
-  { name: "Grand Rapids Area", state: "MI" },
 ];
 
 export default function JoinPage() {
@@ -41,8 +39,8 @@ export default function JoinPage() {
     business_name: "",
     email: "",
     business_type: "",
-    city: "",
-    state: "",
+    city: "Ann Arbor Area",
+    state: "MI",
     partnership_interests: [] as string[],
     referred_by: "",
   });
@@ -174,27 +172,19 @@ export default function JoinPage() {
 
         <div>
           <label htmlFor="city" className="label">
-            City
+            Location
           </label>
-          <select
+          <input
             id="city"
-            className="input"
-            value={formData.city}
-            onChange={(e) => handleCityChange(e.target.value)}
-            required
-          >
-            <option value="">Select city...</option>
-            {cities.map((city) => (
-              <option key={city.name} value={city.name}>
-                {city.name}, {city.state}
-              </option>
-            ))}
-          </select>
-          {formData.city === "Ann Arbor Area" && (
-            <p className="mt-1.5 text-xs text-neutral-400">
-              Ann Arbor Area includes Ypsilanti, Dexter, Chelsea, Saline, Milan, Whitmore Lake, and surrounding communities
-            </p>
-          )}
+            type="text"
+            className="input bg-neutral-50"
+            value="Ann Arbor Area, MI"
+            disabled
+            readOnly
+          />
+          <p className="mt-1.5 text-xs text-neutral-500">
+            Serving Ann Arbor, Ypsilanti, Saline, Milan, Dexter, Chelsea, Whitmore Lake, and surrounding areas
+          </p>
         </div>
 
         <div>

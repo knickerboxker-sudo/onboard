@@ -1,4 +1,4 @@
-import type { BusinessRecord, SwipeFilters, TrustBadge, TierLimits, SubscriptionTier, IcebreakerPrompt, PartnershipType, PartnershipTemplate, CollaborationIntent } from "@/lib/types";
+import type { BusinessRecord, TrustBadge, TierLimits, SubscriptionTier, PartnershipType, PartnershipTemplate, CollaborationIntent } from "@/lib/types";
 
 const EARTH_RADIUS_MILES = 3958.8;
 
@@ -17,42 +17,6 @@ export function haversineMiles(
     Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLng / 2) ** 2;
   const c = 2 * Math.asin(Math.sqrt(a));
   return EARTH_RADIUS_MILES * c;
-}
-
-export function buildMatchPair(businessA: string, businessB: string): [string, string] {
-  return businessA < businessB ? [businessA, businessB] : [businessB, businessA];
-}
-
-export function filterBusinessesForSwipe(
-  origin: BusinessRecord,
-  candidates: BusinessRecord[],
-  swipedBusinessIds: Set<string>,
-  filters: SwipeFilters,
-): Array<BusinessRecord & { distanceMiles: number | null }> {
-  return candidates
-    .filter((candidate) => candidate.id !== origin.id)
-    .filter((candidate) => !swipedBusinessIds.has(candidate.id))
-    .map((candidate) => {
-      if (origin.lat == null || origin.lng == null || candidate.lat == null || candidate.lng == null) {
-        return { ...candidate, distanceMiles: null };
-      }
-      return {
-        ...candidate,
-        distanceMiles: haversineMiles(origin.lat, origin.lng, candidate.lat, candidate.lng),
-      };
-    })
-    .filter((candidate) => candidate.distanceMiles == null || candidate.distanceMiles <= filters.radiusMiles)
-    .filter((candidate) => filters.categories.length === 0 || filters.categories.includes(candidate.business_type))
-    .filter(
-      (candidate) =>
-        filters.partnershipTypes.length === 0 ||
-        (candidate.partnership_types ?? []).some((type) => filters.partnershipTypes.includes(type)),
-    )
-    .sort((a, b) => {
-      if (a.distanceMiles == null) return 1;
-      if (b.distanceMiles == null) return -1;
-      return a.distanceMiles - b.distanceMiles;
-    });
 }
 
 // --- Enhanced Matching: Complementarity Scoring ---
@@ -357,68 +321,6 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     boostProfile: true,
   },
 };
-
-/** Check if a business can still swipe today based on their tier. */
-export function canSwipe(business: BusinessRecord): boolean {
-  const tier = business.subscription_tier ?? "free";
-  const limits = TIER_LIMITS[tier];
-  if (limits.dailySwipes === Infinity) return true;
-
-  const today = new Date().toISOString().split("T")[0];
-  const lastReset = business.last_swipe_reset_at?.split("T")[0] ?? "";
-  if (lastReset !== today) return true; // reset hasn't happened yet, so count is 0
-
-  return (business.daily_swipes_used ?? 0) < limits.dailySwipes;
-}
-
-// --- Engagement: Icebreaker Prompts ---
-
-export const ICEBREAKER_PROMPTS: IcebreakerPrompt[] = [
-  { id: "cp-1", partnershipType: "cross-promotion", prompt: "I love what you're doing with your brand. I think our customers would really enjoy discovering your products — want to explore a cross-promotion?" },
-  { id: "cp-2", partnershipType: "cross-promotion", prompt: "We have a lot of foot traffic from a similar demographic. Would you be interested in swapping flyers or doing a social media shoutout exchange?" },
-  { id: "pb-1", partnershipType: "product-bundle", prompt: "I think our products would pair really well together as a bundle. Have you ever done a joint offering with another local business?" },
-  { id: "pb-2", partnershipType: "product-bundle", prompt: "I had an idea for a collaboration bundle — your [product] with our [product]. Want to brainstorm the details?" },
-  { id: "ec-1", partnershipType: "event-collab", prompt: "We're planning a community event next month. Would you be interested in co-hosting or having a presence there?" },
-  { id: "ec-2", partnershipType: "event-collab", prompt: "Pop-up events have been great for us. Want to team up for a joint event that brings both our customers together?" },
-  { id: "ws-1", partnershipType: "wholesale", prompt: "I'd love to carry some of your products in our store. What does your wholesale pricing look like?" },
-  { id: "ws-2", partnershipType: "wholesale", prompt: "We're always looking for quality local products to stock. Would you be open to a consignment or wholesale arrangement?" },
-  { id: "sm-1", partnershipType: "social-media-collab", prompt: "I really enjoy your social media content! Would you be open to doing a joint Instagram Live or collaborative post series?" },
-  { id: "sm-2", partnershipType: "social-media-collab", prompt: "We're growing our social presence and I think a collab could benefit both of us. Want to plan some content together?" },
-];
-
-/** Get relevant icebreaker prompts for overlapping partnership types. */
-export function getIcebreakers(originTypes: string[], candidateTypes: string[]): IcebreakerPrompt[] {
-  const overlap = originTypes.filter((t) => candidateTypes.includes(t));
-  const types = overlap.length > 0 ? overlap : originTypes;
-  return ICEBREAKER_PROMPTS.filter((p) => types.includes(p.partnershipType));
-}
-
-/**
- * Generate a contextual icebreaker prompt based on two businesses' types.
- * Returns a personalized suggestion when possible, or null otherwise.
- */
-export function getContextualIcebreaker(
-  originType: string,
-  candidateType: string,
-  candidateName: string,
-): string | null {
-  const a = originType.toLowerCase().trim();
-  const b = candidateType.toLowerCase().trim();
-
-  const isComplementary = COMPLEMENTARY_PAIRS.some(
-    ([x, y]) => (a.includes(x) && b.includes(y)) || (a.includes(y) && b.includes(x)),
-  );
-
-  if (!isComplementary) return null;
-
-  const templates = [
-    `I think ${a} and ${b} make a perfect pairing! Would ${candidateName} be interested in exploring a partnership?`,
-    `Our ${a} customers would love what you offer at ${candidateName}. Want to brainstorm a collaboration?`,
-    `I've been thinking about how a ${a} × ${b} partnership could benefit our shared audience. Interested in chatting?`,
-  ];
-
-  return templates[Math.floor(Math.random() * templates.length)];
-}
 
 // --- Post-Match: Partnership Templates ---
 

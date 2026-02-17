@@ -103,7 +103,7 @@ export default function PrivacyPage() {
           including:
         </p>
         <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
-          <li>Swipe and match activity (partner discovery interactions)</li>
+          <li>Connection requests and partner discovery interactions</li>
           <li>Partnership agreements you create or participate in</li>
           <li>ROI tracking metrics related to your partnerships</li>
           <li>Feature usage and page views</li>

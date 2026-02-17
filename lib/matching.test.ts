@@ -1,14 +1,9 @@
 import {
-  buildMatchPair,
-  filterBusinessesForSwipe,
   haversineMiles,
   complementarityScore,
   audienceOverlapScore,
   matchQualityScore,
   getTrustBadges,
-  canSwipe,
-  getIcebreakers,
-  getContextualIcebreaker,
   getTemplatesForType,
   calculatePartnershipROI,
   collaborationIntentScore,
@@ -18,12 +13,11 @@ import {
   buildActivityFeed,
   TIER_LIMITS,
   PARTNERSHIP_TEMPLATES,
-  ICEBREAKER_PROMPTS,
   PARTNERSHIP_IDEAS,
   PROPOSAL_TEMPLATES,
 } from "@/lib/matching";
 import type { PartnershipDataForInsights, RawActivityData } from "@/lib/matching";
-import type { BusinessRecord, SwipeFilters } from "@/lib/types";
+import type { BusinessRecord } from "@/lib/types";
 import { PARTNERSHIP_INTEREST_TAGS } from "@/lib/types";
 
 const origin: BusinessRecord = {
@@ -40,48 +34,11 @@ const origin: BusinessRecord = {
   partnership_types: ["cross-promotion"],
 };
 
-const filters: SwipeFilters = {
-  radiusMiles: 10,
-  categories: [],
-  partnershipTypes: [],
-};
-
 describe("matching helpers", () => {
   it("calculates haversine distance in miles", () => {
     const miles = haversineMiles(40.7128, -74.006, 40.73061, -73.935242);
     expect(miles).toBeGreaterThan(3);
     expect(miles).toBeLessThan(5);
-  });
-
-  it("normalizes match pair ordering", () => {
-    expect(buildMatchPair("zz", "aa")).toEqual(["aa", "zz"]);
-  });
-
-  it("filters swiped businesses and radius", () => {
-    const nearby: BusinessRecord = {
-      id: "nearby",
-      owner_id: "owner-b",
-      name: "Nearby",
-      description: "",
-      business_type: "Bakery",
-      address: "B",
-      lat: 40.73061,
-      lng: -73.935242,
-      photos: [],
-      products: [],
-      partnership_types: ["event-collab"],
-    };
-
-    const far: BusinessRecord = {
-      ...nearby,
-      id: "far",
-      lat: 34.0522,
-      lng: -118.2437,
-    };
-
-    const result = filterBusinessesForSwipe(origin, [nearby, far], new Set(["far"]), filters);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("nearby");
   });
 });
 
@@ -260,58 +217,6 @@ describe("subscription tier limits", () => {
     expect(TIER_LIMITS.pro.dailySwipes).toBe(Infinity);
     expect(TIER_LIMITS.pro.canSeeWhoLiked).toBe(true);
   });
-
-  it("canSwipe returns true for pro users", () => {
-    const business: BusinessRecord = {
-      ...origin,
-      subscription_tier: "pro",
-      daily_swipes_used: 100,
-    };
-    expect(canSwipe(business)).toBe(true);
-  });
-
-  it("canSwipe returns false for free user at limit on same day", () => {
-    const today = new Date().toISOString().split("T")[0];
-    const business: BusinessRecord = {
-      ...origin,
-      subscription_tier: "free",
-      daily_swipes_used: 3,
-      last_swipe_reset_at: today,
-    };
-    expect(canSwipe(business)).toBe(false);
-  });
-
-  it("canSwipe returns true for free user on a new day", () => {
-    const business: BusinessRecord = {
-      ...origin,
-      subscription_tier: "free",
-      daily_swipes_used: 3,
-      last_swipe_reset_at: "2020-01-01",
-    };
-    expect(canSwipe(business)).toBe(true);
-  });
-});
-
-describe("icebreaker prompts", () => {
-  it("returns prompts for overlapping partnership types", () => {
-    const prompts = getIcebreakers(["cross-promotion", "event-collab"], ["cross-promotion"]);
-    expect(prompts.length).toBeGreaterThan(0);
-    expect(prompts.every((p) => p.partnershipType === "cross-promotion")).toBe(true);
-  });
-
-  it("falls back to origin types when no overlap", () => {
-    const prompts = getIcebreakers(["wholesale"], ["social-media-collab"]);
-    expect(prompts.length).toBeGreaterThan(0);
-    expect(prompts.every((p) => p.partnershipType === "wholesale")).toBe(true);
-  });
-
-  it("all prompts have required fields", () => {
-    for (const prompt of ICEBREAKER_PROMPTS) {
-      expect(prompt.id).toBeTruthy();
-      expect(prompt.partnershipType).toBeTruthy();
-      expect(prompt.prompt.length).toBeGreaterThan(20);
-    }
-  });
 });
 
 describe("partnership templates", () => {
@@ -438,20 +343,6 @@ describe("match quality score with collaboration intents", () => {
     const scoreWithout = matchQualityScore(origin, candidateBase, 5);
     const scoreWith = matchQualityScore(originWithIntents, candidateWithIntents, 5);
     expect(scoreWith).toBeGreaterThanOrEqual(scoreWithout);
-  });
-});
-
-describe("contextual icebreaker", () => {
-  it("returns a non-null prompt for complementary types", () => {
-    const result = getContextualIcebreaker("cafe", "bakery", "Sweet Treats");
-    expect(result).not.toBeNull();
-    expect(typeof result).toBe("string");
-    expect(result!.length).toBeGreaterThan(20);
-  });
-
-  it("returns null for non-complementary types", () => {
-    const result = getContextualIcebreaker("plumber", "dentist", "Smiles Dental");
-    expect(result).toBeNull();
   });
 });
 

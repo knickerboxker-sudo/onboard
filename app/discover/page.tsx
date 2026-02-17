@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { haversineMiles, matchQualityScore, getTrustBadges } from "@/lib/matching";
@@ -21,6 +21,9 @@ import {
   Clock,
   Sparkles,
   Tag,
+  CheckCircle,
+  Loader2,
+  MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -93,12 +96,20 @@ function BusinessCard({
   userBusiness,
   selected,
   onToggleSelect,
+  connectionStatus,
+  onRequestConnection,
+  isRequesting,
+  errorMessage,
 }: {
   business: BusinessRecord & { distanceMiles: number | null; score: number };
   view: "grid" | "list";
   userBusiness: BusinessRecord | null;
   selected: boolean;
   onToggleSelect: () => void;
+  connectionStatus: "none" | "pending" | "accepted";
+  onRequestConnection: () => void;
+  isRequesting: boolean;
+  errorMessage: string | null;
 }) {
   const badges = getTrustBadges(business);
   const isGrid = view === "grid";
@@ -219,16 +230,78 @@ function BusinessCard({
 
         {/* Request Connection button for grid view */}
         {isGrid && (
-          <button className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-neutral-800 hover:shadow-md active:scale-[0.98]">
-            <Send className="h-3 w-3" /> Request Connection
-          </button>
+          <div className="mt-4 space-y-2">
+            {connectionStatus === "accepted" ? (
+              <Link
+                href="/messages"
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-spearmint-600 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-spearmint-700 hover:shadow-md active:scale-[0.98]"
+              >
+                <MessageSquare className="h-3 w-3" /> Message
+              </Link>
+            ) : connectionStatus === "pending" ? (
+              <button
+                disabled
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-100 px-3 py-2.5 text-xs font-semibold text-neutral-500 cursor-not-allowed"
+              >
+                <Clock className="h-3 w-3" /> Pending
+              </button>
+            ) : isRequesting ? (
+              <button
+                disabled
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-xs font-semibold text-white shadow-sm cursor-not-allowed"
+              >
+                <Loader2 className="h-3 w-3 animate-spin" /> Sending...
+              </button>
+            ) : (
+              <button
+                onClick={onRequestConnection}
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-neutral-800 hover:shadow-md active:scale-[0.98]"
+              >
+                <Send className="h-3 w-3" /> Request Connection
+              </button>
+            )}
+            {errorMessage && (
+              <p className="text-[10px] text-red-600 text-center">{errorMessage}</p>
+            )}
+          </div>
         )}
       </div>
 
       {!isGrid && (
-        <button className="flex flex-shrink-0 items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-neutral-800 hover:shadow-md active:scale-[0.98]">
-          <Send className="h-3 w-3" /> Connect
-        </button>
+        <div className="flex flex-col flex-shrink-0 gap-1 items-end">
+          {connectionStatus === "accepted" ? (
+            <Link
+              href="/messages"
+              className="flex items-center gap-1.5 rounded-xl bg-spearmint-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-spearmint-700 hover:shadow-md active:scale-[0.98]"
+            >
+              <MessageSquare className="h-3 w-3" /> Message
+            </Link>
+          ) : connectionStatus === "pending" ? (
+            <button
+              disabled
+              className="flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-xs font-semibold text-neutral-500 cursor-not-allowed"
+            >
+              <Clock className="h-3 w-3" /> Pending
+            </button>
+          ) : isRequesting ? (
+            <button
+              disabled
+              className="flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm cursor-not-allowed"
+            >
+              <Loader2 className="h-3 w-3 animate-spin" /> Sending...
+            </button>
+          ) : (
+            <button
+              onClick={onRequestConnection}
+              className="flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-neutral-800 hover:shadow-md active:scale-[0.98]"
+            >
+              <Send className="h-3 w-3" /> Connect
+            </button>
+          )}
+          {errorMessage && (
+            <p className="text-[10px] text-red-600">{errorMessage}</p>
+          )}
+        </div>
       )}
     </motion.div>
   );
@@ -236,6 +309,7 @@ function BusinessCard({
 
 export default function DiscoverPage() {
   const supabase = useMemo(() => createClient(), []);
+  const queryClient = useQueryClient();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
@@ -243,6 +317,9 @@ export default function DiscoverPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [savedSearchName, setSavedSearchName] = useState("");
+  const [requestingIds, setRequestingIds] = useState<Set<string>>(new Set());
+  const [errorMap, setErrorMap] = useState<Map<string, string>>(new Map());
+  const [successIds, setSuccessIds] = useState<Set<string>>(new Set());
 
   const { data: userBusiness } = useQuery({
     queryKey: ["discover-user-business"],
@@ -261,6 +338,79 @@ export default function DiscoverPage() {
       return (data as BusinessRecord[]) ?? [];
     },
   });
+
+  const { data: connectionRequests = [] } = useQuery({
+    queryKey: ["connection-requests", userBusiness?.id],
+    enabled: !!userBusiness?.id,
+    queryFn: async () => {
+      if (!userBusiness?.id) return [];
+      const { data } = await supabase
+        .from("connection_requests")
+        .select("receiver_business_id, status")
+        .eq("sender_business_id", userBusiness.id);
+      return (data ?? []) as Array<{ receiver_business_id: string; status: string }>;
+    },
+  });
+
+  const connectionRequestMutation = useMutation({
+    mutationFn: async (receiverBusinessId: string) => {
+      const response = await fetch("/api/connections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiver_business_id: receiverBusinessId }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send connection request");
+      }
+      
+      return data;
+    },
+    onMutate: (receiverBusinessId: string) => {
+      setRequestingIds((prev) => new Set(prev).add(receiverBusinessId));
+      setErrorMap((prev) => {
+        const next = new Map(prev);
+        next.delete(receiverBusinessId);
+        return next;
+      });
+    },
+    onSuccess: (_data, receiverBusinessId) => {
+      setSuccessIds((prev) => new Set(prev).add(receiverBusinessId));
+      queryClient.invalidateQueries({ queryKey: ["connection-requests", userBusiness?.id] }).then(() => {
+        // Clear the optimistic success state after the query has been invalidated
+        setSuccessIds((prev) => {
+          const next = new Set(prev);
+          next.delete(receiverBusinessId);
+          return next;
+        });
+      }).catch(() => {
+        // Silently handle invalidation errors
+      });
+    },
+    onError: (error, receiverBusinessId) => {
+      setErrorMap((prev) => new Map(prev).set(receiverBusinessId, error.message));
+    },
+    onSettled: (_data, _error, receiverBusinessId) => {
+      setRequestingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(receiverBusinessId);
+        return next;
+      });
+    },
+  });
+
+  const getConnectionStatus = (businessId: string): "none" | "pending" | "accepted" => {
+    const request = connectionRequests.find((r) => r.receiver_business_id === businessId);
+    if (request) {
+      if (request.status === "accepted") return "accepted";
+      if (request.status === "pending") return "pending";
+    }
+    // Fall back to optimistic state if no request found yet
+    if (successIds.has(businessId)) return "pending";
+    return "none";
+  };
 
   const filtered = useMemo(() => {
     let result = businesses
@@ -634,6 +784,10 @@ export default function DiscoverPage() {
                     userBusiness={userBusiness ?? null}
                     selected={selectedIds.has(b.id)}
                     onToggleSelect={() => toggleSelect(b.id)}
+                    connectionStatus={getConnectionStatus(b.id)}
+                    onRequestConnection={() => connectionRequestMutation.mutate(b.id)}
+                    isRequesting={requestingIds.has(b.id)}
+                    errorMessage={errorMap.get(b.id) ?? null}
                   />
                 ))}
               </AnimatePresence>

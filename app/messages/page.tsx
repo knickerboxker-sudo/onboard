@@ -4,8 +4,6 @@ import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getIcebreakers } from "@/lib/matching";
-import type { IcebreakerPrompt } from "@/lib/types";
 import { Send, MessageCircle } from "lucide-react";
 
 type MatchWithPartner = {
@@ -55,17 +53,18 @@ function MessagesPageContent() {
         .single();
       if (!business) throw new Error("Please complete onboarding first.");
 
-      const { data: matches, error: matchesError } = await supabase
-        .from("matches")
-        .select("id, matched_at, business_1_id, business_2_id")
-        .or(`business_1_id.eq.${business.id},business_2_id.eq.${business.id}`)
-        .order("matched_at", { ascending: false });
+      const { data: connections, error: connectionsError } = await supabase
+        .from("connection_requests")
+        .select("id, created_at, sender_business_id, receiver_business_id")
+        .eq("status", "accepted")
+        .or(`sender_business_id.eq.${business.id},receiver_business_id.eq.${business.id}`)
+        .order("created_at", { ascending: false });
 
-      if (matchesError) throw new Error(matchesError.message);
-      if (!matches || matches.length === 0) return { businessId: business.id, businessPartnershipTypes: business.partnership_types ?? [], matches: [] as MatchWithPartner[] };
+      if (connectionsError) throw new Error(connectionsError.message);
+      if (!connections || connections.length === 0) return { businessId: business.id, businessPartnershipTypes: business.partnership_types ?? [], matches: [] as MatchWithPartner[] };
 
-      const partnerIds = matches.map((m: { business_1_id: string; business_2_id: string }) =>
-        m.business_1_id === business.id ? m.business_2_id : m.business_1_id,
+      const partnerIds = connections.map((c: { sender_business_id: string; receiver_business_id: string }) =>
+        c.sender_business_id === business.id ? c.receiver_business_id : c.sender_business_id,
       );
 
       const { data: partners } = await supabase
@@ -77,12 +76,12 @@ function MessagesPageContent() {
         (partners ?? []).map((p: { id: string; name: string; business_type: string; partnership_types: string[] | null; last_active_at: string | null; avg_response_time_minutes: number | null }) => [p.id, p]),
       );
 
-      const enriched: MatchWithPartner[] = matches.map((m: { id: string; matched_at: string; business_1_id: string; business_2_id: string }) => {
-        const partnerId = m.business_1_id === business.id ? m.business_2_id : m.business_1_id;
+      const enriched: MatchWithPartner[] = connections.map((c: { id: string; created_at: string; sender_business_id: string; receiver_business_id: string }) => {
+        const partnerId = c.sender_business_id === business.id ? c.receiver_business_id : c.sender_business_id;
         const partner = partnerMap.get(partnerId);
         return {
-          id: m.id,
-          matched_at: m.matched_at,
+          id: c.id,
+          matched_at: c.created_at,
           partnerName: partner?.name ?? "Unknown",
           partnerType: partner?.business_type ?? "",
           partnerBusinessId: partnerId,
@@ -225,8 +224,8 @@ function MessagesPageContent() {
           <div className="mt-6 flex flex-col items-center gap-2 text-center">
             <MessageCircle className="h-8 w-8 text-neutral-300" />
             <p className="text-sm font-medium text-neutral-900">No conversations yet</p>
-            <p className="text-xs text-neutral-500">Match with businesses to start messaging.</p>
-            <a href="/matches" className="btn-primary mt-2 text-xs">View Matches</a>
+            <p className="text-xs text-neutral-500">Connect with businesses to start messaging.</p>
+            <a href="/matches" className="btn-primary mt-2 text-xs">Find Connections</a>
           </div>
         ) : (
           <ul className="mt-4 space-y-2">
@@ -260,7 +259,7 @@ function MessagesPageContent() {
             <div className="border-b border-neutral-200 px-5 py-4">
               <h3 className="font-semibold text-neutral-900">{activeMatch?.partnerName ?? "Conversation"}</h3>
               <p className="text-xs text-neutral-500">
-                Matched {activeMatch ? new Date(activeMatch.matched_at).toLocaleDateString() : ""}
+                Connected {activeMatch ? new Date(activeMatch.matched_at).toLocaleDateString() : ""}
               </p>
               {activeMatch && (() => {
                 const lastActive = activeMatch.lastActiveAt ? new Date(activeMatch.lastActiveAt) : null;
@@ -302,27 +301,6 @@ function MessagesPageContent() {
               ) : (
                 <div className="flex flex-col items-center gap-3 py-6">
                   <p className="text-center text-sm text-neutral-500">No messages yet. Start the conversation!</p>
-                  {activeMatch && (() => {
-                    const icebreakers: IcebreakerPrompt[] = getIcebreakers(
-                      matchesData?.businessPartnershipTypes ?? [],
-                      activeMatch.partnershipTypes,
-                    );
-                    if (icebreakers.length === 0) return null;
-                    return (
-                      <div className="mt-2 flex flex-wrap justify-center gap-2">
-                        {icebreakers.slice(0, 3).map((icebreaker) => (
-                          <button
-                            key={icebreaker.id}
-                            type="button"
-                            className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                            onClick={() => setNewMessage(icebreaker.prompt)}
-                          >
-                            {icebreaker.prompt}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })()}
                 </div>
               )}
               <div ref={messagesEndRef} />
