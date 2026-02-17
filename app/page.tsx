@@ -8,7 +8,6 @@ import {
   MapPin,
   MessageCircle,
   ShieldCheck,
-  Star,
   Store,
   TrendingUp,
   Users,
@@ -106,37 +105,6 @@ const steps = [
   },
 ];
 
-const testimonials = [
-  {
-    quote:
-      "We partnered with a local coffee shop through Sortir and saw a 40% increase in foot traffic within the first month.",
-    author: "Maria Chen",
-    role: "Owner, Bloom Florals",
-    rating: 5,
-  },
-  {
-    quote:
-      "The partnership builder tool made it so easy to structure a fair deal. We now cross-promote with three local businesses.",
-    author: "James Wilson",
-    role: "Founder, Peak Fitness Studio",
-    rating: 5,
-  },
-  {
-    quote:
-      "Sortir helped us find the perfect meal-prep partner. Our members love the exclusive discounts and our retention is up 25%.",
-    author: "Aisha Patel",
-    role: "Co-owner, The Daily Grind Café",
-    rating: 5,
-  },
-];
-
-const stats = [
-  { value: "2,500+", label: "Local businesses" },
-  { value: "1,200+", label: "Partnerships formed" },
-  { value: "35%", label: "Average revenue boost" },
-  { value: "4.9/5", label: "Partner satisfaction" },
-];
-
 export default function Home() {
   return (
     <LandingAnimations>
@@ -170,18 +138,6 @@ export default function Home() {
               See launch progress
             </Link>
           </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-16 grid grid-cols-2 gap-8 border-t border-neutral-200 pt-10 sm:grid-cols-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-sm text-neutral-500">{stat.label}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -285,42 +241,6 @@ export default function Home() {
           <Link className="text-sm font-medium text-sky-600 hover:text-sky-700" href="/partnership-ideas">
             See all partnership ideas <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
           </Link>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section>
-        <div className="mb-10 text-center">
-          <span className="section-label">
-            <Star className="h-3.5 w-3.5" />
-            Testimonials
-          </span>
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-            Loved by local business owners
-          </h2>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-3">
-          {testimonials.map((t) => (
-            <div key={t.author} className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <div className="mb-3 flex gap-0.5">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-4 w-4 fill-amber-400 text-amber-400"
-                  />
-                ))}
-              </div>
-              <p className="text-sm leading-relaxed text-neutral-600">
-                &ldquo;{t.quote}&rdquo;
-              </p>
-              <div className="mt-4 border-t border-neutral-100 pt-4">
-                <p className="text-sm font-semibold text-neutral-900">
-                  {t.author}
-                </p>
-                <p className="text-xs text-neutral-400">{t.role}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
