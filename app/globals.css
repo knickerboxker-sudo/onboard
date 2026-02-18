@@ -126,6 +126,15 @@
     background: var(--color-accent-2);
   }
 
+  /* Hero CTA override — terracotta bg, forest green on hover */
+  .btn-primary-hero {
+    background: var(--color-accent);
+  }
+
+  .btn-primary-hero:hover {
+    background: var(--color-accent-2);
+  }
+
   /* ─── Form Elements ────────────────────────────────────── */
   .input {
     @apply w-full px-4 py-2.5 text-sm;

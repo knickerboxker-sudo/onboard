@@ -246,6 +246,8 @@ export default function DashboardPage() {
     ? Date.now() - new Date(data.business.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
     : false;
 
+  const profileCompletion = data?.business ? calculateProfileCompletion(data.business) : 100;
+
   const statCards = [
     { label: "Connections", value: data?.matchCount, icon: Handshake },
     { label: "Connection Requests", value: data?.connectionRequestCount, icon: Users },
@@ -288,8 +290,22 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       <PageAccentRule />
+      {profileCompletion < 60 && (
+        <div className="p-5" style={{ background: 'var(--color-accent)', borderRadius: '2px' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontStyle: 'italic', color: 'var(--color-paper)' }}>
+            Your profile is {profileCompletion}% complete — finish it so partners can find you.
+          </p>
+          <Link
+            href="/settings"
+            className="mt-3 inline-block"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-paper)', textDecoration: 'underline' }}
+          >
+            Complete your profile →
+          </Link>
+        </div>
+      )}
       {/* First-time user welcome banner */}
-      {isNewUser && data?.business && calculateProfileCompletion(data.business) < 60 && (
+      {isNewUser && profileCompletion < 60 && (
         <div className="mb-8 p-6" style={{ background: 'var(--color-accent-2)', borderRadius: '2px' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontStyle: 'italic', color: 'var(--color-paper)' }}>
             Welcome to Sortir! Here&apos;s your first move.

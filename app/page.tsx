@@ -2,33 +2,6 @@ import Link from "next/link";
 import { LandingAnimations } from "./components/LandingAnimations";
 import { PartnershipMarquee } from "./components/PartnershipMarquee";
 
-const features = [
-  {
-    number: "01",
-    title: "Verified businesses",
-    description:
-      "Earn trust badges through business license verification and partnership track record.",
-  },
-  {
-    number: "02",
-    title: "Partnership Builder",
-    description:
-      "Use our equity assessment tool to structure fair deals — from revenue splits to commission models.",
-  },
-  {
-    number: "03",
-    title: "Track partnership ROI",
-    description:
-      "Measure real value with built-in tracking of revenue generated, customers acquired, and performance benchmarks.",
-  },
-  {
-    number: "04",
-    title: "Ready-to-use templates",
-    description:
-      "Get started with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
-  },
-];
-
 const partnershipExamples = [
   { businesses: "Gym + Meal Prep Service",             result: "Member nutrition package",         description: "Pair workout plans with weekly meal prep—give members a true lifestyle bundle." },
   { businesses: "Bookstore + Coffee Shop",             result: "Reading events & refreshments",    description: "Host book clubs and author nights with a café pop-up inside the store." },
@@ -72,9 +45,9 @@ const steps = [
 ];
 
 const trustSignals = [
-  { stat: "Free · Always",       label: "No paywall, no credit card" },
-  { stat: "Every business type", label: "Brick-and-mortar, online & freelancers" },
-  { stat: "100 to unlock",       label: "Your city opens at 100 businesses" },
+  { stat: "Free · Always",        label: "No paywall, no credit card" },
+  { stat: "Every business type",  label: "Brick-and-mortar, online & freelancers" },
+  { stat: "Launching city by city", label: "Growing neighborhood by neighborhood" },
 ];
 
 export default function Home() {
@@ -122,7 +95,7 @@ export default function Home() {
             </p>
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
-                className="btn-primary"
+                className="btn-primary btn-primary-hero"
                 href="/auth"
               >
                 Create your free account
@@ -165,6 +138,8 @@ export default function Home() {
                 style={{
                   borderTop: i === 0 ? '1px solid var(--color-rule)' : 'none',
                   borderBottom: '1px solid var(--color-rule)',
+                  borderLeft: '3px solid var(--color-accent)',
+                  paddingLeft: '12px',
                 }}
               >
                 <div
@@ -195,85 +170,6 @@ export default function Home() {
 
         {/* Full-width rule below hero */}
         <hr style={{ border: 'none', height: '1px', backgroundColor: 'var(--color-rule)' }} />
-      </section>
-
-      {/* Feature Cards — editorial grid */}
-      <section data-reveal>
-        <div className="px-6 sm:px-12">
-          <div className="mb-14">
-            <span className="section-label">Features</span>
-            <h2
-              className="mt-5"
-              data-reveal
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(2rem, 4vw, 3rem)',
-                color: 'var(--color-ink)',
-              }}
-            >
-              Everything you need to grow through partnerships
-            </h2>
-            <p
-              className="mt-3 max-w-2xl"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                color: 'var(--color-muted)',
-              }}
-            >
-              From discovering partners to tracking results, Sortir gives you the
-              complete toolkit for building successful business collaborations.
-            </p>
-          </div>
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2"
-            style={{ gap: '0 48px' }}
-          >
-            {features.map((feature, i) => (
-              <div
-                className="py-6"
-                key={feature.title}
-                data-reveal
-                style={{
-                  borderTop: '1px solid var(--color-rule)',
-                  transitionDelay: `${i * 80}ms`,
-                } as React.CSSProperties}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    color: 'var(--color-muted)',
-                  }}
-                >
-                  {feature.number}
-                </span>
-                <h3
-                  className="mt-2"
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '20px',
-                    color: 'var(--color-ink)',
-                  }}
-                >
-                  {feature.title}
-                </h3>
-                <p
-                  className="mt-2"
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '14px',
-                    lineHeight: '1.6',
-                    color: 'var(--color-muted)',
-                  }}
-                >
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* How It Works — dark forest green section */}
