@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from "react";
+import type React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -56,13 +57,13 @@ const REPORT_REASONS = [
   { value: "other", label: "Other" },
 ];
 
-const STATUS_COLORS: Record<PartnershipStatus, string> = {
-  pending: "bg-indigo-50 text-indigo-700",
-  active: "bg-green-50 text-green-700",
-  paused: "bg-amber-50 text-amber-700",
-  completed: "bg-blue-50 text-blue-700",
-  cancelled: "bg-neutral-100 text-neutral-500",
-  archived: "bg-neutral-50 text-neutral-500",
+const STATUS_COLORS: Record<PartnershipStatus, React.CSSProperties> = {
+  pending:   { background: 'var(--color-paper-dark)', color: 'var(--color-muted)',  border: '1px solid var(--color-rule)' },
+  active:    { background: 'var(--color-accent-2)',   color: 'var(--color-paper)',  border: 'none' },
+  paused:    { background: 'var(--color-paper-dark)', color: 'var(--color-ink)',    border: '1px solid var(--color-rule)' },
+  completed: { background: 'var(--color-ink)',        color: 'var(--color-paper)',  border: 'none' },
+  cancelled: { background: 'var(--color-paper-dark)', color: 'var(--color-muted)',  border: '1px solid var(--color-rule)' },
+  archived:  { background: 'var(--color-paper)',      color: 'var(--color-muted)',  border: '1px solid var(--color-rule)' },
 };
 
 function StarRating({
@@ -197,7 +198,8 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
         </div>
         {match.partnership && (
           <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[match.partnership.status]}`}
+            className="rounded-full px-2 py-0.5 text-xs font-medium"
+            style={STATUS_COLORS[match.partnership.status]}
           >
             {match.partnership.status}
           </span>

@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from "react";
+import type React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -37,11 +38,24 @@ const PARTNERSHIP_TYPE_OPTIONS = [
   { value: "event-collab", label: "Event Collaboration" },
   { value: "wholesale", label: "Wholesale" },
   { value: "social-media-collab", label: "Social Media Collab" },
+  { value: "in-store-display", label: "In-Store Display" },
+  { value: "referral-program", label: "Referral Program" },
+  { value: "consignment", label: "Consignment" },
+  { value: "digital-placement", label: "Digital Placement" },
 ];
 
 const INTEREST_TAG_OPTIONS = [
   "Events", "Cross-Promotion", "Product Placement", "Revenue Share",
   "Referral Program", "Joint Marketing", "Space Sharing", "Equipment Sharing", "Bulk Purchasing",
+  "In-Store Display", "Consignment Sales", "Newsletter Feature", "Physical Referral",
+];
+
+const BUSINESS_CATEGORY_OPTIONS = [
+  { value: "brick-and-mortar", label: "Brick & Mortar" },
+  { value: "online", label: "Online Business" },
+  { value: "freelancer", label: "Freelancer" },
+  { value: "entrepreneur", label: "Entrepreneur" },
+  { value: "service-provider", label: "Service Provider" },
 ];
 
 const DISTANCE_OPTIONS = [
@@ -60,11 +74,11 @@ const SORT_OPTIONS = [
   { value: "verified", label: "Most Verified" },
 ];
 
-const BADGE_STYLES: Record<TrustBadge["type"], string> = {
-  verified: "border-emerald-100 bg-emerald-50 text-emerald-700",
-  established: "border-amber-100 bg-amber-50 text-amber-700",
-  top_partner: "border-violet-100 bg-violet-50 text-violet-700",
-  fast_responder: "border-sky-100 bg-sky-50 text-sky-700",
+const BADGE_STYLES: Record<TrustBadge["type"], React.CSSProperties> = {
+  verified:      { background: 'var(--color-accent-2)', color: 'var(--color-paper)', border: '1px solid var(--color-accent-2)' },
+  established:   { background: 'var(--color-paper-dark)', color: 'var(--color-ink)', border: '1px solid var(--color-rule)' },
+  top_partner:   { background: 'var(--color-accent)', color: 'var(--color-paper)', border: '1px solid var(--color-accent)' },
+  fast_responder:{ background: 'var(--color-paper-dark)', color: 'var(--color-muted)', border: '1px solid var(--color-rule)' },
 };
 
 type SavedSearch = {
@@ -81,6 +95,7 @@ type FilterState = {
   verifiedOnly: boolean;
   minYears: number;
   categories: string[];
+  businessCategories: string[];
 };
 
 const defaultFilters: FilterState = {
@@ -91,6 +106,7 @@ const defaultFilters: FilterState = {
   verifiedOnly: false,
   minYears: 0,
   categories: [],
+  businessCategories: [],
 };
 
 function isProfileComplete(b: BusinessRecord): boolean {
@@ -213,7 +229,7 @@ function BusinessCard({
             <TrendingUp className="h-3 w-3" /> {Math.round(business.score)}% match
           </span>
           {badges.map((badge) => (
-            <span key={badge.type} className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${BADGE_STYLES[badge.type]}`}>
+            <span key={badge.type} className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={BADGE_STYLES[badge.type]}>
               {badge.label}
             </span>
           ))}
@@ -401,6 +417,17 @@ export default function DiscoverPage() {
   const userLat = userBusiness?.lat ?? browserLat;
   const userLng = userBusiness?.lng ?? browserLng;
 
+  // Online/freelancer/entrepreneur businesses are not location-bound — set national radius
+  const isLocationFreeCategory = userBusiness?.business_category === "online" ||
+    userBusiness?.business_category === "freelancer" ||
+    userBusiness?.business_category === "entrepreneur";
+
+  useEffect(() => {
+    if (isLocationFreeCategory) {
+      setFilters((prev) => ({ ...prev, maxDistance: 99999 }));
+    }
+  }, [isLocationFreeCategory]);
+
   // Fetch state launch status for the user's own state
   const { data: userStateStatus } = useQuery({
     queryKey: ["user-state-status", userBusiness?.state],
@@ -538,6 +565,12 @@ export default function DiscoverPage() {
     if (filters.interestTags.length > 0) {
       result = result.filter((b) =>
         (b.partnership_interest_tags ?? []).some((t) => filters.interestTags.includes(t))
+      );
+    }
+
+    if (filters.businessCategories.length > 0) {
+      result = result.filter((b) =>
+        b.business_category != null && filters.businessCategories.includes(b.business_category)
       );
     }
 
@@ -851,8 +884,31 @@ export default function DiscoverPage() {
                   </div>
                 </div>
 
-                {/* Distance — only shown when state is unlocked */}
-                {stateUnlocked && (
+                {/* Business Category */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-neutral-700">Business Category</p>
+                  <div className="space-y-1.5">
+                    {BUSINESS_CATEGORY_OPTIONS.map((opt) => (
+                      <label key={opt.value} className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="rounded border-neutral-300"
+                          checked={filters.businessCategories.includes(opt.value)}
+                          onChange={() => setFilters((prev) => ({
+                            ...prev,
+                            businessCategories: prev.businessCategories.includes(opt.value)
+                              ? prev.businessCategories.filter((c) => c !== opt.value)
+                              : [...prev.businessCategories, opt.value],
+                          }))}
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Distance — only shown when state is unlocked and not a location-free category */}
+                {stateUnlocked && !isLocationFreeCategory && (
                 <div>
                   <label className="label">Max Distance</label>
                   <select
@@ -865,6 +921,11 @@ export default function DiscoverPage() {
                     ))}
                   </select>
                 </div>
+                )}
+                {stateUnlocked && isLocationFreeCategory && (
+                  <p className="text-xs" style={{ color: 'var(--color-muted)', fontStyle: 'italic' }}>
+                    Your business isn&apos;t location-bound — you&apos;re matched nationally.
+                  </p>
                 )}
 
                 {/* Verified */}
