@@ -8,19 +8,19 @@
   "theme_color": "#0ea5e9",
   "icons": [
     {
-      "src": "/sortir-logo-192.png",
+      "src": "/sortir-logo-transparent.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/sortir-logo-512.png",
+      "src": "/sortir-logo-transparent.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/sortir-logo-transparent.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

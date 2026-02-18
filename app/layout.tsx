@@ -7,6 +7,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Sortir — Connect. Collaborate. Promote.",
   description: "Help small businesses and solo entrepreneurs form partnerships to sell, promote, and grow together.",
+  icons: {
+    icon: "/sortir-logo-transparent.png",
+    apple: "/sortir-logo-transparent.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
