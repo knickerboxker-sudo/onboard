@@ -102,12 +102,43 @@ export async function POST(request: Request) {
     }
 
     // Ensure city_launch_status record exists (trigger handles it, but upsert as safety net)
-    await supabase
+    const { data: cityRow } = await supabase
       .from("city_launch_status")
       .upsert(
         { city: cleanCity, state: cleanState, threshold: 50, current_count: 0, launched: false },
         { onConflict: "city", ignoreDuplicates: true },
-      );
+      )
+      .select("lat, lng")
+      .single();
+
+    // Geocode the city if coordinates are missing
+    if (!cityRow?.lat || !cityRow?.lng) {
+      try {
+        const geocodeUrl = new URL("https://geocoding.geo.census.gov/geocoder/locations/onelineaddress");
+        geocodeUrl.searchParams.set("address", `${cleanCity}, ${cleanState}`);
+        geocodeUrl.searchParams.set("benchmark", "Public_AR_Current");
+        geocodeUrl.searchParams.set("format", "json");
+
+        const geoRes = await fetch(geocodeUrl.toString(), { signal: AbortSignal.timeout(5000) });
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          const match = geoData?.result?.addressMatches?.[0];
+          if (match?.coordinates) {
+            const lat = parseFloat(match.coordinates.y);
+            const lng = parseFloat(match.coordinates.x);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              await supabase
+                .from("city_launch_status")
+                .update({ lat, lng })
+                .ilike("city", cleanCity);
+            }
+          }
+        }
+      } catch (geoErr) {
+        // Non-fatal: coordinates will be populated on a future signup
+        console.warn("Geocoding failed for", cleanCity, geoErr);
+      }
+    }
 
     // If referred, increment referrer's count
     if (cleanReferredBy) {

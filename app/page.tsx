@@ -93,8 +93,8 @@ const steps = [
 
 const trustSignals = [
   { stat: "Free · Always", label: "No paywall, no credit card" },
-  { stat: "Open nationwide", label: "Sign up from any US state" },
-  { stat: "1% to unlock", label: "Your state opens at 1% threshold" },
+  { stat: "Open nationwide", label: "Sign up from any US city" },
+  { stat: "50 to unlock", label: "Your city opens at 50 businesses" },
 ];
 
 export default function Home() {
