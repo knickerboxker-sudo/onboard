@@ -161,6 +161,10 @@ export default function ConnectionsPage() {
   return (
     <div className="space-y-6">
       <PageAccentRule />
+      {/* Editorial page title */}
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 6vw, 5rem)', letterSpacing: '-0.02em', lineHeight: '1.0', color: 'var(--color-ink)', borderBottom: '1px solid var(--color-rule)', paddingBottom: '24px' }}>
+        Connections
+      </h1>
       {/* Header */}
       <div className="glass rounded-2xl p-7">
         <div className="flex items-center gap-3">
@@ -168,7 +172,7 @@ export default function ConnectionsPage() {
             <Users className="h-6 w-6 text-lavender-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-neutral-900">Connections</h1>
+            <h2 className="text-lg font-semibold text-neutral-900">Manage requests &amp; partners</h2>
             <p className="mt-0.5 text-sm text-neutral-500">
               Manage your connection requests and view accepted connections
             </p>
@@ -232,7 +236,7 @@ export default function ConnectionsPage() {
               return (
                 <div
                   key={request.id}
-                  className="rounded-xl border border-neutral-100 bg-white p-5 transition-all duration-200 hover:shadow-sm"
+                  className="rounded-xl border border-neutral-100 bg-white p-5 transition-transform duration-150 ease hover:-translate-y-0.5 hover:border-neutral-400"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
@@ -399,7 +403,7 @@ export default function ConnectionsPage() {
               return (
                 <div
                   key={request.id}
-                  className="rounded-xl border border-neutral-100 bg-white p-5 transition-all duration-200 hover:shadow-sm"
+                  className="rounded-xl border border-neutral-100 bg-white p-5 transition-transform duration-150 ease hover:-translate-y-0.5 hover:border-neutral-400"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

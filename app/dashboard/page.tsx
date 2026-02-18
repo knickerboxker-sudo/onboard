@@ -290,6 +290,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       <PageAccentRule />
+      {/* Editorial page title */}
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 6vw, 5rem)', letterSpacing: '-0.02em', lineHeight: '1.0', color: 'var(--color-ink)', borderBottom: '1px solid var(--color-rule)', paddingBottom: '24px' }}>
+        Dashboard
+      </h1>
       {profileCompletion < 60 && (
         <div className="p-5" style={{ background: 'var(--color-accent)', borderRadius: '2px' }}>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontStyle: 'italic', color: 'var(--color-paper)' }}>
@@ -318,9 +322,9 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="glass rounded-2xl p-7">
         <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-lavender-600">Your partnership hub</p>
-        <h1 className="text-2xl font-semibold text-neutral-900">
+        <h2 className="text-2xl font-semibold text-neutral-900">
           {data?.business.name}
-        </h1>
+        </h2>
         <p className="mt-1 text-sm text-neutral-500">
           {data?.business.business_type}
         </p>
@@ -381,20 +385,27 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {statCards.map((item) => (
-          <div className="stat-card" key={item.label}>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-100">
-                <item.icon className="h-4 w-4 text-neutral-500" />
+      {/* Forest green full-bleed performance block — mirrors the "How it Works" dark section on the landing page.
+          The -24px horizontal margin breaks out of the layout container's padding to go full-width. */}
+      <div style={{ background: 'var(--color-accent-2)', padding: '40px', margin: '32px -24px' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontStyle: 'italic', color: 'var(--color-paper)', marginBottom: '24px' }}>
+          Your performance
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {statCards.map((item) => (
+            <div key={item.label} style={{ borderTop: '1px solid rgba(245,242,235,0.15)', padding: '24px 0' }}>
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: 'rgba(245,242,235,0.1)' }}>
+                  <item.icon className="h-4 w-4" style={{ color: 'rgba(245,242,235,0.6)' }} />
+                </div>
+                <p className="text-sm" style={{ color: 'rgba(245,242,235,0.7)' }}>{item.label}</p>
               </div>
-              <p className="text-sm text-neutral-500">{item.label}</p>
+              <p className="mt-3 text-3xl font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-paper)' }}>
+                {item.value}
+              </p>
             </div>
-            <p className="mt-3 text-3xl font-bold text-neutral-900">
-              {item.value}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       )}
 
@@ -433,7 +444,7 @@ export default function DashboardPage() {
               return (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-white px-5 py-3.5 transition-all duration-200 hover:shadow-sm"
+                  className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-white px-5 py-3.5 transition-transform duration-150 ease hover:-translate-y-0.5 hover:border-neutral-400"
                 >
                   <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>
                     <Icon className="h-4 w-4" />
@@ -502,7 +513,7 @@ export default function DashboardPage() {
             {data?.recentPartnerships.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center justify-between rounded-xl border border-neutral-100 bg-white px-5 py-3.5 transition-all duration-200 hover:shadow-sm"
+                className="flex items-center justify-between rounded-xl border border-neutral-100 bg-white px-5 py-3.5 transition-transform duration-150 ease hover:-translate-y-0.5 hover:border-neutral-400"
               >
                 <div>
                   <p className="text-sm font-medium text-neutral-900">

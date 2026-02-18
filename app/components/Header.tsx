@@ -110,7 +110,8 @@ export default function Header() {
     fontSize: '13px',
     letterSpacing: '0.02em',
     color: pathname === href ? 'var(--color-ink)' : 'var(--color-muted)',
-    fontWeight: pathname === href ? 500 : undefined,
+    borderBottom: pathname === href ? '2px solid var(--color-accent)' : '2px solid transparent',
+    paddingBottom: '2px',
   });
 
   return (
@@ -307,7 +308,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Home
                   </Link>
@@ -316,7 +317,7 @@ export default function Header() {
                       className="px-3 py-2.5 transition-colors"
                       href="/success-stories"
                       onClick={() => setMenuOpen(false)}
-                      style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/success-stories" ? 500 : undefined }}
+                      style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/success-stories" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                     >
                       Success Stories
                     </Link>
@@ -335,7 +336,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/discover"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/discover" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/discover" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/discover" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/discover" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Discover
                   </Link>
@@ -343,7 +344,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/connections"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/connections" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/connections" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/connections" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/connections" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Connections
                   </Link>
@@ -351,7 +352,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/messages"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/messages" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/messages" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/messages" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/messages" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Messages
                   </Link>
@@ -359,7 +360,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/dashboard" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/dashboard" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/dashboard" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/dashboard" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Dashboard
                   </Link>
@@ -367,7 +368,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/partnership-builder"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/partnership-builder" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/partnership-builder" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/partnership-builder" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/partnership-builder" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Builder
                   </Link>
@@ -375,7 +376,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/refer"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/refer" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/refer" ? 500 : undefined }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/refer" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/refer" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Refer &amp; Earn
                   </Link>

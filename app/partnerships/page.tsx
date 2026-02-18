@@ -83,12 +83,22 @@ function HealthIndicator({ health }: { health: PartnershipHealthScore }) {
   );
 }
 
+const STATUS_DOT_COLOR: Record<string, string> = {
+  active:    'var(--color-accent)',
+  pending:   'rgba(200,98,42,0.4)',
+  paused:    'var(--color-muted)',
+  completed: 'var(--color-muted)',
+  cancelled: 'var(--color-muted)',
+  archived:  'var(--color-muted)',
+};
+
 function PartnershipCard({ partnership, partnerName }: { partnership: PartnershipRecord; partnerName: string }) {
   const status = STATUS_STYLES[partnership.status] ?? STATUS_STYLES.pending;
   const health = calculateHealth(partnership);
+  const dotColor = STATUS_DOT_COLOR[partnership.status] ?? 'var(--color-muted)';
 
   return (
-    <div className="sortir-card transition-all hover:shadow-card-hover">
+    <div className="sortir-card transition-transform duration-150 ease hover:-translate-y-0.5">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-semibold text-neutral-900">{partnerName}</h3>
@@ -96,7 +106,8 @@ function PartnershipCard({ partnership, partnerName }: { partnership: Partnershi
         </div>
         <div className="flex items-center gap-2">
           <HealthIndicator health={health} />
-          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={status.style}>
+          <span className="flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style={status.style}>
+            <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: dotColor, marginRight: '6px', flexShrink: 0 }} />
             {status.label}
           </span>
         </div>
@@ -330,12 +341,13 @@ export default function PartnershipsPage() {
   return (
     <div className="space-y-6">
       <PageAccentRule />
+      {/* Editorial page title */}
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 6vw, 5rem)', letterSpacing: '-0.02em', lineHeight: '1.0', color: 'var(--color-ink)', borderBottom: '1px solid var(--color-rule)', paddingBottom: '24px' }}>
+        Partnerships
+      </h1>
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Partnerships</h1>
-          <p className="mt-1 text-sm text-neutral-500">Track, manage, and grow your business partnerships.</p>
-        </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <p className="text-sm" style={{ color: 'var(--color-muted)' }}>Track, manage, and grow your business partnerships.</p>
         <Link href="/discover" className="btn-primary text-xs">
           <Plus className="mr-1 h-3.5 w-3.5" /> Find New Partners
         </Link>

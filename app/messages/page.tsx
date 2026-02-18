@@ -221,10 +221,14 @@ function MessagesPageContent() {
   const activeMatch = matchesData?.matches.find((m) => m.id === activeMatchId);
 
   return (
-    <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
+    <>
       <PageAccentRule />
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 6vw, 5rem)', letterSpacing: '-0.02em', lineHeight: '1.0', color: 'var(--color-ink)', borderBottom: '1px solid var(--color-rule)', paddingBottom: '24px', marginBottom: '24px' }}>
+        Messages
+      </h1>
+      <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 260px)" }}>
       <div className="glass min-w-0 rounded-3xl p-5">
-        <h2 className="text-lg font-semibold text-neutral-900">Conversations</h2>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--color-ink)', marginBottom: '8px' }}>Conversations</h2>
         {matchesData?.matches.length === 0 ? (
           <div className="mt-6 flex flex-col items-center gap-2 text-center">
             <MessageCircle className="h-8 w-8 text-neutral-300" />
@@ -233,20 +237,35 @@ function MessagesPageContent() {
             <Link href="/discover" className="btn-primary mt-2 text-xs">Find Partners →</Link>
           </div>
         ) : (
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-2">
             {matchesData?.matches.map((match) => (
               <li key={match.id}>
                 <button
-                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition ${
-                    activeMatchId === match.id
-                      ? "border-sky-200 bg-sky-50 text-sky-800"
-                      : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
-                  }`}
+                  className="w-full text-left transition-colors hover:opacity-80"
+                  style={{
+                    borderBottom: '1px solid var(--color-rule)',
+                    padding: '12px 0',
+                    backgroundColor: 'transparent',
+                    ...(activeMatchId === match.id && {
+                      borderLeft: '2px solid var(--color-accent)',
+                      paddingLeft: '10px',
+                    }),
+                  }}
                   onClick={() => setActiveMatchId(match.id)}
                   type="button"
                 >
-                  <p className="font-medium">{match.partnerName}</p>
-                  <p className="mt-0.5 text-xs text-neutral-500">{match.partnerType}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {activeMatchId !== match.id && (
+                      <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-accent)', flexShrink: 0 }} />
+                    )}
+                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px', color: 'var(--color-ink)', lineHeight: '1.2' }}>{match.partnerName}</p>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3px', paddingLeft: activeMatchId !== match.id ? '14px' : '0' }}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--color-muted)' }}>{match.partnerType}</p>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.06em', color: 'var(--color-muted)' }}>
+                      {new Date(match.matched_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
                 </button>
               </li>
             ))}
@@ -335,6 +354,7 @@ function MessagesPageContent() {
         )}
       </div>
     </section>
+    </>
   );
 }
 
