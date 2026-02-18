@@ -16,9 +16,11 @@ export const metadata: Metadata = {
     siteName: "Sortir",
     title: "Sortir — Your neighborhood businesses, stronger together.",
     description: "Find your perfect local business partner. Cross-promote, share customers, and build partnerships that help every small business thrive. Free, always.",
+    images: [{ url: '/sortir-logo-512.png', width: 512, height: 512, alt: 'Sortir' }],
   },
   twitter: {
     card: "summary_large_image",
+    images: ['/sortir-logo-512.png'],
   },
 };
 

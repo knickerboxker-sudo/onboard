@@ -335,7 +335,21 @@ export default function DashboardPage() {
         ) : null;
       })()}
 
-      {/* Performance Stats */}
+      {/* Performance Stats or Welcome State */}
+      {data?.matchCount === 0 && data?.sentCount === 0 && data?.connectionRequestCount === 0 ? (
+        <div className="glass rounded-2xl p-7">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-spearmint-600">You&apos;re all set up</p>
+          <h2 className="text-xl font-semibold text-neutral-900">
+            Welcome to Sortir, {data.business.name}! You&apos;re all set up.
+          </h2>
+          <p className="mt-2 text-sm text-neutral-500">Your stats will appear here once you start connecting.</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/discover" className="btn-primary">Discover Partners</Link>
+            <Link href="/partnership-ideas" className="btn-secondary border border-neutral-200">Get Inspired</Link>
+            <Link href="/refer" className="btn-secondary border border-neutral-200">Invite a Business</Link>
+          </div>
+        </div>
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {statCards.map((item) => (
           <div className="stat-card" key={item.label}>
@@ -351,6 +365,7 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+      )}
 
       {/* Activity Feed */}
       {(data?.activityFeed?.length ?? 0) > 0 && (
@@ -638,7 +653,7 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="glass rounded-2xl p-7">
         <h2 className="text-lg font-semibold text-neutral-900">Quick Actions</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/discover" className="group flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white px-5 py-4 transition-all duration-200 hover:shadow-elevated">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50">
               <Users className="h-5 w-5 text-brand-600" />
@@ -664,6 +679,15 @@ export default function DashboardPage() {
             <div>
               <p className="text-sm font-medium text-neutral-900">Partnership Builder</p>
               <p className="text-xs text-neutral-500">Structure fair deals</p>
+            </div>
+          </Link>
+          <Link href="/refer" className="group flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white px-5 py-4 transition-all duration-200 hover:shadow-elevated">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-creamsicle-50">
+              <Share2 className="h-5 w-5 text-creamsicle-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-neutral-900">Invite &amp; Earn</p>
+              <p className="text-xs text-neutral-500">Refer businesses for rewards</p>
             </div>
           </Link>
         </div>

@@ -279,11 +279,10 @@ export default function Home() {
       {/* How It Works — dark forest green section */}
       <section
         id="how-it-works"
-        className="relative -mx-4 sm:-mx-6"
+        className="relative -mx-4 sm:-mx-6 px-6 sm:px-16 py-16 sm:py-24"
         data-reveal
         style={{
           backgroundColor: 'var(--color-accent-2)',
-          padding: '100px 64px',
         }}
       >
         <div className="mb-12">

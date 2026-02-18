@@ -221,6 +221,18 @@
     background: var(--color-rule);
   }
 
+  /* ─── Stat Cards ───────────────────────────────────────── */
+  .stat-card {
+    border-top: 1px solid var(--color-rule);
+    padding: 24px;
+    background: transparent;
+    transition: all 0.2s;
+  }
+
+  .stat-card:hover {
+    background: var(--color-paper-dark);
+  }
+
   /* ─── Backward-compatible ──────────────────────────────── */
   .testimonial-card {
     @apply sortir-card;
