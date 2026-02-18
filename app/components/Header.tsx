@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -123,26 +124,14 @@ export default function Header() {
     >
       <div className="flex items-center gap-3">
         <Link className="flex items-center" href="/">
-          <span
-            className="tracking-tight"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '18px',
-              color: 'var(--color-ink)',
-            }}
-          >
-            Sortir
-          </span>
-          <span
-            style={{
-              color: 'var(--color-accent)',
-              fontFamily: 'var(--font-display)',
-              fontSize: '18px',
-              marginLeft: '1px',
-            }}
-          >
-            ·
-          </span>
+          <Image
+            src="/sortir-logo-transparent.png"
+            alt="Sortir"
+            width={32}
+            height={32}
+            priority
+            style={{ objectFit: "contain" }}
+          />
         </Link>
       </div>
 

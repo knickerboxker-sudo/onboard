@@ -37,8 +37,8 @@ export async function middleware(request: NextRequest) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const protectedRoutes = [
     "/dashboard",
@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   );
 
-  if (isProtectedRoute && !session) {
+  if (isProtectedRoute && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/auth";
     redirectUrl.searchParams.set("redirect", request.nextUrl.pathname);

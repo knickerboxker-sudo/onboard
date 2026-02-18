@@ -1,14 +1,27 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp, sanitizeString } from "@/lib/rate-limit";
+import { z } from "zod";
+import crypto from "crypto";
+
+const emailSchema = z.string().email();
 
 function generateReferralCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  const charsLength = chars.length; // 62
+  // Rejection sampling: discard bytes >= maxValid to eliminate modulo bias
+  const maxValid = 256 - (256 % charsLength);
+  const result: string[] = [];
+  while (result.length < 8) {
+    const bytes = crypto.randomBytes(16);
+    for (const b of bytes) {
+      if (result.length === 8) break;
+      if (b < maxValid) {
+        result.push(chars[b % charsLength]);
+      }
+    }
   }
-  return code;
+  return result.join("");
 }
 
 export async function POST(request: Request) {
@@ -29,6 +42,15 @@ export async function POST(request: Request) {
     if (!business_name || !email || !business_type || !city || !state) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailValidation = emailSchema.safeParse(email);
+    if (!emailValidation.success) {
+      return NextResponse.json(
+        { error: "Invalid email address" },
         { status: 400 }
       );
     }
@@ -140,20 +162,9 @@ export async function POST(request: Request) {
       }
     }
 
-    // If referred, increment referrer's count
+    // If referred, atomically increment referrer's count via RPC
     if (cleanReferredBy) {
-      const { data: referrer } = await supabase
-        .from("pre_launch_signups")
-        .select("id, referral_count")
-        .eq("referral_code", cleanReferredBy)
-        .single();
-
-      if (referrer) {
-        await supabase
-          .from("pre_launch_signups")
-          .update({ referral_count: referrer.referral_count + 1 })
-          .eq("id", referrer.id);
-      }
+      await supabase.rpc("increment_referral_count", { referral_code_param: cleanReferredBy });
     }
 
     return NextResponse.json({

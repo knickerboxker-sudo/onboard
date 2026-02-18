@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit, getClientIp, sanitizeString } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -146,7 +147,8 @@ export async function POST(request: Request) {
         .single();
 
       if (receiverOwner) {
-        const adminResult = await supabase.auth.admin.getUserById(receiverOwner.owner_id);
+        const adminClient = createAdminClient();
+        const adminResult = await adminClient.auth.admin.getUserById(receiverOwner.owner_id);
         const receiverUser = adminResult.data?.user;
         if (receiverUser?.email) {
           const { sendEmail } = await import("@/lib/resend");
