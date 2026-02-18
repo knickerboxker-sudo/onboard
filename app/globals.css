@@ -325,3 +325,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-ink);
 }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}

@@ -405,7 +405,11 @@ describe("partnership interest tags", () => {
     expect(PARTNERSHIP_INTEREST_TAGS).toContain("Cross-Promotion");
     expect(PARTNERSHIP_INTEREST_TAGS).toContain("Revenue Share");
     expect(PARTNERSHIP_INTEREST_TAGS).toContain("Bulk Purchasing");
-    expect(PARTNERSHIP_INTEREST_TAGS.length).toBe(9);
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("In-Store Display");
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Consignment Sales");
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Newsletter Feature");
+    expect(PARTNERSHIP_INTEREST_TAGS).toContain("Physical Referral");
+    expect(PARTNERSHIP_INTEREST_TAGS.length).toBe(13);
   });
 });
 

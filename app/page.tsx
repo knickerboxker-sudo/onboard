@@ -59,15 +59,24 @@ const features = [
 ];
 
 const partnershipExamples = [
-  { businesses: "Gym + Meal Prep Service", result: "Member nutrition package" },
-  { businesses: "Bookstore + Coffee Shop", result: "Reading events with refreshments" },
-  { businesses: "Salon + Boutique", result: "Style makeover packages" },
-  { businesses: "Real Estate Agent + Mortgage Broker", result: "One-stop home buying experience" },
-  { businesses: "Accountant + Attorney", result: "Business startup bundle" },
-  { businesses: "Dog Walker + Pet Groomer", result: "All-in pet care subscription" },
-  { businesses: "Personal Trainer + Nutritionist", result: "Total transformation package" },
-  { businesses: "Wedding Photographer + Florist", result: "Memory + beauty package" },
-  { businesses: "Chiropractor + Massage Therapist", result: "Complete pain relief program" },
+  { businesses: "Gym + Meal Prep Service",            result: "Member nutrition package" },
+  { businesses: "Bookstore + Coffee Shop",            result: "Reading events & refreshments" },
+  { businesses: "Salon + Boutique",                   result: "Style makeover packages" },
+  { businesses: "Real Estate Agent + Mortgage Broker",result: "One-stop home buying experience" },
+  { businesses: "Accountant + Attorney",              result: "Business startup bundle" },
+  { businesses: "Dog Walker + Pet Groomer",           result: "All-in pet care subscription" },
+  { businesses: "Personal Trainer + Nutritionist",    result: "Total transformation package" },
+  { businesses: "Wedding Photographer + Florist",     result: "Memory & beauty package" },
+  { businesses: "Lawn Care Co. + Landscaper",         result: "Full outdoor maintenance plan" },
+  { businesses: "Hair Product Brand + Salon",         result: "In-store display & samples" },
+  { businesses: "Online Boutique + Local Pop-up",     result: "IRL shopping experience" },
+  { businesses: "Freelance Photographer + Venue",     result: "Preferred vendor partnership" },
+  { businesses: "Juice Bar + Yoga Studio",            result: "Post-class smoothie deal" },
+  { businesses: "Bakery + Coffee Shop",               result: "Morning bundle offer" },
+  { businesses: "Chiropractor + Massage Therapist",   result: "Complete pain relief program" },
+  { businesses: "Web Designer + Marketing Agency",    result: "Full digital launch package" },
+  { businesses: "Coworking Space + Coffee Shop",      result: "Member daily coffee perk" },
+  { businesses: "Print Shop + Graphic Designer",      result: "Design-to-print service" },
 ];
 
 const steps = [
@@ -92,9 +101,9 @@ const steps = [
 ];
 
 const trustSignals = [
-  { stat: "Free · Always", label: "No paywall, no credit card" },
-  { stat: "Open nationwide", label: "Sign up from any US city" },
-  { stat: "50 to unlock", label: "Your city opens at 50 businesses" },
+  { stat: "Free · Always",       label: "No paywall, no credit card" },
+  { stat: "Every business type", label: "Brick-and-mortar, online & freelancers" },
+  { stat: "100 to unlock",       label: "Your city opens at 100 businesses" },
 ];
 
 export default function Home() {

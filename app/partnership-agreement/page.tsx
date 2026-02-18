@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Check, FileText, GripVertical, Plus, Trash2, X }
 import { createClient } from "@/lib/supabase/client";
 import { PARTNERSHIP_TEMPLATES } from "@/lib/matching";
 import type { PartnershipType, AgreementClause } from "@/lib/types";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 const PARTNERSHIP_TYPES: { value: PartnershipType; label: string }[] = [
   { value: "cross-promotion", label: "Cross Promotion" },
@@ -193,6 +194,7 @@ function AgreementBuilder() {
 
   return (
     <div className="space-y-6">
+      <PageAccentRule />
       {/* Step indicator */}
       <div className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-neutral-100">
         <div className="flex items-center justify-between">

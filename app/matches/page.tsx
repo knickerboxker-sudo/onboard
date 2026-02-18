@@ -3,12 +3,14 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from "react";
+import type React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getTrustBadges } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge, PartnershipType, PartnershipStatus } from "@/lib/types";
 import { BadgeCheck, Star, Flag, ChevronDown, Users } from "lucide-react";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type PartnerBusiness = {
   id: string;
@@ -47,6 +49,10 @@ const PARTNERSHIP_TYPES: { value: PartnershipType; label: string }[] = [
   { value: "event-collab", label: "Event Collaboration" },
   { value: "wholesale", label: "Wholesale" },
   { value: "social-media-collab", label: "Social Media Collab" },
+  { value: "in-store-display", label: "In-Store Display" },
+  { value: "referral-program", label: "Referral Program" },
+  { value: "consignment", label: "Consignment" },
+  { value: "digital-placement", label: "Digital Placement" },
 ];
 
 const REPORT_REASONS = [
@@ -56,13 +62,13 @@ const REPORT_REASONS = [
   { value: "other", label: "Other" },
 ];
 
-const STATUS_COLORS: Record<PartnershipStatus, string> = {
-  pending: "bg-indigo-50 text-indigo-700",
-  active: "bg-green-50 text-green-700",
-  paused: "bg-amber-50 text-amber-700",
-  completed: "bg-blue-50 text-blue-700",
-  cancelled: "bg-neutral-100 text-neutral-500",
-  archived: "bg-neutral-50 text-neutral-500",
+const STATUS_COLORS: Record<PartnershipStatus, React.CSSProperties> = {
+  pending:   { background: 'var(--color-paper-dark)', color: 'var(--color-muted)',  border: '1px solid var(--color-rule)' },
+  active:    { background: 'var(--color-accent-2)',   color: 'var(--color-paper)',  border: 'none' },
+  paused:    { background: 'var(--color-paper-dark)', color: 'var(--color-ink)',    border: '1px solid var(--color-rule)' },
+  completed: { background: 'var(--color-ink)',        color: 'var(--color-paper)',  border: 'none' },
+  cancelled: { background: 'var(--color-paper-dark)', color: 'var(--color-muted)',  border: '1px solid var(--color-rule)' },
+  archived:  { background: 'var(--color-paper)',      color: 'var(--color-muted)',  border: '1px solid var(--color-rule)' },
 };
 
 function StarRating({
@@ -197,7 +203,8 @@ function MatchCard({ match }: { match: MatchWithPartner }) {
         </div>
         {match.partnership && (
           <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[match.partnership.status]}`}
+            className="rounded-full px-2 py-0.5 text-xs font-medium"
+            style={STATUS_COLORS[match.partnership.status]}
           >
             {match.partnership.status}
           </span>
@@ -556,6 +563,7 @@ export default function MatchesPage() {
 
   return (
     <div className="glass rounded-3xl p-6">
+      <PageAccentRule />
       <h1 className="text-2xl font-semibold text-neutral-900">Your matches</h1>
       <p className="mt-1 text-sm text-neutral-500">
         Each match is a business that wants to collaborate with you — promote each other&apos;s products, cross-market locally, or co-brand together. Start a conversation to explore what&apos;s possible.

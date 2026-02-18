@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Send, MessageCircle } from "lucide-react";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type MatchWithPartner = {
   id: string;
@@ -221,6 +222,7 @@ function MessagesPageContent() {
 
   return (
     <section className="grid gap-5 lg:grid-cols-[320px_1fr]" style={{ minHeight: "calc(100vh - 160px)" }}>
+      <PageAccentRule />
       <div className="glass min-w-0 rounded-3xl p-5">
         <h2 className="text-lg font-semibold text-neutral-900">Conversations</h2>
         {matchesData?.matches.length === 0 ? (

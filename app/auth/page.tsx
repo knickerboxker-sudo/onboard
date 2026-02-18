@@ -115,7 +115,26 @@ function AuthPageContent() {
 
   return (
     <div className="mx-auto max-w-md">
-      <div className="glass rounded-3xl p-8">
+      <div className="glass rounded-3xl p-8" style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* Background watermark */}
+        <span
+          aria-hidden="true"
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(6rem, 20vw, 14rem)',
+            fontStyle: 'italic',
+            color: 'rgba(13,13,13,0.03)',
+            position: 'absolute',
+            bottom: '-0.2em',
+            right: '-0.1em',
+            lineHeight: '1',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          Sortir
+        </span>
         <h1 className="text-2xl font-semibold text-neutral-900">{isSignup ? "Create your business account" : "Sign in"}</h1>
         <p className="mt-2 text-sm text-neutral-600">
           {isSignup

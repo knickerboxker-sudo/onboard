@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 import ImageUpload from "@/app/components/ImageUpload";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
@@ -180,6 +181,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <PageAccentRule />
       <form className="glass rounded-3xl p-8" onSubmit={handleSubmit}>
         <h1 className="text-2xl font-semibold text-neutral-900">Settings</h1>
         <p className="mt-1 text-sm text-neutral-600">Edit your business profile below.</p>

@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { BusinessRecord } from "@/lib/types";
 import Link from "next/link";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type ProfileViewWithViewer = {
   id: string;
@@ -85,6 +86,7 @@ export default function ProfileViewsPage() {
 
   return (
     <section className="mx-auto max-w-2xl space-y-6">
+      <PageAccentRule />
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">Profile Views</h1>
         <p className="mt-1 text-sm text-neutral-500">See who&apos;s been checking out your business</p>

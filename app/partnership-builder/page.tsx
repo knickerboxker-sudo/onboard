@@ -6,6 +6,7 @@ import { assessPartnershipEquity, fairnessCheck, negotiationStarter, type Contri
 import { calculatePartnershipROI, PARTNERSHIP_TEMPLATES, getTemplatesForType, type ROIInput } from "@/lib/matching";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType } from "@/lib/types";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 const initialContribution: ContributionInput = {
   followers: 5000,
@@ -24,6 +25,10 @@ const PARTNERSHIP_TYPE_OPTIONS: { value: PartnershipType; label: string }[] = [
   { value: "event-collab", label: "Event Collaboration" },
   { value: "wholesale", label: "Wholesale" },
   { value: "social-media-collab", label: "Social Media Collaboration" },
+  { value: "in-store-display", label: "In-Store Display" },
+  { value: "referral-program", label: "Referral Program" },
+  { value: "consignment", label: "Consignment" },
+  { value: "digital-placement", label: "Digital Placement" },
 ];
 
 const initialROI: ROIInput = {
@@ -183,6 +188,7 @@ function PartnershipBuilderPageContent() {
 
   return (
     <section className="space-y-6">
+      <PageAccentRule />
       <div className="glass rounded-3xl p-6">
         <h1 className="text-2xl font-semibold text-neutral-900">Partnership Builder</h1>
         <p className="mt-2 text-sm text-neutral-600">Assess each side&apos;s contribution, generate a fairness score, and negotiate terms using balanced templates.</p>

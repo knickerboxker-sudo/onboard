@@ -376,7 +376,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/partnership-builder" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/partnership-builder" ? 500 : undefined }}
                   >
-                    Partnership Builder
+                    Builder
                   </Link>
                   <Link
                     className="px-3 py-2.5 transition-colors"

@@ -6,20 +6,22 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import type { PartnershipType, CollaborationIntent } from "@/lib/types";
+import type { PartnershipType, CollaborationIntent, BusinessCategory } from "@/lib/types";
 import { PARTNERSHIP_INTEREST_TAGS } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 import ImageUpload from "@/app/components/ImageUpload";
 
 const STORAGE_KEY = "sortir-onboarding-draft";
 
-const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
+const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab", "in-store-display", "referral-program", "consignment", "digital-placement"];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
   { value: "sell", label: "Sell my products through a partner" },
   { value: "promote", label: "Cross-promote with another business" },
   { value: "supply", label: "Supply products or services" },
   { value: "co-brand", label: "Co-brand a product or experience" },
   { value: "refer", label: "Refer customers to each other" },
+  { value: "display", label: "Have my products displayed in a partner's location" },
+  { value: "feature", label: "Be featured in a partner's newsletter or social channels" },
 ];
 
 const stepLabels = ["Basics", "Offerings", "Details", "Review"];
@@ -42,26 +44,34 @@ function StepProgressBar({ step }: { step: number }) {
         const stepNum = i + 1;
         const isActive = stepNum === step;
         const isComplete = stepNum < step;
+        const circleStyle = isComplete
+          ? { backgroundColor: 'var(--color-accent-2)', color: 'var(--color-paper)' }
+          : isActive
+            ? { backgroundColor: 'var(--color-ink)', color: 'var(--color-paper)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }
+            : { border: '1px solid var(--color-rule)', backgroundColor: 'var(--color-paper)', color: 'var(--color-muted)' };
+        const labelStyle = isActive
+          ? { color: 'var(--color-ink)' }
+          : isComplete
+            ? { color: 'var(--color-accent-2)' }
+            : { color: 'var(--color-muted)' };
         return (
           <div key={label} className="flex flex-1 items-center">
             <div className="flex flex-col items-center">
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
-                  isComplete
-                    ? "bg-emerald-500 text-white"
-                    : isActive
-                      ? "bg-neutral-900 text-white shadow-lg"
-                      : "border border-neutral-300 bg-white text-neutral-400"
-                }`}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all"
+                style={circleStyle}
               >
                 {isComplete ? "✓" : stepNum}
               </div>
-              <span className={`mt-1 text-[10px] font-medium ${isActive ? "text-neutral-900" : isComplete ? "text-emerald-600" : "text-neutral-400"}`}>
+              <span className="mt-1 text-[10px] font-medium" style={labelStyle}>
                 {label}
               </span>
             </div>
             {i < stepLabels.length - 1 && (
-              <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-neutral-200"}`} />
+              <div
+                className="mx-1 h-0.5 flex-1 rounded-full transition-all"
+                style={{ backgroundColor: isComplete ? 'var(--color-accent-2)' : 'var(--color-rule)' }}
+              />
             )}
           </div>
         );
@@ -87,6 +97,7 @@ function ReviewSection({ title, onEdit, children }: { title: string; onEdit: () 
 interface DraftState {
   businessName: string;
   businessType: string;
+  businessCategory: string;
   address: string;
   lat: string;
   lng: string;
@@ -127,6 +138,7 @@ export default function OnboardingPage() {
 
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [businessCategory, setBusinessCategory] = useState<BusinessCategory | "">("");
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
@@ -172,6 +184,7 @@ export default function OnboardingPage() {
         const draft: DraftState = JSON.parse(raw);
         setBusinessName(draft.businessName ?? "");
         setBusinessType(draft.businessType ?? "");
+        setBusinessCategory((draft.businessCategory as BusinessCategory) ?? "");
         setAddress(draft.address ?? "");
         setLat(draft.lat ?? "");
         setLng(draft.lng ?? "");
@@ -212,7 +225,7 @@ export default function OnboardingPage() {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       const draft: DraftState = {
-        businessName, businessType, address, lat, lng, city, state, description, products,
+        businessName, businessType, businessCategory, address, lat, lng, city, state, description, products,
         partnerships, collaborationIntents, hours, website, socialLinks, photos,
         followerCount, emailListSize, monthlyFootTraffic,
         targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
@@ -222,7 +235,7 @@ export default function OnboardingPage() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(draft)); } catch { /* quota exceeded */ }
     }, 400);
   }, [
-    businessName, businessType, address, lat, lng, city, state, description, products,
+    businessName, businessType, businessCategory, address, lat, lng, city, state, description, products,
     partnerships, collaborationIntents, hours, website, socialLinks, photos,
     followerCount, emailListSize, monthlyFootTraffic,
     targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
@@ -348,6 +361,7 @@ export default function OnboardingPage() {
         .filter(Boolean),
       partnership_interest_tags: partnershipInterestTags,
       business_story: businessStory || null,
+      business_category: businessCategory || null,
     };
 
     const { error } = await supabase.from("businesses").upsert(payload, { onConflict: "owner_id" });
@@ -358,6 +372,23 @@ export default function OnboardingPage() {
       return;
     }
 
+    // Trigger verification based on business category
+    if (businessCategory === "brick-and-mortar" && businessName && address) {
+      // Fire-and-forget Google Places verification
+      fetch("/api/verify/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessName, address }),
+      }).catch(() => { /* non-blocking */ });
+    } else if (["online", "freelancer", "entrepreneur"].includes(businessCategory)) {
+      // Submit for manual verification
+      fetch("/api/verify/manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website: website || "" }),
+      }).catch(() => { /* non-blocking */ });
+    }
+
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
     router.push("/discover");
   };
@@ -365,9 +396,9 @@ export default function OnboardingPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Step {step} of 4</p>
-        <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Set up your business profile</h1>
-        <p className="mt-1 text-sm text-neutral-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
+        <p className="text-sm font-medium uppercase tracking-[0.18em]" style={{ color: 'var(--color-accent)' }}>Step {step} of 4</p>
+        <h1 className="mt-2 text-2xl font-semibold" style={{ color: 'var(--color-ink)' }}>Your free advertising starts here.</h1>
+        <p className="mt-1 text-sm" style={{ color: 'var(--color-muted)', lineHeight: '1.6' }}>Sortir connects you with complementary businesses for cross-promotion, product placement, referrals, and more — all completely free, forever. Set up your profile to start finding your perfect partners.</p>
 
         <StepProgressBar step={step} />
 
@@ -415,6 +446,39 @@ export default function OnboardingPage() {
                       value={businessType}
                     />
                     <FieldError message={validationErrors.businessType} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="label">Business category</label>
+                    <div className="grid gap-2 sm:grid-cols-3 mt-1">
+                      {([
+                        { value: "brick-and-mortar", label: "Brick & Mortar", description: "I have a physical storefront" },
+                        { value: "online", label: "Online Business", description: "I sell products or services online" },
+                        { value: "freelancer", label: "Freelancer", description: "I'm an independent contractor or creative" },
+                        { value: "entrepreneur", label: "Entrepreneur", description: "I'm building something new" },
+                        { value: "service-provider", label: "Service Provider", description: "I offer professional or trade services" },
+                      ] as { value: BusinessCategory; label: string; description: string }[]).map((opt) => (
+                        <label
+                          key={opt.value}
+                          className="flex flex-col gap-1 rounded-xl border px-3 py-2.5 text-sm cursor-pointer transition-all"
+                          style={{
+                            borderColor: businessCategory === opt.value ? 'var(--color-ink)' : 'var(--color-rule)',
+                            backgroundColor: businessCategory === opt.value ? 'var(--color-ink)' : 'var(--color-paper)',
+                            color: businessCategory === opt.value ? 'var(--color-paper)' : 'var(--color-ink)',
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="businessCategory"
+                            value={opt.value}
+                            checked={businessCategory === opt.value}
+                            onChange={() => setBusinessCategory(opt.value)}
+                            className="sr-only"
+                          />
+                          <span className="font-medium">{opt.label}</span>
+                          <span className="text-xs" style={{ color: businessCategory === opt.value ? 'rgba(245,242,235,0.7)' : 'var(--color-muted)' }}>{opt.description}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <div className="mb-3 flex items-center gap-4">
@@ -697,8 +761,29 @@ export default function OnboardingPage() {
                       <input className="input" onChange={(event) => setHours(event.target.value)} value={hours} />
                     </div>
                     <div>
-                      <label className="label">Website</label>
-                      <input className="input" onChange={(event) => setWebsite(event.target.value)} placeholder="https://" value={website} />
+                      <label className="label">
+                        Website
+                        {["online", "freelancer", "entrepreneur"].includes(businessCategory) && (
+                          <span className="ml-1 text-xs font-normal" style={{ color: 'var(--color-accent)' }}>* required for verification</span>
+                        )}
+                      </label>
+                      <input
+                        className="input"
+                        onChange={(event) => setWebsite(event.target.value)}
+                        placeholder="https://yourbusiness.com"
+                        value={website}
+                        required={["online", "freelancer", "entrepreneur"].includes(businessCategory)}
+                      />
+                      {businessCategory === "brick-and-mortar" && (
+                        <p className="mt-1 text-xs" style={{ color: 'var(--color-muted)' }}>
+                          Your business will be verified via Google Places automatically.
+                        </p>
+                      )}
+                      {["online", "freelancer", "entrepreneur"].includes(businessCategory) && (
+                        <p className="mt-1 text-xs" style={{ color: 'var(--color-muted)' }}>
+                          Your website or portfolio helps us verify your business manually (1–2 business days).
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="label">Social links (comma separated)</label>

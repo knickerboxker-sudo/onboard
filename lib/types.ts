@@ -1,6 +1,29 @@
-export type PartnershipType = "cross-promotion" | "product-bundle" | "event-collab" | "wholesale" | "social-media-collab";
+export type BusinessCategory = 
+  | "brick-and-mortar"
+  | "online"
+  | "freelancer"
+  | "entrepreneur"
+  | "service-provider";
 
-export type CollaborationIntent = "sell" | "promote" | "supply" | "co-brand" | "refer";
+export type PartnershipType = 
+  | "cross-promotion"
+  | "product-bundle"
+  | "event-collab"
+  | "wholesale"
+  | "social-media-collab"
+  | "in-store-display"
+  | "referral-program"
+  | "consignment"
+  | "digital-placement";
+
+export type CollaborationIntent = 
+  | "sell"
+  | "promote"
+  | "supply"
+  | "co-brand"
+  | "refer"
+  | "display"
+  | "feature";
 
 export type PartnershipInterestTag =
   | "Events"
@@ -11,7 +34,11 @@ export type PartnershipInterestTag =
   | "Joint Marketing"
   | "Space Sharing"
   | "Equipment Sharing"
-  | "Bulk Purchasing";
+  | "Bulk Purchasing"
+  | "In-Store Display"
+  | "Consignment Sales"
+  | "Newsletter Feature"
+  | "Physical Referral";
 
 export const PARTNERSHIP_INTEREST_TAGS: PartnershipInterestTag[] = [
   "Events",
@@ -23,6 +50,10 @@ export const PARTNERSHIP_INTEREST_TAGS: PartnershipInterestTag[] = [
   "Space Sharing",
   "Equipment Sharing",
   "Bulk Purchasing",
+  "In-Store Display",
+  "Consignment Sales",
+  "Newsletter Feature",
+  "Physical Referral",
 ];
 
 export type BusinessRecord = {
@@ -68,6 +99,7 @@ export type BusinessRecord = {
   // City-based launch system
   city?: string | null;
   state?: string | null;
+  business_category?: BusinessCategory | null;
 };
 
 // Connection request system
