@@ -58,6 +58,7 @@ export default function ImageUpload({ photos, onChange, maxPhotos = 5 }: ImageUp
         <div className="flex flex-wrap gap-2">
           {photos.map((url, i) => (
             <div key={`${url}-${i}`} className="group relative h-20 w-20 overflow-hidden rounded-xl border border-neutral-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
               <button
                 type="button"

@@ -6,12 +6,13 @@ interface Suggestion {
   id: string;
   place_name: string;
   center: [number, number]; // [lng, lat]
+  context?: Array<{ id: string; text: string }>;
 }
 
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
-  onSelect: (result: { address: string; lat: number; lng: number }) => void;
+  onSelect: (result: { address: string; lat: number; lng: number; city?: string; state?: string }) => void;
   required?: boolean;
 }
 
@@ -30,7 +31,7 @@ export default function AddressAutocomplete({ value, onChange, onSelect, require
       return;
     }
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&types=address,poi&limit=5`;
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&types=address,poi&country=us&limit=5`;
       const res = await fetch(url);
       if (!res.ok) return;
       const data = await res.json();
@@ -50,7 +51,13 @@ export default function AddressAutocomplete({ value, onChange, onSelect, require
 
   const handleSelect = (suggestion: Suggestion) => {
     const [lng, lat] = suggestion.center;
-    onSelect({ address: suggestion.place_name, lat, lng });
+    // Extract city and state from Mapbox context array
+    const ctx = suggestion.context ?? [];
+    const cityCtx = ctx.find((c) => c.id.startsWith("place.") || c.id.startsWith("locality."));
+    const regionCtx = ctx.find((c) => c.id.startsWith("region."));
+    const city = cityCtx?.text;
+    const state = regionCtx?.text;
+    onSelect({ address: suggestion.place_name, lat, lng, city, state });
     setSuggestions([]);
     setOpen(false);
     setActiveIndex(-1);

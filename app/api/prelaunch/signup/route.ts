@@ -101,19 +101,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Increment city count
-    const { data: cityData } = await supabase
+    // Ensure city_launch_status record exists (trigger handles it, but upsert as safety net)
+    await supabase
       .from("city_launch_status")
-      .select("current_count")
-      .eq("city", cleanCity)
-      .single();
-
-    if (cityData) {
-      await supabase
-        .from("city_launch_status")
-        .update({ current_count: cityData.current_count + 1 })
-        .eq("city", cleanCity);
-    }
+      .upsert(
+        { city: cleanCity, state: cleanState, threshold: 50, current_count: 0, launched: false },
+        { onConflict: "city", ignoreDuplicates: true },
+      );
 
     // If referred, increment referrer's count
     if (cleanReferredBy) {
