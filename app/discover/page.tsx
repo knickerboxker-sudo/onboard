@@ -31,6 +31,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 const PARTNERSHIP_TYPE_OPTIONS = [
   { value: "cross-promotion", label: "Cross Promotion" },
@@ -134,7 +135,7 @@ function BusinessCard({
   onRequestConnection,
   isRequesting,
   errorMessage,
-  stateUnlocked,
+  cityUnlocked,
 }: {
   business: BusinessRecord & { distanceMiles: number | null; score: number };
   view: "grid" | "list";
@@ -145,7 +146,7 @@ function BusinessCard({
   onRequestConnection: () => void;
   isRequesting: boolean;
   errorMessage: string | null;
-  stateUnlocked: boolean;
+  cityUnlocked: boolean;
 }) {
   const badges = getTrustBadges(business);
   const isGrid = view === "grid";
@@ -267,7 +268,7 @@ function BusinessCard({
         {/* Request Connection button for grid view */}
         {isGrid && (
           <div className="mt-4 space-y-2">
-            {!stateUnlocked ? (
+            {!cityUnlocked ? (
               <button
                 onClick={onToggleSelect}
                 className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs font-semibold text-amber-700 transition-all duration-200 hover:bg-amber-100"
@@ -312,7 +313,7 @@ function BusinessCard({
 
       {!isGrid && (
         <div className="flex flex-col flex-shrink-0 gap-1 items-end">
-          {!stateUnlocked ? (
+          {!cityUnlocked ? (
             <button
               onClick={onToggleSelect}
               className="flex items-center gap-1.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 text-xs font-semibold text-amber-700 transition-all duration-200 hover:bg-amber-100"
@@ -428,23 +429,23 @@ export default function DiscoverPage() {
     }
   }, [isLocationFreeCategory]);
 
-  // Fetch state launch status for the user's own state
-  const { data: userStateStatus } = useQuery({
-    queryKey: ["user-state-status", userBusiness?.state],
-    enabled: !!userBusiness?.state,
+  // Fetch city launch status for the user's own city
+  const { data: userCityStatus } = useQuery({
+    queryKey: ["user-city-status", userBusiness?.city],
+    enabled: !!userBusiness?.city,
     queryFn: async () => {
-      if (!userBusiness?.state) return null;
+      if (!userBusiness?.city) return null;
       const { data } = await supabase
-        .from("state_launch_status")
-        .select("state_abbrev, state_name, current_count, threshold, launched")
-        .eq("state_abbrev", userBusiness.state)
+        .from("city_launch_status")
+        .select("city, state, current_count, threshold, launched")
+        .ilike("city", userBusiness.city)
         .single();
       return data ?? null;
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const stateUnlocked = userStateStatus?.launched === true;
+  const cityUnlocked = userCityStatus?.launched === true;
 
   const { data: businesses = [], isLoading } = useQuery({
     queryKey: ["discover-businesses"],
@@ -528,8 +529,8 @@ export default function DiscoverPage() {
   };
 
   const filtered = useMemo(() => {
-    // Default radius: 25 miles when state is unlocked; national browse when not unlocked
-    const effectiveMaxDistance = stateUnlocked ? filters.maxDistance : 99999;
+    // Default radius: user-selected distance when city unlocked; 50 miles for browsing nearby cities when not unlocked
+    const effectiveMaxDistance = cityUnlocked ? filters.maxDistance : 50;
 
     let result = businesses
       .filter((b) => userBusiness?.id !== b.id)
@@ -608,7 +609,7 @@ export default function DiscoverPage() {
     });
 
     return result;
-  }, [businesses, userBusiness, userLat, userLng, filters, sortBy, stateUnlocked]);
+  }, [businesses, userBusiness, userLat, userLng, filters, sortBy, cityUnlocked]);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -668,6 +669,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="space-y-6">
+      <PageAccentRule />
       {/* Non-invasive location permission banner */}
       <AnimatePresence>
         {showLocationPrompt && !userBusiness?.lat && (
@@ -703,32 +705,32 @@ export default function DiscoverPage() {
         )}
       </AnimatePresence>
 
-      {/* State launch status banner */}
-      {userBusiness?.state && userStateStatus && !userStateStatus.launched && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
-          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+      {/* City launch status banner */}
+      {userBusiness?.city && userCityStatus && !userCityStatus.launched && (
+        <div className="flex items-start gap-3 rounded-2xl p-4 text-sm" style={{ border: '1px solid var(--color-rule)', backgroundColor: 'var(--color-paper-dark)' }}>
+          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: 'var(--color-accent)' }} />
           <div className="flex-1">
-            <p className="font-medium text-amber-900">
-              {userStateStatus.state_name} is at {userStateStatus.current_count} / {userStateStatus.threshold} businesses. Share your referral link to help unlock your state.
+            <p className="font-medium" style={{ color: 'var(--color-ink)' }}>
+              {userCityStatus.city} is at {userCityStatus.current_count} / {userCityStatus.threshold} businesses. Invite local businesses to unlock your city.
             </p>
             <div className="mt-2">
-              <div className="flex justify-between text-xs text-amber-700 mb-1">
+              <div className="flex justify-between text-xs mb-1" style={{ color: 'var(--color-muted)' }}>
                 <span className="flex items-center gap-1">
                   <Users className="h-3 w-3" />
-                  {userStateStatus.current_count} / {userStateStatus.threshold} businesses
+                  {userCityStatus.current_count} / {userCityStatus.threshold} businesses
                 </span>
-                <span>{Math.round((userStateStatus.current_count / userStateStatus.threshold) * 100)}%</span>
+                <span>{Math.round((userCityStatus.current_count / userCityStatus.threshold) * 100)}%</span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-amber-200">
+              <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: 'var(--color-rule)' }}>
                 <div
-                  className="h-full rounded-full bg-amber-500 transition-all"
-                  style={{ width: `${Math.min(100, Math.round((userStateStatus.current_count / userStateStatus.threshold) * 100))}%` }}
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${Math.min(100, Math.round((userCityStatus.current_count / userCityStatus.threshold) * 100))}%`, backgroundColor: 'var(--color-accent)' }}
                 />
               </div>
             </div>
-            <p className="mt-1.5 text-xs text-amber-700">
-              You&apos;re in read-only browse mode. Connection requests unlock when {userStateStatus.state_name} hits its threshold.{" "}
-              <Link href="/refer" className="font-semibold underline hover:text-amber-800">
+            <p className="mt-1.5 text-xs" style={{ color: 'var(--color-muted)' }}>
+              You&apos;re in browse mode — you can see businesses within 50 miles. Connection requests unlock when {userCityStatus.city} hits its threshold.{" "}
+              <Link href="/refer" className="font-semibold underline">
                 Invite businesses to speed things up →
               </Link>
             </p>
@@ -736,11 +738,11 @@ export default function DiscoverPage() {
         </div>
       )}
 
-      {userBusiness?.state && userStateStatus?.launched && (
-        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
-          <CheckCircle className="h-4 w-4 flex-shrink-0 text-emerald-600" />
-          <p className="font-medium text-emerald-900">
-            🎉 {userStateStatus.state_name} is live! Full access to connect within your radius.
+      {userBusiness?.city && userCityStatus?.launched && (
+        <div className="flex items-center gap-3 rounded-2xl p-4 text-sm" style={{ border: '1px solid var(--color-accent-2)', backgroundColor: 'var(--color-accent-2)' }}>
+          <CheckCircle className="h-4 w-4 flex-shrink-0" style={{ color: 'var(--color-paper)' }} />
+          <p className="font-medium" style={{ color: 'var(--color-paper)' }}>
+            🎉 {userCityStatus.city} is live! Full access to connect with businesses in your city and within 50 miles.
           </p>
         </div>
       )}
@@ -750,9 +752,9 @@ export default function DiscoverPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Discover Partners</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            {stateUnlocked
-              ? "Find and connect with complementary businesses near you."
-              : "Browse businesses nationally — connection requests unlock when your state hits its threshold."}
+            {cityUnlocked
+              ? "Find and connect with complementary businesses in your city and within 50 miles."
+              : "Browse businesses — connection requests unlock when your city reaches its threshold."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -908,7 +910,7 @@ export default function DiscoverPage() {
                 </div>
 
                 {/* Distance — only shown when state is unlocked and not a location-free category */}
-                {stateUnlocked && !isLocationFreeCategory && (
+                {cityUnlocked && !isLocationFreeCategory && (
                 <div>
                   <label className="label">Max Distance</label>
                   <select
@@ -922,7 +924,7 @@ export default function DiscoverPage() {
                   </select>
                 </div>
                 )}
-                {stateUnlocked && isLocationFreeCategory && (
+                {cityUnlocked && isLocationFreeCategory && (
                   <p className="text-xs" style={{ color: 'var(--color-muted)', fontStyle: 'italic' }}>
                     Your business isn&apos;t location-bound — you&apos;re matched nationally.
                   </p>
@@ -1024,7 +1026,7 @@ export default function DiscoverPage() {
                     onRequestConnection={() => connectionRequestMutation.mutate(b.id)}
                     isRequesting={requestingIds.has(b.id)}
                     errorMessage={errorMap.get(b.id) ?? null}
-                    stateUnlocked={stateUnlocked}
+                    cityUnlocked={cityUnlocked}
                   />
                 ))}
               </AnimatePresence>

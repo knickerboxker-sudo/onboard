@@ -20,6 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { ReferralRecord } from "@/lib/types";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 const REFERRAL_MILESTONES = [
   { count: 1, reward: "Extended profile visibility boost", icon: Star },
@@ -120,6 +121,7 @@ export default function ReferPage() {
 
   return (
     <div className="space-y-6">
+      <PageAccentRule />
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Refer & Earn</h1>

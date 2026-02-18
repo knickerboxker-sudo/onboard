@@ -28,6 +28,7 @@ import {
   UserPlus,
   ArrowRight,
 } from "lucide-react";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type Partnership = {
   id: string;
@@ -282,6 +283,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
+      <PageAccentRule />
       {/* Header */}
       <div className="glass rounded-2xl p-7">
         <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-lavender-600">Your partnership hub</p>

@@ -372,6 +372,23 @@ export default function OnboardingPage() {
       return;
     }
 
+    // Trigger verification based on business category
+    if (businessCategory === "brick-and-mortar" && businessName && address) {
+      // Fire-and-forget Google Places verification
+      fetch("/api/verify/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessName, address }),
+      }).catch(() => { /* non-blocking */ });
+    } else if (["online", "freelancer", "entrepreneur"].includes(businessCategory)) {
+      // Submit for manual verification
+      fetch("/api/verify/manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website: website || "" }),
+      }).catch(() => { /* non-blocking */ });
+    }
+
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
     router.push("/discover");
   };
@@ -379,9 +396,9 @@ export default function OnboardingPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-sky-700">Step {step} of 4</p>
-        <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Set up your business profile</h1>
-        <p className="mt-1 text-sm text-neutral-600">A complete profile helps you find the right partners. Tell us what you offer and what kind of collaborations you&apos;re looking for.</p>
+        <p className="text-sm font-medium uppercase tracking-[0.18em]" style={{ color: 'var(--color-accent)' }}>Step {step} of 4</p>
+        <h1 className="mt-2 text-2xl font-semibold" style={{ color: 'var(--color-ink)' }}>Your free advertising starts here.</h1>
+        <p className="mt-1 text-sm" style={{ color: 'var(--color-muted)', lineHeight: '1.6' }}>Sortir connects you with complementary businesses for cross-promotion, product placement, referrals, and more — all completely free, forever. Set up your profile to start finding your perfect partners.</p>
 
         <StepProgressBar step={step} />
 
@@ -744,8 +761,29 @@ export default function OnboardingPage() {
                       <input className="input" onChange={(event) => setHours(event.target.value)} value={hours} />
                     </div>
                     <div>
-                      <label className="label">Website</label>
-                      <input className="input" onChange={(event) => setWebsite(event.target.value)} placeholder="https://" value={website} />
+                      <label className="label">
+                        Website
+                        {["online", "freelancer", "entrepreneur"].includes(businessCategory) && (
+                          <span className="ml-1 text-xs font-normal" style={{ color: 'var(--color-accent)' }}>* required for verification</span>
+                        )}
+                      </label>
+                      <input
+                        className="input"
+                        onChange={(event) => setWebsite(event.target.value)}
+                        placeholder="https://yourbusiness.com"
+                        value={website}
+                        required={["online", "freelancer", "entrepreneur"].includes(businessCategory)}
+                      />
+                      {businessCategory === "brick-and-mortar" && (
+                        <p className="mt-1 text-xs" style={{ color: 'var(--color-muted)' }}>
+                          Your business will be verified via Google Places automatically.
+                        </p>
+                      )}
+                      {["online", "freelancer", "entrepreneur"].includes(businessCategory) && (
+                        <p className="mt-1 text-xs" style={{ color: 'var(--color-muted)' }}>
+                          Your website or portfolio helps us verify your business manually (1–2 business days).
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="label">Social links (comma separated)</label>

@@ -26,6 +26,7 @@ import {
   PartyPopper,
 } from "lucide-react";
 import type { PartnershipRecord, PartnershipStatus, PartnershipHealthScore } from "@/lib/types";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 const STATUS_STYLES: Record<PartnershipStatus, { bg: string; text: string; label: string }> = {
   pending: { bg: "bg-amber-50", text: "text-amber-700", label: "Pending" },
@@ -327,6 +328,7 @@ export default function PartnershipsPage() {
 
   return (
     <div className="space-y-6">
+      <PageAccentRule />
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

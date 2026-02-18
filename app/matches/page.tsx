@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getTrustBadges } from "@/lib/matching";
 import type { BusinessRecord, TrustBadge, PartnershipType, PartnershipStatus } from "@/lib/types";
 import { BadgeCheck, Star, Flag, ChevronDown, Users } from "lucide-react";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type PartnerBusiness = {
   id: string;
@@ -48,6 +49,10 @@ const PARTNERSHIP_TYPES: { value: PartnershipType; label: string }[] = [
   { value: "event-collab", label: "Event Collaboration" },
   { value: "wholesale", label: "Wholesale" },
   { value: "social-media-collab", label: "Social Media Collab" },
+  { value: "in-store-display", label: "In-Store Display" },
+  { value: "referral-program", label: "Referral Program" },
+  { value: "consignment", label: "Consignment" },
+  { value: "digital-placement", label: "Digital Placement" },
 ];
 
 const REPORT_REASONS = [
@@ -558,6 +563,7 @@ export default function MatchesPage() {
 
   return (
     <div className="glass rounded-3xl p-6">
+      <PageAccentRule />
       <h1 className="text-2xl font-semibold text-neutral-900">Your matches</h1>
       <p className="mt-1 text-sm text-neutral-500">
         Each match is a business that wants to collaborate with you — promote each other&apos;s products, cross-market locally, or co-brand together. Start a conversation to explore what&apos;s possible.

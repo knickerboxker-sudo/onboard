@@ -35,6 +35,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type Partnership = {
   id: string;
@@ -198,6 +199,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-4">
+      <PageAccentRule />
       <div className="glass rounded-3xl p-6">
         <p className="mb-1 text-sm font-medium uppercase tracking-[0.18em] text-lavender-600">
           Advanced analytics

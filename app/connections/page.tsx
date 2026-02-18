@@ -17,6 +17,7 @@ import {
   Users,
   ArrowRight
 } from "lucide-react";
+import PageAccentRule from "@/app/components/PageAccentRule";
 
 type Business = {
   id: string;
@@ -159,6 +160,7 @@ export default function ConnectionsPage() {
 
   return (
     <div className="space-y-6">
+      <PageAccentRule />
       {/* Header */}
       <div className="glass rounded-2xl p-7">
         <div className="flex items-center gap-3">
