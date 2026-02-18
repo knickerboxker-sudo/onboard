@@ -5,57 +5,27 @@ import { PartnershipMarquee } from "./components/PartnershipMarquee";
 const features = [
   {
     number: "01",
-    title: "Build your business profile",
+    title: "Verified businesses",
     description:
-      "Create a rich profile with your products, services, social links, and partnership preferences to attract the right collaborators.",
+      "Earn trust badges through business license verification and partnership track record.",
   },
   {
     number: "02",
-    title: "Discover local partners",
+    title: "Partnership Builder",
     description:
-      "Find complementary businesses in your city using location-based search and browse through potential partners.",
+      "Use our equity assessment tool to structure fair deals — from revenue splits to commission models.",
   },
   {
     number: "03",
-    title: "Connect & collaborate",
+    title: "Track partnership ROI",
     description:
-      "Send connection requests to businesses you'd like to partner with and start collaborating right away.",
+      "Measure real value with built-in tracking of revenue generated, customers acquired, and performance benchmarks.",
   },
   {
     number: "04",
-    title: "Message your matches",
-    description:
-      "Chat directly with matched partners to discuss cross-promotion, product bundles, and collaboration opportunities.",
-  },
-  {
-    number: "05",
-    title: "Partnership builder",
-    description:
-      "Use our equity assessment tool to structure fair deals — from revenue splits to commission models and performance benchmarks.",
-  },
-  {
-    number: "06",
-    title: "Grow together",
-    description:
-      "Sell each other's products in-store, promote on each other's social media, and create collaboration products and services.",
-  },
-  {
-    number: "07",
-    title: "Verified businesses",
-    description:
-      "Earn trust badges through verification — business license, storefront photos, and successful partnership track record.",
-  },
-  {
-    number: "08",
-    title: "Track partnership ROI",
-    description:
-      "Measure the real value of your partnerships with built-in ROI tracking — revenue generated, customers acquired, and performance benchmarks.",
-  },
-  {
-    number: "09",
     title: "Ready-to-use templates",
     description:
-      "Get started quickly with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
+      "Get started with pre-built agreement templates for consignment, commission splits, cross-promotion, and event collaborations.",
   },
 ];
 
@@ -257,7 +227,7 @@ export default function Home() {
             </p>
           </div>
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            className="grid grid-cols-1 sm:grid-cols-2"
             style={{ gap: '0 48px' }}
           >
             {features.map((feature, i) => (

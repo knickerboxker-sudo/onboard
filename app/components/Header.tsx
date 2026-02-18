@@ -374,14 +374,6 @@ export default function Header() {
                   >
                     Refer &amp; Earn
                   </Link>
-                  <Link
-                    className="px-3 py-2.5 transition-colors"
-                    href="/settings"
-                    onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/settings" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/settings" ? 500 : undefined }}
-                  >
-                    Settings
-                  </Link>
                   <button
                     onClick={() => {
                       setMenuOpen(false);
