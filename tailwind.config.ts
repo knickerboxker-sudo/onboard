@@ -104,7 +104,7 @@ const config: Config = {
         'shimmer': 'shimmer 2.5s linear infinite',
         'float': 'float 6s ease-in-out infinite',
         'gradient-x': 'gradient-x 8s ease infinite',
-        'marquee': 'marquee 28s linear infinite',
+        'marquee': 'marquee 60s linear infinite',
       },
       keyframes: {
         fadeIn: {
