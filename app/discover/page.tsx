@@ -161,7 +161,7 @@ function BusinessCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={`group relative overflow-hidden rounded-2xl bg-white border border-neutral-100 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated ${
+      className={`group relative overflow-hidden rounded-2xl bg-white border border-neutral-100 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:border-neutral-400 ${
         isGrid ? "p-6" : "flex items-center gap-4 p-5"
       } ${selected ? "ring-2 ring-lavender-400 border-lavender-200" : ""}`}
     >
@@ -750,8 +750,8 @@ export default function DiscoverPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Discover Partners</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 6vw, 5rem)', letterSpacing: '-0.02em', lineHeight: '1.0', color: 'var(--color-ink)', borderBottom: '1px solid var(--color-rule)', paddingBottom: '24px', marginBottom: '8px' }}>Discover Partners</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--color-muted)' }}>
             {cityUnlocked
               ? "Find and connect with complementary businesses in your city and within 50 miles."
               : "Browse businesses — connection requests unlock when your city reaches its threshold."}
