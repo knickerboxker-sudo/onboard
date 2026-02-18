@@ -1,4 +1,4 @@
-import type { BusinessRecord, TrustBadge, TierLimits, SubscriptionTier, PartnershipType, PartnershipTemplate, CollaborationIntent } from "@/lib/types";
+import type { BusinessRecord, TrustBadge, PartnershipType, PartnershipTemplate, CollaborationIntent } from "@/lib/types";
 
 const EARTH_RADIUS_MILES = 3958.8;
 
@@ -256,71 +256,6 @@ export function getTrustBadges(business: BusinessRecord): TrustBadge[] {
 
   return badges;
 }
-
-// --- Subscription / Monetization ---
-
-export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
-  free: {
-    dailyConnections: 3,
-    canSeeWhoLiked: false,
-    canSeeProfileViews: 0,
-    prioritySearch: false,
-    advancedAnalytics: false,
-    partnershipTemplates: 2,
-    exportData: false,
-    removeBranding: false,
-  },
-  starter: {
-    dailyConnections: 15,
-    canSeeWhoLiked: false,
-    canSeeProfileViews: 10,
-    prioritySearch: false,
-    advancedAnalytics: false,
-    partnershipTemplates: 5,
-    exportData: true,
-    removeBranding: true,
-  },
-  professional: {
-    dailyConnections: Infinity,
-    canSeeWhoLiked: true,
-    canSeeProfileViews: Infinity,
-    prioritySearch: true,
-    advancedAnalytics: true,
-    partnershipTemplates: Infinity,
-    exportData: true,
-    removeBranding: true,
-  },
-  business: {
-    dailyConnections: Infinity,
-    canSeeWhoLiked: true,
-    canSeeProfileViews: Infinity,
-    prioritySearch: true,
-    advancedAnalytics: true,
-    partnershipTemplates: Infinity,
-    exportData: true,
-    removeBranding: true,
-    boostProfile: true,
-    featuredInDiscovery: true,
-    dedicatedSupport: true,
-  },
-  // Legacy tier aliases (backward compatibility)
-  pro: {
-    dailyConnections: Infinity,
-    canSeeWhoLiked: true,
-    prioritySearch: true,
-    advancedAnalytics: true,
-    partnershipTemplates: Infinity,
-    boostProfile: false,
-  },
-  premium: {
-    dailyConnections: Infinity,
-    canSeeWhoLiked: true,
-    prioritySearch: true,
-    advancedAnalytics: true,
-    partnershipTemplates: Infinity,
-    boostProfile: true,
-  },
-};
 
 // --- Post-Match: Partnership Templates ---
 
@@ -695,10 +630,10 @@ export function generatePartnershipInsights(
     insights.push({
       type: "growth_opportunity",
       title: "Start your first partnership",
-      description: "Businesses with active partnerships get more profile views and engagement. Start swiping to find your perfect match!",
+      description: "Businesses with active partnerships get more profile views and engagement. Start browsing to find your perfect match!",
       priority: "high",
       actionLabel: "Find Partners",
-      actionHref: "/swipe",
+      actionHref: "/discover",
     });
     return insights;
   }
@@ -724,7 +659,7 @@ export function generatePartnershipInsights(
         description: `Your ${topType} partnerships generate ${multiplier}x more revenue than your next best type. Consider doubling down on this category.`,
         priority: "high",
         actionLabel: "Find More Partners",
-        actionHref: "/swipe",
+        actionHref: "/discover",
       });
     }
   }
@@ -772,10 +707,10 @@ export function generatePartnershipInsights(
     insights.push({
       type: "dormant_alert",
       title: `${daysSinceLast} days since your last partnership`,
-      description: "Staying active helps you appear in more searches. Swipe through new businesses to keep your momentum going.",
+      description: "Staying active helps you appear in more searches. Browse new businesses to keep your momentum going.",
       priority: "high",
       actionLabel: "Discover Partners",
-      actionHref: "/swipe",
+      actionHref: "/discover",
     });
   }
 

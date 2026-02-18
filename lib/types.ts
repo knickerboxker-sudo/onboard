@@ -61,11 +61,6 @@ export type BusinessRecord = {
   verified?: boolean;
   years_in_operation?: number | null;
   successful_partnerships_count?: number;
-  // Subscription
-  subscription_tier?: "free" | "starter" | "professional" | "business" | "pro" | "premium";
-  // Stripe
-  stripe_customer_id?: string | null;
-  stripe_subscription_id?: string | null;
   // Activity
   last_active_at?: string | null;
   avg_response_time_minutes?: number | null;
@@ -173,24 +168,6 @@ export type SavedAssessmentRecord = {
   notes: string | null;
   shared_with_match: boolean;
   created_at: string;
-};
-
-// Subscription tiers
-export type SubscriptionTier = "free" | "starter" | "professional" | "business" | "pro" | "premium";
-
-export type TierLimits = {
-  dailyConnections: number;
-  canSeeWhoLiked: boolean;
-  canSeeProfileViews?: number;
-  prioritySearch: boolean;
-  advancedAnalytics: boolean;
-  /** Number of partnership templates available. 0 = none, Infinity = unlimited. */
-  partnershipTemplates: number;
-  boostProfile?: boolean;
-  exportData?: boolean;
-  removeBranding?: boolean;
-  featuredInDiscovery?: boolean;
-  dedicatedSupport?: boolean;
 };
 
 // Partnership templates for post-match guidance

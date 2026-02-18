@@ -11,7 +11,6 @@ import {
   getPartnershipIdeasByCategory,
   generatePartnershipInsights,
   buildActivityFeed,
-  TIER_LIMITS,
   PARTNERSHIP_TEMPLATES,
   PARTNERSHIP_IDEAS,
   PROPOSAL_TEMPLATES,
@@ -188,34 +187,6 @@ describe("trust badges", () => {
     };
     const badges = getTrustBadges(business);
     expect(badges).toHaveLength(4);
-  });
-});
-
-describe("subscription tier limits", () => {
-  it("free tier has 3 daily connections", () => {
-    expect(TIER_LIMITS.free.dailyConnections).toBe(3);
-    expect(TIER_LIMITS.free.canSeeWhoLiked).toBe(false);
-  });
-
-  it("starter tier has 15 daily connections", () => {
-    expect(TIER_LIMITS.starter.dailyConnections).toBe(15);
-    expect(TIER_LIMITS.starter.canSeeWhoLiked).toBe(false);
-  });
-
-  it("professional tier has unlimited connections", () => {
-    expect(TIER_LIMITS.professional.dailyConnections).toBe(Infinity);
-    expect(TIER_LIMITS.professional.canSeeWhoLiked).toBe(true);
-  });
-
-  it("business tier has unlimited connections with boost", () => {
-    expect(TIER_LIMITS.business.dailyConnections).toBe(Infinity);
-    expect(TIER_LIMITS.business.canSeeWhoLiked).toBe(true);
-    expect(TIER_LIMITS.business.boostProfile).toBe(true);
-  });
-
-  it("pro tier has unlimited connections", () => {
-    expect(TIER_LIMITS.pro.dailyConnections).toBe(Infinity);
-    expect(TIER_LIMITS.pro.canSeeWhoLiked).toBe(true);
   });
 });
 
@@ -469,7 +440,7 @@ describe("generatePartnershipInsights", () => {
     expect(insights).toHaveLength(1);
     expect(insights[0].type).toBe("growth_opportunity");
     expect(insights[0].priority).toBe("high");
-    expect(insights[0].actionHref).toBe("/swipe");
+    expect(insights[0].actionHref).toBe("/discover");
   });
 
   it("identifies top revenue-generating partnership type", () => {
@@ -503,7 +474,7 @@ describe("generatePartnershipInsights", () => {
     const dormant = insights.find((i) => i.type === "dormant_alert");
     expect(dormant).toBeDefined();
     expect(dormant!.priority).toBe("high");
-    expect(dormant!.actionHref).toBe("/swipe");
+    expect(dormant!.actionHref).toBe("/discover");
   });
 
   it("does not trigger dormant alert when partnership started recently", () => {
