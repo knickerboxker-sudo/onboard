@@ -1,3 +1,7 @@
+-- Note: The swipes table has been renamed to connection_requests.
+-- Columns swiper_business_id and swiped_business_id have been renamed to
+-- sender_business_id and recipient_business_id respectively.
+
 create extension if not exists "pgcrypto";
 
 create table if not exists businesses (
@@ -27,23 +31,19 @@ create table if not exists businesses (
   verified boolean default false,
   years_in_operation int,
   successful_partnerships_count int default 0,
-  -- Subscription tier
-  subscription_tier text default 'free' check (subscription_tier in ('free', 'pro', 'premium')),
-  daily_swipes_used int default 0,
-  last_swipe_reset_at date default current_date,
   -- Activity tracking
   last_active_at timestamptz default timezone('utc', now()),
   avg_response_time_minutes int,
   created_at timestamptz not null default timezone('utc', now())
 );
 
-create table if not exists swipes (
+create table if not exists connection_requests (
   id uuid primary key default gen_random_uuid(),
-  swiper_business_id uuid not null references businesses(id) on delete cascade,
-  swiped_business_id uuid not null references businesses(id) on delete cascade,
+  sender_business_id uuid not null references businesses(id) on delete cascade,
+  recipient_business_id uuid not null references businesses(id) on delete cascade,
   direction text not null check (direction in ('left', 'right')),
   created_at timestamptz not null default timezone('utc', now()),
-  unique (swiper_business_id, swiped_business_id)
+  unique (sender_business_id, recipient_business_id)
 );
 
 create table if not exists matches (
@@ -65,13 +65,13 @@ create table if not exists messages (
 
 create index if not exists businesses_type_idx on businesses (business_type);
 create index if not exists businesses_lat_lng_idx on businesses (lat, lng);
-create index if not exists swipes_swiper_idx on swipes (swiper_business_id);
+create index if not exists connection_requests_sender_idx on connection_requests (sender_business_id);
 create index if not exists matches_business_1_idx on matches (business_1_id);
 create index if not exists matches_business_2_idx on matches (business_2_id);
 create index if not exists messages_match_id_idx on messages (match_id, sent_at desc);
 
 alter table businesses enable row level security;
-alter table swipes enable row level security;
+alter table connection_requests enable row level security;
 alter table matches enable row level security;
 alter table messages enable row level security;
 
@@ -80,20 +80,20 @@ create policy "business owners manage own business" on businesses
   using (owner_id = auth.uid())
   with check (owner_id = auth.uid());
 
-create policy "business owners manage outgoing swipes" on swipes
+create policy "business owners manage outgoing connection requests" on connection_requests
   for all
   using (
     exists (
       select 1
       from businesses b
-      where b.id = swiper_business_id and b.owner_id = auth.uid()
+      where b.id = sender_business_id and b.owner_id = auth.uid()
     )
   )
   with check (
     exists (
       select 1
       from businesses b
-      where b.id = swiper_business_id and b.owner_id = auth.uid()
+      where b.id = sender_business_id and b.owner_id = auth.uid()
     )
   );
 

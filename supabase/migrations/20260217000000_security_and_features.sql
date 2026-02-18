@@ -20,8 +20,6 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
   amount decimal NOT NULL,
   currency text DEFAULT 'USD',
   status text CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
-  stripe_payment_id text,
-  subscription_tier text,
   created_at timestamptz DEFAULT now()
 );
 
@@ -37,16 +35,11 @@ CREATE TABLE IF NOT EXISTS email_logs (
   created_at timestamptz DEFAULT now()
 );
 
--- Add Stripe columns to businesses table
-ALTER TABLE businesses ADD COLUMN IF NOT EXISTS stripe_customer_id text;
-ALTER TABLE businesses ADD COLUMN IF NOT EXISTS stripe_subscription_id text;
-
 -- Missing indexes
 CREATE INDEX IF NOT EXISTS idx_businesses_verified ON businesses(verified) WHERE verified = true;
-CREATE INDEX IF NOT EXISTS idx_businesses_tier ON businesses(subscription_tier);
 CREATE INDEX IF NOT EXISTS idx_partnerships_dates ON partnerships(start_date, end_date);
 CREATE INDEX IF NOT EXISTS idx_messages_sent_at ON messages(sent_at DESC);
-CREATE INDEX IF NOT EXISTS idx_swipes_direction ON swipes(direction) WHERE direction = 'right';
+CREATE INDEX IF NOT EXISTS idx_connection_requests_direction ON connection_requests(direction) WHERE direction = 'right';
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_businesses_search ON businesses USING gin(to_tsvector('english', name || ' ' || business_type || ' ' || COALESCE(description, '')));
 
