@@ -385,9 +385,10 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-      {/* Forest green full-bleed performance block — mirrors the "How it Works" dark section on the landing page.
-          The -24px horizontal margin breaks out of the layout container's padding to go full-width. */}
-      <div style={{ background: 'var(--color-accent-2)', padding: '40px', margin: '32px -24px' }}>
+        <>
+        {/* Forest green full-bleed performance block — mirrors the "How it Works" dark section on the landing page.
+            The -24px horizontal margin breaks out of the layout container's padding to go full-width. */}
+        <div style={{ background: 'var(--color-accent-2)', padding: '40px', margin: '32px -24px' }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontStyle: 'italic', color: 'var(--color-paper)', marginBottom: '24px' }}>
           Your performance
         </h2>
@@ -406,7 +407,8 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
-      </div>
+        </div>
+        </>
       )}
 
       {/* Activity Feed */}
