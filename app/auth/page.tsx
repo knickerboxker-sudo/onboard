@@ -33,11 +33,12 @@ function AuthPageContent() {
   const supabase = useMemo(() => createClient(), []);
   const [isSignup, setIsSignup] = useState(!searchParams.get("redirect"));
   const [email, setEmail] = useState("");
+  const [city, setCity] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [personalEmailWarning, setPersonalEmailWarning] = useState<string | null>(null);
 
   const safeRedirect = searchParams.get("redirect")?.startsWith("/")
     ? searchParams.get("redirect")
@@ -46,9 +47,9 @@ function AuthPageContent() {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     if (isSignup && value.includes("@") && isPersonalEmail(value)) {
-      setEmailError("Please sign up with your business email address (e.g. you@yourbusiness.com). Personal email addresses like Gmail are not accepted.");
+      setPersonalEmailWarning("Heads up — personal email detected. A business email builds more trust with potential partners, but you can still continue.");
     } else {
-      setEmailError(null);
+      setPersonalEmailWarning(null);
     }
   };
 
@@ -58,10 +59,15 @@ function AuthPageContent() {
     setErrorMessage(null);
     setNotice(null);
 
-    if (isSignup && isPersonalEmail(email)) {
-      setErrorMessage("Please sign up with your business email address (e.g. you@yourbusiness.com). Personal email addresses like Gmail are not accepted.");
-      setLoading(false);
-      return;
+    let nextPath = "/onboarding";
+    if (isSignup && city) {
+      const { count } = await supabase
+        .from("businesses")
+        .select("id", { count: "exact", head: true })
+        .ilike("city", city);
+      if ((count ?? 0) < 100) {
+        nextPath = `/prelaunch/city?city=${encodeURIComponent(city)}`;
+      }
     }
 
     const response = isSignup
@@ -69,7 +75,7 @@ function AuthPageContent() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/confirm?next=/onboarding`,
+            emailRedirectTo: `${window.location.origin}/auth/confirm?next=${encodeURIComponent(nextPath)}`,
           },
         })
       : await supabase.auth.signInWithPassword({ email, password });
@@ -148,8 +154,18 @@ function AuthPageContent() {
               Email
             </label>
             <input className="input" id="email" onChange={(event) => handleEmailChange(event.target.value)} required type="email" value={email} />
-            {emailError ? <p className="mt-1 text-xs text-red-600">{emailError}</p> : null}
+            {personalEmailWarning ? (
+              <p className="mt-1.5 rounded-xl bg-yellow-50 px-3 py-2 text-xs text-yellow-800">{personalEmailWarning}</p>
+            ) : null}
           </div>
+          {isSignup && (
+            <div>
+              <label className="label" htmlFor="city">
+                Your city <span className="font-normal text-neutral-400">(optional)</span>
+              </label>
+              <input className="input" id="city" onChange={(event) => setCity(event.target.value)} placeholder="e.g. Austin" type="text" value={city} />
+            </div>
+          )}
           <div>
             <label className="label" htmlFor="password">
               Password
