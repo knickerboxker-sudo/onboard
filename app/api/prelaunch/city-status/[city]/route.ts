@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeString } from "@/lib/rate-limit";
 
 export async function GET(
   _request: Request,
   { params }: { params: { city: string } }
 ) {
   try {
-    const city = decodeURIComponent(params.city);
-    
-    // Only accept ann-arbor-area
-    const normalizedCity = city.toLowerCase().replace(/\s+/g, '-');
-    if (normalizedCity !== 'ann-arbor-area') {
-      return NextResponse.json(
-        { error: "City not found. Sortir is currently only launching in the Ann Arbor Area." },
-        { status: 404 }
-      );
+    const rawCity = decodeURIComponent(params.city);
+    const cityName = sanitizeString(rawCity, 100);
+
+    if (!cityName) {
+      return NextResponse.json({ error: "City name is required" }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -22,14 +19,21 @@ export async function GET(
     const { data, error } = await supabase
       .from("city_launch_status")
       .select("*")
-      .eq("city", "Ann Arbor Area")
+      .ilike("city", cityName)
       .single();
 
     if (error || !data) {
-      return NextResponse.json(
-        { error: "City not found" },
-        { status: 404 }
-      );
+      // Return a not-yet-launched record for unknown cities
+      return NextResponse.json({
+        city: cityName,
+        state: null,
+        current_count: 0,
+        threshold: 50,
+        launched: false,
+        percentage: 0,
+        estimated_days: null,
+        target_launch_date: null,
+      });
     }
 
     const percentage = Math.min(
@@ -41,14 +45,13 @@ export async function GET(
     let estimated_days: number | null = null;
     if (!data.launched && data.current_count > 0) {
       const remaining = data.threshold - data.current_count;
-      // Get signups from last 7 days
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const { count } = await supabase
         .from("pre_launch_signups")
         .select("id", { count: "exact", head: true })
-        .eq("city", "Ann Arbor Area")
+        .ilike("city", cityName)
         .gte("created_at", sevenDaysAgo.toISOString());
 
       if (count && count > 0) {

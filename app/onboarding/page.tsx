@@ -90,6 +90,8 @@ interface DraftState {
   address: string;
   lat: string;
   lng: string;
+  city: string;
+  state: string;
   description: string;
   products: string;
   partnerships: string[];
@@ -128,6 +130,8 @@ export default function OnboardingPage() {
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [description, setDescription] = useState("");
   const [products, setProducts] = useState("");
   const [partnerships, setPartnerships] = useState<string[]>([]);
@@ -170,6 +174,8 @@ export default function OnboardingPage() {
         setAddress(draft.address ?? "");
         setLat(draft.lat ?? "");
         setLng(draft.lng ?? "");
+        setCity(draft.city ?? "");
+        setState(draft.state ?? "");
         setDescription(draft.description ?? "");
         setProducts(draft.products ?? "");
         setPartnerships(draft.partnerships ?? []);
@@ -205,7 +211,7 @@ export default function OnboardingPage() {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       const draft: DraftState = {
-        businessName, businessType, address, lat, lng, description, products,
+        businessName, businessType, address, lat, lng, city, state, description, products,
         partnerships, collaborationIntents, hours, website, socialLinks, photos,
         followerCount, emailListSize, monthlyFootTraffic,
         targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
@@ -215,7 +221,7 @@ export default function OnboardingPage() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(draft)); } catch { /* quota exceeded */ }
     }, 400);
   }, [
-    businessName, businessType, address, lat, lng, description, products,
+    businessName, businessType, address, lat, lng, city, state, description, products,
     partnerships, collaborationIntents, hours, website, socialLinks, photos,
     followerCount, emailListSize, monthlyFootTraffic,
     targetAgeMin, targetAgeMax, targetIncomeBracket, customerInterests,
@@ -297,6 +303,8 @@ export default function OnboardingPage() {
       address,
       lat: lat ? Number(lat) : null,
       lng: lng ? Number(lng) : null,
+      city: city || null,
+      state: state || null,
       description,
       products: products
         .split(",")
@@ -407,10 +415,12 @@ export default function OnboardingPage() {
                   <div>
                     <label className="label">Address</label>
                     <AddressAutocomplete
-                      onSelect={({ address: addr, lat: latitude, lng: longitude }) => {
+                      onSelect={({ address: addr, lat: latitude, lng: longitude, city: selectedCity, state: selectedState }) => {
                         setAddress(addr);
                         setLat(String(latitude));
                         setLng(String(longitude));
+                        if (selectedCity) setCity(selectedCity);
+                        if (selectedState) setState(selectedState);
                         markTouched("address");
                       }}
                       onChange={(val) => { setAddress(val); markTouched("address"); }}

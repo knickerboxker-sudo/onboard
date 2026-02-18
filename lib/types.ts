@@ -70,6 +70,9 @@ export type BusinessRecord = {
   last_active_at?: string | null;
   avg_response_time_minutes?: number | null;
   created_at?: string;
+  // City-based launch system
+  city?: string | null;
+  state?: string | null;
 };
 
 // Connection request system
