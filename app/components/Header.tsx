@@ -159,13 +159,6 @@ export default function Header() {
             </Link>
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
-              href="/coming-soon"
-              style={navLinkStyle("/coming-soon")}
-            >
-              Launch Progress
-            </Link>
-            <Link
-              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/success-stories"
               style={navLinkStyle("/success-stories")}
             >
@@ -173,9 +166,9 @@ export default function Header() {
             </Link>
             <Link
               className="btn-primary ml-2"
-              href="/join"
+              href="/auth"
             >
-              Join Waitlist
+              Sign Up Free
             </Link>
           </>
         ) : (
@@ -329,14 +322,6 @@ export default function Header() {
                   </Link>
                   <Link
                     className="px-3 py-2.5 transition-colors"
-                    href="/coming-soon"
-                    onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/coming-soon" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/coming-soon" ? 500 : undefined }}
-                  >
-                    Launch Progress
-                  </Link>
-                  <Link
-                    className="px-3 py-2.5 transition-colors"
                     href="/success-stories"
                     onClick={() => setMenuOpen(false)}
                     style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/success-stories" ? 500 : undefined }}
@@ -345,10 +330,10 @@ export default function Header() {
                   </Link>
                   <Link
                     className="btn-primary mt-2 w-full"
-                    href="/join"
+                    href="/auth"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Join Waitlist
+                    Sign Up Free
                   </Link>
                 </>
               ) : (

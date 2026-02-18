@@ -92,9 +92,9 @@ const steps = [
 ];
 
 const trustSignals = [
-  { stat: "800+", label: "Local businesses waiting" },
-  { stat: "3 steps", label: "To your first partnership" },
-  { stat: "Free", label: "Always, to get started" },
+  { stat: "Free · Always", label: "No paywall, no credit card" },
+  { stat: "Open nationwide", label: "Sign up from any US state" },
+  { stat: "1% to unlock", label: "Your state opens at 1% threshold" },
 ];
 
 export default function Home() {
@@ -143,20 +143,20 @@ export default function Home() {
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
                 className="btn-primary"
-                href="/join"
+                href="/auth"
               >
-                Join the waitlist
+                Create your free account
               </Link>
               <Link
                 className="transition-colors"
-                href="/coming-soon"
+                href="/#how-it-works"
                 style={{
                   fontFamily: 'var(--font-body)',
                   fontSize: '14px',
                   color: 'var(--color-muted)',
                 }}
               >
-                See launch progress
+                See how it works
               </Link>
             </div>
           </div>
@@ -462,15 +462,14 @@ export default function Home() {
                 color: 'rgba(245,242,235,0.8)',
               }}
             >
-              Join the waitlist for your city and be the first to know when Sortir
-              launches in your neighborhood. Always free to get started.
+              Create your free account and start building local partnerships today. No credit card, no subscription, no paywall — ever.
             </p>
             <div>
               <Link
                 className="btn-cta-outline"
-                href="/join"
+                href="/auth"
               >
-                Join the Waitlist
+                Create your free account
               </Link>
             </div>
             <p

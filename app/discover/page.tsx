@@ -45,10 +45,10 @@ const INTEREST_TAG_OPTIONS = [
 ];
 
 const DISTANCE_OPTIONS = [
-  { value: 5, label: "5 miles" },
   { value: 10, label: "10 miles" },
   { value: 25, label: "25 miles" },
   { value: 50, label: "50 miles" },
+  { value: 99999, label: "National" },
 ];
 
 const SORT_OPTIONS = [
@@ -87,11 +87,26 @@ const defaultFilters: FilterState = {
   searchQuery: "",
   partnershipTypes: [],
   interestTags: [],
-  maxDistance: 50,
+  maxDistance: 25,
   verifiedOnly: false,
   minYears: 0,
   categories: [],
 };
+
+function isProfileComplete(b: BusinessRecord): boolean {
+  if (!b.name?.trim()) return false;
+  if (!b.business_type?.trim()) return false;
+  if (!b.description || b.description.trim().length < 50) return false;
+  if (!b.address?.trim() && !(b.city?.trim() && b.state?.trim())) return false;
+  if (!b.looking_for || b.looking_for.length === 0) return false;
+  if (!b.can_offer || b.can_offer.length === 0) return false;
+  if (!b.partnership_interest_tags || b.partnership_interest_tags.length === 0) return false;
+  const hasWebPresence =
+    (b.website?.startsWith("http://") || b.website?.startsWith("https://")) ||
+    (Array.isArray(b.social_links) && b.social_links.some((l) => l?.startsWith("http://") || l?.startsWith("https://")));
+  if (!hasWebPresence) return false;
+  return true;
+}
 
 function BusinessCard({
   business,
@@ -103,6 +118,7 @@ function BusinessCard({
   onRequestConnection,
   isRequesting,
   errorMessage,
+  stateUnlocked,
 }: {
   business: BusinessRecord & { distanceMiles: number | null; score: number };
   view: "grid" | "list";
@@ -113,6 +129,7 @@ function BusinessCard({
   onRequestConnection: () => void;
   isRequesting: boolean;
   errorMessage: string | null;
+  stateUnlocked: boolean;
 }) {
   const badges = getTrustBadges(business);
   const isGrid = view === "grid";
@@ -234,7 +251,14 @@ function BusinessCard({
         {/* Request Connection button for grid view */}
         {isGrid && (
           <div className="mt-4 space-y-2">
-            {connectionStatus === "accepted" ? (
+            {!stateUnlocked ? (
+              <button
+                onClick={onToggleSelect}
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs font-semibold text-amber-700 transition-all duration-200 hover:bg-amber-100"
+              >
+                <Bookmark className="h-3 w-3" /> Save for when your state launches
+              </button>
+            ) : connectionStatus === "accepted" ? (
               <Link
                 href="/messages"
                 className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-spearmint-600 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-spearmint-700 hover:shadow-md active:scale-[0.98]"
@@ -272,7 +296,14 @@ function BusinessCard({
 
       {!isGrid && (
         <div className="flex flex-col flex-shrink-0 gap-1 items-end">
-          {connectionStatus === "accepted" ? (
+          {!stateUnlocked ? (
+            <button
+              onClick={onToggleSelect}
+              className="flex items-center gap-1.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 text-xs font-semibold text-amber-700 transition-all duration-200 hover:bg-amber-100"
+            >
+              <Bookmark className="h-3 w-3" /> Save for launch
+            </button>
+          ) : connectionStatus === "accepted" ? (
             <Link
               href="/messages"
               className="flex items-center gap-1.5 rounded-xl bg-spearmint-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-spearmint-700 hover:shadow-md active:scale-[0.98]"
@@ -370,33 +401,23 @@ export default function DiscoverPage() {
   const userLat = userBusiness?.lat ?? browserLat;
   const userLng = userBusiness?.lng ?? browserLng;
 
-  // Fetch city launch statuses to know which cities are active
-  const { data: launchedCities } = useQuery({
-    queryKey: ["launched-cities"],
+  // Fetch state launch status for the user's own state
+  const { data: userStateStatus } = useQuery({
+    queryKey: ["user-state-status", userBusiness?.state],
+    enabled: !!userBusiness?.state,
     queryFn: async () => {
+      if (!userBusiness?.state) return null;
       const { data } = await supabase
-        .from("city_launch_status")
-        .select("city, launched")
-        .eq("launched", true);
-      return new Set((data ?? []).map((r: { city: string }) => r.city.toLowerCase()));
-    },
-    staleTime: 5 * 60 * 1000, // cache for 5 minutes
-  });
-
-  // City launch status for the user's own city
-  const { data: userCityStatus } = useQuery({
-    queryKey: ["user-city-status", userBusiness?.city],
-    enabled: !!userBusiness?.city,
-    queryFn: async () => {
-      if (!userBusiness?.city) return null;
-      const { data } = await supabase
-        .from("city_launch_status")
-        .select("city, current_count, threshold, launched")
-        .ilike("city", userBusiness.city ?? "")
+        .from("state_launch_status")
+        .select("state_abbrev, state_name, current_count, threshold, launched")
+        .eq("state_abbrev", userBusiness.state)
         .single();
       return data ?? null;
     },
+    staleTime: 5 * 60 * 1000,
   });
+
+  const stateUnlocked = userStateStatus?.launched === true;
 
   const { data: businesses = [], isLoading } = useQuery({
     queryKey: ["discover-businesses"],
@@ -480,20 +501,13 @@ export default function DiscoverPage() {
   };
 
   const filtered = useMemo(() => {
-    // Any city with known launch status. If launchedCities is empty (no cities launched yet),
-    // show all businesses so the page is never empty.
-    const hasAnyLaunched = launchedCities && launchedCities.size > 0;
+    // Default radius: 25 miles when state is unlocked; national browse when not unlocked
+    const effectiveMaxDistance = stateUnlocked ? filters.maxDistance : 99999;
 
     let result = businesses
       .filter((b) => userBusiness?.id !== b.id)
-      .filter((b) => {
-        // If there are launched cities, only show businesses whose city is launched
-        // OR businesses without a city field (backwards-compat for existing profiles).
-        if (!hasAnyLaunched) return true;
-        const bCity = b.city;
-        if (!bCity) return true; // no city set → include (legacy)
-        return launchedCities!.has(bCity.toLowerCase());
-      })
+      // Only show profiles that meet completeness threshold
+      .filter((b) => isProfileComplete(b))
       .map((b) => {
         const distanceMiles =
           userLat != null && userLng != null && b.lat != null && b.lng != null
@@ -527,8 +541,10 @@ export default function DiscoverPage() {
       );
     }
 
-    // Always enforce 50-mile max radius (hard cap)
-    result = result.filter((b) => b.distanceMiles == null || b.distanceMiles <= filters.maxDistance);
+    // Enforce radius: when state unlocked use user's chosen distance; otherwise show all (national browse)
+    if (effectiveMaxDistance < 99999) {
+      result = result.filter((b) => b.distanceMiles == null || b.distanceMiles <= effectiveMaxDistance);
+    }
 
     if (filters.verifiedOnly) {
       result = result.filter((b) => b.verified);
@@ -559,7 +575,7 @@ export default function DiscoverPage() {
     });
 
     return result;
-  }, [businesses, userBusiness, userLat, userLng, filters, sortBy, launchedCities]);
+  }, [businesses, userBusiness, userLat, userLng, filters, sortBy, stateUnlocked]);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -654,32 +670,31 @@ export default function DiscoverPage() {
         )}
       </AnimatePresence>
 
-      {/* City launch status banner */}
-      {userBusiness?.city && userCityStatus && !userCityStatus.launched && (
+      {/* State launch status banner */}
+      {userBusiness?.state && userStateStatus && !userStateStatus.launched && (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
           <div className="flex-1">
             <p className="font-medium text-amber-900">
-              {userBusiness.city} needs {Math.max(0, userCityStatus.threshold - userCityStatus.current_count)} more{" "}
-              business{Math.max(0, userCityStatus.threshold - userCityStatus.current_count) === 1 ? "" : "es"} to unlock
+              {userStateStatus.state_name} is at {userStateStatus.current_count} / {userStateStatus.threshold} businesses. Share your referral link to help unlock your state.
             </p>
             <div className="mt-2">
               <div className="flex justify-between text-xs text-amber-700 mb-1">
                 <span className="flex items-center gap-1">
                   <Users className="h-3 w-3" />
-                  {userCityStatus.current_count} / {userCityStatus.threshold} businesses signed up
+                  {userStateStatus.current_count} / {userStateStatus.threshold} businesses
                 </span>
-                <span>{Math.round((userCityStatus.current_count / userCityStatus.threshold) * 100)}%</span>
+                <span>{Math.round((userStateStatus.current_count / userStateStatus.threshold) * 100)}%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-amber-200">
                 <div
                   className="h-full rounded-full bg-amber-500 transition-all"
-                  style={{ width: `${Math.min(100, Math.round((userCityStatus.current_count / userCityStatus.threshold) * 100))}%` }}
+                  style={{ width: `${Math.min(100, Math.round((userStateStatus.current_count / userStateStatus.threshold) * 100))}%` }}
                 />
               </div>
             </div>
             <p className="mt-1.5 text-xs text-amber-700">
-              Meanwhile, you can browse and connect with businesses in nearby launched cities within 50 miles.{" "}
+              You&apos;re in read-only browse mode. Connection requests unlock when {userStateStatus.state_name} hits its threshold.{" "}
               <Link href="/refer" className="font-semibold underline hover:text-amber-800">
                 Invite businesses to speed things up →
               </Link>
@@ -688,11 +703,11 @@ export default function DiscoverPage() {
         </div>
       )}
 
-      {userBusiness?.city && userCityStatus?.launched && (
+      {userBusiness?.state && userStateStatus?.launched && (
         <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
           <CheckCircle className="h-4 w-4 flex-shrink-0 text-emerald-600" />
           <p className="font-medium text-emerald-900">
-            🎉 {userBusiness.city} is live! Your city has reached {userCityStatus.threshold} businesses.
+            🎉 {userStateStatus.state_name} is live! Full access to connect within your radius.
           </p>
         </div>
       )}
@@ -702,7 +717,9 @@ export default function DiscoverPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Discover Partners</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Find and connect with complementary businesses within 50 miles.
+            {stateUnlocked
+              ? "Find and connect with complementary businesses near you."
+              : "Browse businesses nationally — connection requests unlock when your state hits its threshold."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -834,7 +851,8 @@ export default function DiscoverPage() {
                   </div>
                 </div>
 
-                {/* Distance */}
+                {/* Distance — only shown when state is unlocked */}
+                {stateUnlocked && (
                 <div>
                   <label className="label">Max Distance</label>
                   <select
@@ -847,6 +865,7 @@ export default function DiscoverPage() {
                     ))}
                   </select>
                 </div>
+                )}
 
                 {/* Verified */}
                 <label className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
@@ -944,6 +963,7 @@ export default function DiscoverPage() {
                     onRequestConnection={() => connectionRequestMutation.mutate(b.id)}
                     isRequesting={requestingIds.has(b.id)}
                     errorMessage={errorMap.get(b.id) ?? null}
+                    stateUnlocked={stateUnlocked}
                   />
                 ))}
               </AnimatePresence>

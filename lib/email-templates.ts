@@ -262,3 +262,89 @@ export function newMessageEmail({
     `,
   };
 }
+
+interface StateUnlockedEmailProps {
+  stateName: string;
+  appUrl: string;
+}
+
+export function stateUnlockedEmail({
+  stateName,
+  appUrl,
+}: StateUnlockedEmailProps): { subject: string; html: string } {
+  return {
+    subject: `🎉 ${stateName} just unlocked on Sortir — go find your first partner`,
+    html: `
+      <div style="font-family: 'Inter', system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+        <h1 style="font-size: 24px; font-weight: 700; color: #18181b; margin: 0 0 16px;">
+          🎉 ${stateName} has unlocked on Sortir!
+        </h1>
+        <p style="font-size: 14px; color: #71717a; line-height: 1.6; margin: 0 0 24px;">
+          Great news — ${stateName} has hit its threshold and is now fully live on Sortir. You now have full access to connect and message local business partners.
+        </p>
+        <p style="font-size: 14px; color: #71717a; line-height: 1.6; margin: 0 0 24px;">
+          Start discovering complementary businesses within 25 miles of your location. Send connection requests, chat directly, and start building partnerships that grow your business.
+        </p>
+        <a href="${appUrl}/discover" style="display: inline-block; background: #18181b; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+          Discover Partners Now →
+        </a>
+        <p style="font-size: 12px; color: #a1a1aa; margin: 24px 0 0;">
+          — The Sortir Team
+        </p>
+      </div>
+    `,
+  };
+}
+
+interface StateMilestoneEmailProps {
+  stateName: string;
+  currentCount: number;
+  threshold: number;
+  percentage: number;
+  appUrl: string;
+  referralCode?: string;
+}
+
+export function stateMilestoneEmail({
+  stateName,
+  currentCount,
+  threshold,
+  percentage,
+  appUrl,
+  referralCode,
+}: StateMilestoneEmailProps): { subject: string; html: string } {
+  const referralLink = referralCode
+    ? `${appUrl}/r/${referralCode}`
+    : `${appUrl}/refer`;
+
+  return {
+    subject: `${stateName} is ${percentage}% of the way to unlocking on Sortir`,
+    html: `
+      <div style="font-family: 'Inter', system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+        <h1 style="font-size: 24px; font-weight: 700; color: #18181b; margin: 0 0 16px;">
+          ${stateName} is ${percentage}% to unlocking! 🚀
+        </h1>
+        <p style="font-size: 14px; color: #71717a; line-height: 1.6; margin: 0 0 24px;">
+          ${stateName} is making great progress — ${currentCount} of ${threshold} businesses have joined. Help push it over the line by sharing your referral link with other local business owners.
+        </p>
+        <div style="background: #f4f4f5; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
+          <p style="font-size: 14px; font-weight: 600; color: #18181b; margin: 0 0 8px;">
+            ${stateName} Progress: ${percentage}%
+          </p>
+          <div style="background: #e4e4e7; border-radius: 99px; height: 8px; overflow: hidden;">
+            <div style="background: #0ea5e9; height: 100%; width: ${percentage}%; border-radius: 99px;"></div>
+          </div>
+          <p style="font-size: 12px; color: #71717a; margin: 8px 0 0;">
+            ${currentCount} of ${threshold} businesses signed up
+          </p>
+        </div>
+        <a href="${referralLink}" style="display: inline-block; background: #18181b; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+          Share Your Referral Link →
+        </a>
+        <p style="font-size: 12px; color: #a1a1aa; margin: 24px 0 0;">
+          — The Sortir Team
+        </p>
+      </div>
+    `,
+  };
+}
