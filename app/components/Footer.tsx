@@ -3,9 +3,9 @@ import Link from "next/link";
 const footerLinks = {
   Product: [
     { label: "How it works", href: "/#how-it-works" },
-    { label: "Launch Progress", href: "/coming-soon" },
     { label: "Success Stories", href: "/success-stories" },
     { label: "Partnership Ideas", href: "/partnership-ideas" },
+    { label: "Get Started", href: "/auth" },
   ],
   Company: [
     { label: "About", href: "/about" },

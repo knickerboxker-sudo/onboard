@@ -132,6 +132,7 @@ export default function OnboardingPage() {
   const [lng, setLng] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [remoteMode, setRemoteMode] = useState(false);
   const [description, setDescription] = useState("");
   const [products, setProducts] = useState("");
   const [partnerships, setPartnerships] = useState<string[]>([]);
@@ -237,11 +238,12 @@ export default function OnboardingPage() {
   const validationErrors: Record<string, string> = {};
   if (touched.businessName && !businessName.trim()) validationErrors.businessName = "Business name is required";
   if (touched.businessType && !businessType.trim()) validationErrors.businessType = "Industry / category is required";
-  if (touched.address && !address.trim()) validationErrors.address = "Address is required";
+  if (touched.address && !remoteMode && !address.trim()) validationErrors.address = "Address is required";
+  if (touched.address && remoteMode && (!city.trim() || !state.trim())) validationErrors.address = "City and state are required";
 
   const markTouched = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
 
-  const isStep1Valid = businessName.trim() !== "" && businessType.trim() !== "" && address.trim() !== "";
+  const isStep1Valid = businessName.trim() !== "" && businessType.trim() !== "" && (remoteMode ? (city.trim() !== "" && state.trim() !== "") : address.trim() !== "");
 
   const completenessStringFields = [
     businessName, businessType, address, description, products,
@@ -266,7 +268,9 @@ export default function OnboardingPage() {
     if (step === 1) {
       setTouched({ businessName: true, businessType: true, address: true });
       if (!isStep1Valid) {
-        setErrorMessage("Please fill in business name, category, and address before continuing.");
+        setErrorMessage(remoteMode
+          ? "Please fill in business name, category, city, and state before continuing."
+          : "Please fill in business name, category, and address before continuing.");
         return;
       }
     }
@@ -413,20 +417,70 @@ export default function OnboardingPage() {
                     <FieldError message={validationErrors.businessType} />
                   </div>
                   <div>
-                    <label className="label">Address</label>
-                    <AddressAutocomplete
-                      onSelect={({ address: addr, lat: latitude, lng: longitude, city: selectedCity, state: selectedState }) => {
-                        setAddress(addr);
-                        setLat(String(latitude));
-                        setLng(String(longitude));
-                        if (selectedCity) setCity(selectedCity);
-                        if (selectedState) setState(selectedState);
-                        markTouched("address");
-                      }}
-                      onChange={(val) => { setAddress(val); markTouched("address"); }}
-                      required
-                      value={address}
-                    />
+                    <div className="mb-3 flex items-center gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer text-sm text-neutral-700">
+                        <input
+                          type="radio"
+                          name="addressMode"
+                          checked={!remoteMode}
+                          onChange={() => setRemoteMode(false)}
+                          className="text-neutral-900"
+                        />
+                        I have a business address
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-sm text-neutral-700">
+                        <input
+                          type="radio"
+                          name="addressMode"
+                          checked={remoteMode}
+                          onChange={() => setRemoteMode(true)}
+                          className="text-neutral-900"
+                        />
+                        I work remotely — use my city for local matching
+                      </label>
+                    </div>
+                    {!remoteMode ? (
+                      <>
+                        <label className="label">Address</label>
+                        <AddressAutocomplete
+                          onSelect={({ address: addr, lat: latitude, lng: longitude, city: selectedCity, state: selectedState }) => {
+                            setAddress(addr);
+                            setLat(String(latitude));
+                            setLng(String(longitude));
+                            if (selectedCity) setCity(selectedCity);
+                            if (selectedState) setState(selectedState);
+                            markTouched("address");
+                          }}
+                          onChange={(val) => { setAddress(val); markTouched("address"); }}
+                          required
+                          value={address}
+                        />
+                      </>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="label">City</label>
+                          <input
+                            className="input"
+                            placeholder="e.g. Austin"
+                            value={city}
+                            onChange={(e) => { setCity(e.target.value); setAddress(""); setLat(""); setLng(""); markTouched("address"); }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="label">State</label>
+                          <input
+                            className="input"
+                            placeholder="e.g. TX"
+                            maxLength={2}
+                            value={state}
+                            onChange={(e) => { setState(e.target.value.toUpperCase()); markTouched("address"); }}
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
                     <FieldError message={validationErrors.address} />
                   </div>
                 </div>

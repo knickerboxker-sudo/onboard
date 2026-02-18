@@ -69,6 +69,21 @@ export default function ReferPage() {
     },
   });
 
+  const { data: stateStatus } = useQuery({
+    queryKey: ["refer-state-status", userBusiness?.state],
+    enabled: !!userBusiness?.state,
+    queryFn: async () => {
+      if (!userBusiness?.state) return null;
+      const { data } = await supabase
+        .from("state_launch_status")
+        .select("state_abbrev, state_name, current_count, threshold, launched")
+        .eq("state_abbrev", userBusiness.state)
+        .single();
+      return data ?? null;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const sendInvite = useMutation({
     mutationFn: async (email: string) => {
       if (!userBusiness) throw new Error("No business found");
@@ -162,6 +177,51 @@ export default function ReferPage() {
           </div>
         </div>
       </div>
+
+      {/* State launch progress */}
+      {stateStatus && (
+        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+          <h2 className="text-lg font-semibold text-neutral-900">State Launch Progress</h2>
+          <p className="mt-1 text-xs text-neutral-500">
+            Your referrals help {stateStatus.state_name} reach its unlock threshold.
+          </p>
+          <div className="mt-4 space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-700">
+                You&apos;ve referred <strong>{signedUpCount}</strong> business{signedUpCount !== 1 ? "es" : ""} to Sortir
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-700">
+                Your referrals have helped {stateStatus.state_name} reach{" "}
+                <strong>{stateStatus.current_count} / {stateStatus.threshold}</strong>
+              </span>
+            </div>
+            {!stateStatus.launched && (
+              <div className="text-sm text-neutral-700">
+                <strong>{Math.max(0, stateStatus.threshold - stateStatus.current_count)}</strong> more businesses needed to unlock {stateStatus.state_name}
+              </div>
+            )}
+            <div>
+              <div className="flex justify-between text-xs text-neutral-500 mb-1">
+                <span>{stateStatus.current_count} / {stateStatus.threshold} businesses</span>
+                <span>{Math.min(100, Math.round((stateStatus.current_count / stateStatus.threshold) * 100))}%</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, (stateStatus.current_count / stateStatus.threshold) * 100)}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className={`h-full rounded-full ${stateStatus.launched ? "bg-emerald-500" : "bg-sky-500"}`}
+                />
+              </div>
+            </div>
+            {stateStatus.launched && (
+              <p className="text-sm font-medium text-emerald-700">🎉 {stateStatus.state_name} is live!</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Referral Link */}
       <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
