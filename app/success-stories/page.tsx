@@ -9,77 +9,151 @@ export const metadata = {
 
 export default function SuccessStoriesPage() {
   return (
-    <section className="space-y-12">
-      {/* Header */}
-      <div className="text-center">
-        <span className="hero-badge">Partnership Results</span>
-        <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">
+    <div>
+      {/* Accent top rule */}
+      <div style={{ height: "2px", backgroundColor: "var(--color-accent)" }} />
+
+      {/* Hero */}
+      <section style={{ paddingTop: "80px", paddingBottom: "64px", paddingLeft: "24px", paddingRight: "24px" }}>
+        <span className="section-label">Partnership Results</span>
+        <h1
+          className="mt-5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2.5rem, 5vw, 4rem)",
+            lineHeight: "1.05",
+            letterSpacing: "-0.02em",
+            color: "var(--color-ink)",
+          }}
+        >
           Success Stories
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-neutral-500">
+        <p
+          className="mt-6 max-w-2xl"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "16px",
+            lineHeight: "1.6",
+            color: "var(--color-muted)",
+          }}
+        >
           We&apos;re just getting started! Once Sortir launches and businesses
           begin partnering, their stories will be featured here.
         </p>
-      </div>
+      </section>
+
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
 
       {/* Stories Grid — shown only when real stories exist */}
       {successStories.length > 0 && (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {successStories.map((story) => (
-            <article
-              key={story.id}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-100 bg-white p-7 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
-            >
-              {/* Partnership type badge */}
-              <span className="inline-flex w-fit items-center rounded-full border border-lavender-100 bg-lavender-50/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-lavender-700">
-                {story.partnershipType}
-              </span>
-
-              {/* Business names */}
-              <h2 className="mt-4 text-lg font-bold text-neutral-900">
-                {story.businessA}{" "}
-                <span className="font-normal text-neutral-400">&amp;</span>{" "}
-                {story.businessB}
-              </h2>
-
-              {/* Key metric */}
-              <p className="mt-2 text-2xl font-extrabold bg-gradient-to-r from-spearmint-600 to-spearmint-500 bg-clip-text text-transparent">
-                {story.keyMetric}
-              </p>
-
-              {/* Testimonial quote */}
-              <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-neutral-500">
-                &ldquo;{story.testimonialQuote}&rdquo;
-              </blockquote>
-
-              {/* Timeframe */}
-              <p className="mt-4 text-xs font-medium text-neutral-400">
-                Results achieved in {story.timeframe}
-              </p>
-            </article>
-          ))}
-        </div>
+        <section style={{ padding: "48px 24px" }}>
+          <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
+            {successStories.map((story, i) => (
+              <article
+                key={story.id}
+                className="py-8 pr-8"
+                style={{ borderTop: "1px solid var(--color-rule)", transitionDelay: `${i * 60}ms` }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase" as const,
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  {story.partnershipType}
+                </span>
+                <h2
+                  className="mt-3"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "18px",
+                    color: "var(--color-ink)",
+                  }}
+                >
+                  {story.businessA} &amp; {story.businessB}
+                </h2>
+                <p
+                  className="mt-2"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "22px",
+                    color: "var(--color-accent)",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {story.keyMetric}
+                </p>
+                <blockquote
+                  className="mt-3"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    lineHeight: "1.6",
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  &ldquo;{story.testimonialQuote}&rdquo;
+                </blockquote>
+                <p
+                  className="mt-3"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  Results in {story.timeframe}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
       )}
 
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
+
       {/* CTA */}
-      <div className="relative flex flex-col items-center gap-5 overflow-hidden rounded-2xl bg-neutral-900 px-6 py-16 text-center">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-lavender-600/10 via-transparent to-spearmint-500/10" />
-        <div className="relative">
-          <h2 className="text-2xl font-bold text-white sm:text-3xl">
-            Be One of Our First Success Stories
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-neutral-400">
-            Join the waitlist and be among the first businesses to partner through
-            Sortir when we launch.
-          </p>
-          <Link
-            href="/join"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-neutral-900 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
-          >
-            Join the Waitlist
-          </Link>
+      <section
+        className="relative -mx-4 sm:-mx-6"
+        style={{ backgroundColor: "var(--color-accent)", padding: "80px 64px" }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7">
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                fontStyle: "italic",
+                color: "var(--color-paper)",
+                lineHeight: "1.1",
+              }}
+            >
+              Be One of Our First Success Stories
+            </h2>
+          </div>
+          <div className="lg:col-span-5 flex flex-col gap-6">
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "16px",
+                lineHeight: "1.6",
+                color: "rgba(245,242,235,0.8)",
+              }}
+            >
+              Join the waitlist and be among the first businesses to partner through
+              Sortir when we launch.
+            </p>
+            <div>
+              <Link href="/join" className="btn-cta-outline">
+                Join the Waitlist
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

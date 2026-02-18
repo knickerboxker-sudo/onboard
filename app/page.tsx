@@ -142,17 +142,10 @@ export default function Home() {
             </p>
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
-                className="inline-flex items-center gap-2 transition-all"
+                className="btn-primary"
                 href="/join"
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '16px',
-                  color: 'var(--color-ink)',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '4px',
-                }}
               >
-                Join the waitlist <span style={{ fontFamily: 'var(--font-mono)' }}>→</span>
+                Join the waitlist
               </Link>
               <Link
                 className="transition-colors"

@@ -12,8 +12,6 @@ import {
   Heart,
   Palette,
   Briefcase,
-  Sparkles,
-  FileText,
   Lightbulb,
 } from "lucide-react";
 
@@ -33,119 +31,254 @@ export default function PartnershipIdeasPage() {
   const ideas = getPartnershipIdeasByCategory(selectedCategory);
 
   return (
-    <div className="space-y-10">
-      {/* Header */}
-      <div className="text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-creamsicle-50">
-          <Lightbulb className="h-7 w-7 text-creamsicle-600" />
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+    <div>
+      {/* Accent top rule */}
+      <div style={{ height: "2px", backgroundColor: "var(--color-accent)" }} />
+
+      {/* Hero */}
+      <section style={{ paddingTop: "80px", paddingBottom: "64px", paddingLeft: "24px", paddingRight: "24px" }}>
+        <span className="section-label">Inspiration</span>
+        <h1
+          className="mt-5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2.5rem, 5vw, 4rem)",
+            lineHeight: "1.05",
+            letterSpacing: "-0.02em",
+            color: "var(--color-ink)",
+          }}
+        >
           Partnership Ideas
         </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-neutral-500">
+        <p
+          className="mt-6 max-w-2xl"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "16px",
+            lineHeight: "1.6",
+            color: "var(--color-muted)",
+          }}
+        >
           Get inspired by real partnership examples across industries. Every business can find creative
           ways to collaborate — browse ideas, then connect with a partner to make it happen.
         </p>
-      </div>
+      </section>
+
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
 
       {/* Category filter */}
-      <div className="flex flex-wrap justify-center gap-2">
-        <button
-          onClick={() => setSelectedCategory(undefined)}
-          className={`rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
-            !selectedCategory ? "bg-neutral-900 text-white shadow-lg" : "bg-white text-neutral-600 border border-neutral-200 shadow-sm hover:bg-neutral-50"
-          }`}
-        >
-          All Industries
-        </button>
-        {CATEGORIES.map((cat) => (
+      <section style={{ padding: "32px 24px 0" }}>
+        <div className="flex flex-wrap gap-2">
           <button
-            key={cat.value}
-            onClick={() => setSelectedCategory(cat.value)}
-            className={`flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
-              selectedCategory === cat.value
-                ? "bg-neutral-900 text-white shadow-lg"
-                : "bg-white text-neutral-600 border border-neutral-200 shadow-sm hover:bg-neutral-50"
-            }`}
+            onClick={() => setSelectedCategory(undefined)}
+            className="px-4 py-2 transition-colors"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "11px",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase" as const,
+              border: "1px solid var(--color-rule)",
+              color: !selectedCategory ? "var(--color-paper)" : "var(--color-muted)",
+              backgroundColor: !selectedCategory ? "var(--color-ink)" : "transparent",
+            }}
           >
-            <cat.icon className="h-3.5 w-3.5" />
-            {cat.label}
+            All
           </button>
-        ))}
-      </div>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => setSelectedCategory(cat.value)}
+              className="flex items-center gap-1.5 px-4 py-2 transition-colors"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase" as const,
+                border: "1px solid var(--color-rule)",
+                color: selectedCategory === cat.value ? "var(--color-paper)" : "var(--color-muted)",
+                backgroundColor: selectedCategory === cat.value ? "var(--color-ink)" : "transparent",
+              }}
+            >
+              <cat.icon className="h-3 w-3" />
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* Ideas Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {ideas.map((idea) => (
-          <div
-            key={idea.id}
-            className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-soft border border-neutral-100 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
-          >
-            <div className="flex items-center gap-2 text-sm">
-              <span className="rounded-full bg-creamsicle-50 px-2.5 py-0.5 text-xs font-semibold text-creamsicle-700 border border-creamsicle-100">
-                {idea.businessA}
-              </span>
-              <span className="text-neutral-300">+</span>
-              <span className="rounded-full bg-lavender-50 px-2.5 py-0.5 text-xs font-semibold text-lavender-700 border border-lavender-100">
-                {idea.businessB}
-              </span>
-            </div>
-            <h3 className="mt-3 text-sm font-semibold text-neutral-900">{idea.idea}</h3>
-            <p className="mt-1.5 text-xs leading-relaxed text-neutral-500">{idea.description}</p>
-            <div className="mt-4 flex items-center justify-between">
-              <span className="rounded-full bg-neutral-50 px-2.5 py-0.5 text-[10px] font-medium text-neutral-500 border border-neutral-100">
-                {idea.category}
-              </span>
-              <Link
-                href="/discover"
-                className="flex items-center gap-1 text-xs font-semibold text-lavender-600 transition-colors duration-200 hover:text-lavender-700"
+      <section style={{ padding: "32px 24px" }}>
+        <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
+          {ideas.map((idea, i) => (
+            <div
+              key={idea.id}
+              className="py-6 pr-6"
+              style={{ borderTop: "1px solid var(--color-rule)", transitionDelay: `${i * 40}ms` }}
+            >
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    letterSpacing: "0.06em",
+                    color: "var(--color-muted)",
+                    border: "1px solid var(--color-rule)",
+                    padding: "2px 8px",
+                  }}
+                >
+                  {idea.businessA}
+                </span>
+                <span style={{ color: "var(--color-muted)", fontSize: "11px" }}>+</span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    letterSpacing: "0.06em",
+                    color: "var(--color-muted)",
+                    border: "1px solid var(--color-rule)",
+                    padding: "2px 8px",
+                  }}
+                >
+                  {idea.businessB}
+                </span>
+              </div>
+              <h3
+                className="mt-3"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "16px",
+                  color: "var(--color-ink)",
+                }}
               >
-                Find a partner <ArrowRight className="h-3 w-3" />
-              </Link>
+                {idea.idea}
+              </h3>
+              <p
+                className="mt-1.5"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "13px",
+                  lineHeight: "1.6",
+                  color: "var(--color-muted)",
+                }}
+              >
+                {idea.description}
+              </p>
+              <div className="mt-4 flex items-center justify-between">
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "10px",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase" as const,
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  {idea.category}
+                </span>
+                <Link
+                  href="/discover"
+                  className="flex items-center gap-1 transition-colors"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    color: "var(--color-ink)",
+                  }}
+                >
+                  Find a partner <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
+
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
 
       {/* Partnership Proposal Templates Section */}
-      <div className="rounded-2xl bg-gradient-to-r from-spearmint-50 to-lavender-50 p-7 border border-spearmint-100/50">
+      <section style={{ padding: "48px 24px" }}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-lavender-100">
-              <FileText className="h-5 w-5 text-lavender-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-neutral-900">Proposal Templates</h2>
-              <p className="text-sm text-neutral-500">Ready-to-use templates to start partnership conversations</p>
-            </div>
+          <div>
+            <span className="section-label">Templates</span>
+            <h2
+              className="mt-3"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "24px",
+                color: "var(--color-ink)",
+              }}
+            >
+              Proposal Templates
+            </h2>
+            <p
+              className="mt-1"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "13px",
+                color: "var(--color-muted)",
+              }}
+            >
+              Ready-to-use templates to start partnership conversations
+            </p>
           </div>
           <button
             onClick={() => setShowTemplates(!showTemplates)}
-            className="btn-muted text-xs"
+            className="btn-primary"
           >
             {showTemplates ? "Hide" : "View Templates"}
           </button>
         </div>
 
         {showTemplates && (
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PROPOSAL_TEMPLATES.map((template) => (
-              <div key={template.id} className="rounded-xl bg-white p-5 shadow-sm border border-neutral-100">
-                <h3 className="text-sm font-semibold text-neutral-900">{template.title}</h3>
-                <p className="mt-1 text-xs text-neutral-500">{template.description}</p>
+          <div className="mt-8 grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
+            {PROPOSAL_TEMPLATES.map((template, i) => (
+              <div
+                key={template.id}
+                className="py-6 pr-6"
+                style={{ borderTop: "1px solid var(--color-rule)" }}
+              >
+                <h3
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "16px",
+                    color: "var(--color-ink)",
+                  }}
+                >
+                  {template.title}
+                </h3>
+                <p
+                  className="mt-1"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  {template.description}
+                </p>
                 <div className="mt-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Key Terms</p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "10px",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase" as const,
+                      color: "var(--color-muted)",
+                    }}
+                  >
+                    Key Terms
+                  </p>
                   <ul className="mt-1 space-y-0.5">
-                    {template.terms.slice(0, 3).map((term, i) => (
-                      <li key={i} className="text-xs text-neutral-600">&bull; {term}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mt-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Next Steps</p>
-                  <ul className="mt-1 space-y-0.5">
-                    {template.nextSteps.slice(0, 2).map((step, i) => (
-                      <li key={i} className="text-xs text-neutral-600">{i + 1}. {step}</li>
+                    {template.terms.slice(0, 3).map((term, j) => (
+                      <li
+                        key={j}
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: "12px",
+                          color: "var(--color-muted)",
+                        }}
+                      >
+                        &bull; {term}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -153,25 +286,47 @@ export default function PartnershipIdeasPage() {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Submit Success Story CTA */}
-      <div className="relative overflow-hidden rounded-2xl bg-neutral-900 px-6 py-14 text-center">
-        <div className="pointer-events-none absolute -top-20 -right-20 h-[300px] w-[300px] rounded-full opacity-[0.1]" style={{ background: "radial-gradient(circle, #f49d6e 0%, transparent 70%)" }} />
-        <div className="relative">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-creamsicle-500/20">
-            <Sparkles className="h-6 w-6 text-creamsicle-200" />
+      {/* CTA */}
+      <section
+        className="relative -mx-4 sm:-mx-6"
+        style={{ backgroundColor: "var(--color-accent)", padding: "80px 64px" }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7">
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                fontStyle: "italic",
+                color: "var(--color-paper)",
+                lineHeight: "1.1",
+              }}
+            >
+              Have a partnership success story?
+            </h2>
           </div>
-          <h2 className="text-xl font-bold text-white">Have a partnership success story?</h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm text-neutral-400">
-            Share how your business partnership worked out. Your story could inspire other businesses
-            to try something new.
-          </p>
-          <Link href="/success-stories" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3 text-sm font-semibold text-neutral-900 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
-            Share Your Story <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="lg:col-span-5 flex flex-col gap-6">
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "16px",
+                lineHeight: "1.6",
+                color: "rgba(245,242,235,0.8)",
+              }}
+            >
+              Share how your business partnership worked out. Your story could inspire other businesses
+              to try something new.
+            </p>
+            <div>
+              <Link href="/success-stories" className="btn-cta-outline">
+                Share Your Story <ArrowRight className="inline h-4 w-4 ml-2" />
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
