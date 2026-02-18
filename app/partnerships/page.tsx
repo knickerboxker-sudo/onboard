@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -28,13 +29,13 @@ import {
 import type { PartnershipRecord, PartnershipStatus, PartnershipHealthScore } from "@/lib/types";
 import PageAccentRule from "@/app/components/PageAccentRule";
 
-const STATUS_STYLES: Record<PartnershipStatus, { bg: string; text: string; label: string }> = {
-  pending: { bg: "bg-amber-50", text: "text-amber-700", label: "Pending" },
-  active: { bg: "bg-emerald-50", text: "text-emerald-700", label: "Active" },
-  paused: { bg: "bg-neutral-50", text: "text-neutral-700", label: "Paused" },
-  completed: { bg: "bg-sky-50", text: "text-sky-700", label: "Completed" },
-  cancelled: { bg: "bg-red-50", text: "text-red-700", label: "Cancelled" },
-  archived: { bg: "bg-neutral-50", text: "text-neutral-500", label: "Archived" },
+const STATUS_STYLES: Record<PartnershipStatus, { style: CSSProperties; label: string }> = {
+  pending:   { style: { background: 'rgba(200,98,42,0.1)',  color: 'var(--color-accent)' },    label: "Pending" },
+  active:    { style: { background: 'rgba(26,58,42,0.12)',  color: 'var(--color-accent-2)' },   label: "Active" },
+  paused:    { style: { background: 'var(--color-paper-dark)', color: 'var(--color-muted)' },   label: "Paused" },
+  completed: { style: { background: 'rgba(13,13,13,0.06)', color: 'var(--color-ink)' },         label: "Completed" },
+  cancelled: { style: { background: 'rgba(200,98,42,0.08)', color: 'var(--color-muted)' },      label: "Cancelled" },
+  archived:  { style: { background: 'var(--color-paper-dark)', color: 'var(--color-muted)' },   label: "Archived" },
 };
 
 const TABS = ["Overview", "Milestones", "Health"] as const;
@@ -87,7 +88,7 @@ function PartnershipCard({ partnership, partnerName }: { partnership: Partnershi
   const health = calculateHealth(partnership);
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-neutral-100 transition-all hover:shadow-card-hover">
+    <div className="sortir-card transition-all hover:shadow-card-hover">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-semibold text-neutral-900">{partnerName}</h3>
@@ -95,7 +96,7 @@ function PartnershipCard({ partnership, partnerName }: { partnership: Partnershi
         </div>
         <div className="flex items-center gap-2">
           <HealthIndicator health={health} />
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${status.bg} ${status.text}`}>
+          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={status.style}>
             {status.label}
           </span>
         </div>
@@ -145,7 +146,7 @@ function MilestoneTracker() {
       {defaultMilestones.map((m) => {
         const progress = Math.min(100, (m.current / m.target) * 100);
         return (
-          <div key={m.id} className="rounded-xl bg-white p-4 shadow-card ring-1 ring-neutral-100">
+          <div key={m.id} className="sortir-card">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 {m.completed ? (
@@ -204,7 +205,7 @@ function HealthDashboard({ partnerships }: { partnerships: PartnershipRecord[] }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+      <div className="sortir-card">
         <div className="flex items-center gap-4">
           <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${avgBg}`}>
             <span className="text-2xl font-bold text-white">{avgHealth}</span>
@@ -219,7 +220,7 @@ function HealthDashboard({ partnerships }: { partnerships: PartnershipRecord[] }
       </div>
 
       {healthScores.length > 0 && (
-        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+        <div className="sortir-card">
           <h3 className="text-sm font-semibold text-neutral-900">Health Factors</h3>
           <div className="mt-4 space-y-3">
             {healthScores[0].factors.map((f) => (
@@ -241,7 +242,7 @@ function HealthDashboard({ partnerships }: { partnerships: PartnershipRecord[] }
       )}
 
       {suggestions.length > 0 && (
-        <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-neutral-100">
+        <div className="sortir-card">
           <h3 className="text-sm font-semibold text-neutral-900">Suggestions</h3>
           <div className="mt-3 space-y-2">
             {suggestions.map((s, i) => (
@@ -348,7 +349,7 @@ export default function PartnershipsPage() {
           { label: "Customers Acquired", value: totalCustomers, icon: Target, color: "text-violet-600" },
           { label: "All Partnerships", value: partnerships.length, icon: Award, color: "text-amber-600" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-neutral-100">
+          <div key={stat.label} className="sortir-card">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-50">
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
@@ -404,7 +405,7 @@ export default function PartnershipsPage() {
               </div>
 
               {filteredPartnerships.length === 0 ? (
-                <div className="rounded-2xl bg-white p-12 text-center shadow-card ring-1 ring-neutral-100">
+                <div className="sortir-card text-center">
                   <Users className="mx-auto h-12 w-12 text-neutral-300" />
                   <p className="mt-4 text-sm font-medium text-neutral-600">No partnerships yet</p>
                   <p className="mt-1 text-xs text-neutral-400">Discover businesses in your area to find your first partner!</p>
