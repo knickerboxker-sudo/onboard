@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LandingAnimations } from "./components/LandingAnimations";
+import { PartnershipMarquee } from "./components/PartnershipMarquee";
 
 const features = [
   {
@@ -59,24 +60,24 @@ const features = [
 ];
 
 const partnershipExamples = [
-  { businesses: "Gym + Meal Prep Service",            result: "Member nutrition package" },
-  { businesses: "Bookstore + Coffee Shop",            result: "Reading events & refreshments" },
-  { businesses: "Salon + Boutique",                   result: "Style makeover packages" },
-  { businesses: "Real Estate Agent + Mortgage Broker",result: "One-stop home buying experience" },
-  { businesses: "Accountant + Attorney",              result: "Business startup bundle" },
-  { businesses: "Dog Walker + Pet Groomer",           result: "All-in pet care subscription" },
-  { businesses: "Personal Trainer + Nutritionist",    result: "Total transformation package" },
-  { businesses: "Wedding Photographer + Florist",     result: "Memory & beauty package" },
-  { businesses: "Lawn Care Co. + Landscaper",         result: "Full outdoor maintenance plan" },
-  { businesses: "Hair Product Brand + Salon",         result: "In-store display & samples" },
-  { businesses: "Online Boutique + Local Pop-up",     result: "IRL shopping experience" },
-  { businesses: "Freelance Photographer + Venue",     result: "Preferred vendor partnership" },
-  { businesses: "Juice Bar + Yoga Studio",            result: "Post-class smoothie deal" },
-  { businesses: "Bakery + Coffee Shop",               result: "Morning bundle offer" },
-  { businesses: "Chiropractor + Massage Therapist",   result: "Complete pain relief program" },
-  { businesses: "Web Designer + Marketing Agency",    result: "Full digital launch package" },
-  { businesses: "Coworking Space + Coffee Shop",      result: "Member daily coffee perk" },
-  { businesses: "Print Shop + Graphic Designer",      result: "Design-to-print service" },
+  { businesses: "Gym + Meal Prep Service",             result: "Member nutrition package",         description: "Pair workout plans with weekly meal prep—give members a true lifestyle bundle." },
+  { businesses: "Bookstore + Coffee Shop",             result: "Reading events & refreshments",    description: "Host book clubs and author nights with a café pop-up inside the store." },
+  { businesses: "Salon + Boutique",                    result: "Style makeover packages",          description: "Book a cut and walk out with a new outfit—one appointment, a full new look." },
+  { businesses: "Real Estate Agent + Mortgage Broker", result: "One-stop home buying experience",  description: "Guide buyers from house-hunting to closing without juggling multiple contacts." },
+  { businesses: "Accountant + Attorney",               result: "Business startup bundle",          description: "Help new owners get legally registered and financially set from day one." },
+  { businesses: "Dog Walker + Pet Groomer",            result: "All-in pet care subscription",     description: "Combine daily walks with monthly grooming into one hassle-free pet care plan." },
+  { businesses: "Personal Trainer + Nutritionist",     result: "Total transformation package",     description: "Align fitness goals with customized meal plans for faster, lasting results." },
+  { businesses: "Wedding Photographer + Florist",      result: "Memory & beauty package",          description: "Coordinate blooms and photos so the flowers and shots always complement each other." },
+  { businesses: "Lawn Care Co. + Landscaper",          result: "Full outdoor maintenance plan",    description: "Keep lawns mowed and gardens designed under one recurring service agreement." },
+  { businesses: "Hair Product Brand + Salon",          result: "In-store display & samples",       description: "Put your products in customers' hands at the exact moment they need them." },
+  { businesses: "Online Boutique + Local Pop-up",      result: "IRL shopping experience",          description: "Bring your digital store to life with seasonal in-person shopping events." },
+  { businesses: "Freelance Photographer + Venue",      result: "Preferred vendor partnership",     description: "Get referred to every couple and host who books the space." },
+  { businesses: "Juice Bar + Yoga Studio",             result: "Post-class smoothie deal",         description: "Reward students with a discount at the juice bar right after class." },
+  { businesses: "Bakery + Coffee Shop",                result: "Morning bundle offer",             description: "Pair a fresh pastry with every specialty coffee order to boost both businesses." },
+  { businesses: "Chiropractor + Massage Therapist",    result: "Complete pain relief program",     description: "Tackle muscle and alignment issues together for faster patient recovery." },
+  { businesses: "Web Designer + Marketing Agency",     result: "Full digital launch package",      description: "Deliver clients a complete online presence—site, brand, and growth strategy." },
+  { businesses: "Coworking Space + Coffee Shop",       result: "Member daily coffee perk",         description: "Give coworking members a daily coffee credit to keep them energized and loyal." },
+  { businesses: "Print Shop + Graphic Designer",       result: "Design-to-print service",          description: "Handle everything from concept to finished product under one creative roof." },
 ];
 
 const steps = [
@@ -413,30 +414,19 @@ export default function Home() {
             for every type of business.
           </p>
         </div>
-        <div className="overflow-hidden">
-          <div className="marquee-track">
-            {/* Duplicated for seamless infinite scroll loop */}
-            {[...partnershipExamples, ...partnershipExamples].map((ex, i) => (
-              <div
-                key={`${ex.businesses}-${i}`}
-                className="marquee-pill flex-shrink-0 whitespace-nowrap transition-colors duration-200 hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)] hover:border-[var(--color-ink)]"
-                style={{
-                  border: '1px solid var(--color-rule)',
-                  padding: '10px 20px',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
-                  background: 'var(--color-paper)',
-                  color: 'var(--color-ink)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                }}
-              >
-                <span className="pill-arrow">→</span>
-                {ex.businesses} → {ex.result}
-              </div>
-            ))}
-          </div>
-        </div>
+        <PartnershipMarquee examples={partnershipExamples} />
+        <p
+          className="mt-4 px-6 sm:px-12"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '10px',
+            letterSpacing: '0.06em',
+            color: 'var(--color-muted)',
+            opacity: 0.7,
+          }}
+        >
+          Hover to pause · drag or scroll to explore
+        </p>
       </section>
 
       {/* Final CTA — terracotta */}
