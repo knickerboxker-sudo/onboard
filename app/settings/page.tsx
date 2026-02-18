@@ -10,13 +10,25 @@ import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 import ImageUpload from "@/app/components/ImageUpload";
 import PageAccentRule from "@/app/components/PageAccentRule";
 
-const partnershipOptions: PartnershipType[] = ["cross-promotion", "product-bundle", "event-collab", "wholesale", "social-media-collab"];
+const partnershipOptions: PartnershipType[] = [
+  "cross-promotion",
+  "product-bundle",
+  "event-collab",
+  "wholesale",
+  "social-media-collab",
+  "in-store-display",
+  "referral-program",
+  "consignment",
+  "digital-placement",
+];
 const collaborationIntentOptions: { value: CollaborationIntent; label: string }[] = [
   { value: "sell", label: "Sell my products through a partner" },
   { value: "promote", label: "Cross-promote with another business" },
   { value: "supply", label: "Supply products or services" },
   { value: "co-brand", label: "Co-brand a product or experience" },
   { value: "refer", label: "Refer customers to each other" },
+  { value: "display", label: "Have my products displayed in a partner's location" },
+  { value: "feature", label: "Be featured in a partner's newsletter or social channels" },
 ];
 
 export default function SettingsPage() {

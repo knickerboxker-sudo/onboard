@@ -242,6 +242,10 @@ export default function DashboardPage() {
     ? getTrustBadges(data.business)
     : [];
 
+  const isNewUser = data?.business?.created_at
+    ? Date.now() - new Date(data.business.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
+    : false;
+
   const statCards = [
     { label: "Connections", value: data?.matchCount, icon: Handshake },
     { label: "Connection Requests", value: data?.connectionRequestCount, icon: Users },
@@ -284,6 +288,17 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       <PageAccentRule />
+      {/* First-time user welcome banner */}
+      {isNewUser && data?.business && calculateProfileCompletion(data.business) < 60 && (
+        <div className="mb-8 p-6" style={{ background: 'var(--color-accent-2)', borderRadius: '2px' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontStyle: 'italic', color: 'var(--color-paper)' }}>
+            Welcome to Sortir! Here&apos;s your first move.
+          </h2>
+          <p className="mt-2" style={{ fontSize: '14px', color: 'rgba(245,242,235,0.75)' }}>
+            Head to <Link href="/discover" style={{ color: 'var(--color-paper)', textDecoration: 'underline' }}>Discover</Link> to browse businesses near you, or finish filling out your profile so partners can find you.
+          </p>
+        </div>
+      )}
       {/* Header */}
       <div className="glass rounded-2xl p-7">
         <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-lavender-600">Your partnership hub</p>
