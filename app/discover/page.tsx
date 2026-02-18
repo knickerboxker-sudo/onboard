@@ -922,11 +922,11 @@ export default function DiscoverPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-2xl bg-white p-14 text-center shadow-soft border border-neutral-100">
-              <Users className="mx-auto h-12 w-12 text-neutral-300" />
-              <p className="mt-4 text-sm font-medium text-neutral-600">No businesses match your filters</p>
+              <SlidersHorizontal className="mx-auto h-12 w-12 text-neutral-300" />
+              <p className="mt-4 text-sm font-medium text-neutral-600">No businesses match your current filters</p>
               <p className="mt-1 text-xs text-neutral-400">Try adjusting your search criteria</p>
               <button onClick={() => setFilters(defaultFilters)} className="btn-muted mt-4 text-xs">
-                Reset Filters
+                Clear all filters
               </button>
             </div>
           ) : (

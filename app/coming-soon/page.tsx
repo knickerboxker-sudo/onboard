@@ -6,7 +6,7 @@ import RecentSignups from "../components/RecentSignups";
 import CityRequestForm from "../components/CityRequestForm";
 
 export default function ComingSoonPage() {
-  const city = "Ann Arbor Area";
+  const city = process.env.NEXT_PUBLIC_LAUNCH_CITY ?? "Ann Arbor Area";
 
   const communities = [
     "Ann Arbor",
@@ -160,10 +160,19 @@ export default function ComingSoonPage() {
               padding: "24px",
             }}
           >
-            <span className="section-label">Not in your city yet?</span>
-            <div className="mt-4">
-              <CityRequestForm />
-            </div>
+            <span className="section-label">Request your city</span>
+            <p
+              className="mt-2 mb-4"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "13px",
+                lineHeight: "1.6",
+                color: "var(--color-muted)",
+              }}
+            >
+              Don&apos;t see your city? Request it below and we&apos;ll notify you when we&apos;re ready to launch there.
+            </p>
+            <CityRequestForm />
           </div>
         </div>
       </section>

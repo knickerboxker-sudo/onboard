@@ -435,11 +435,18 @@ export default function ConnectionsPage() {
           <div className="mt-4 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-5 py-8 text-center">
             <Users className="mx-auto h-8 w-8 text-neutral-400" />
             <p className="mt-2 text-sm font-medium text-neutral-600">
-              No connections yet
+              No active connections yet
             </p>
             <p className="mt-1 text-xs text-neutral-500">
-              Accept incoming requests or send your own to start connecting
+              Go discover partners and start connecting.
             </p>
+            <Link
+              href="/discover"
+              className="btn-primary mx-auto mt-4 inline-flex"
+            >
+              Discover Partners
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         )}
       </div>

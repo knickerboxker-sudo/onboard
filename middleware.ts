@@ -52,9 +52,9 @@ export async function middleware(request: NextRequest) {
     "/profile-views",
     "/refer",
     "/analytics",
-    "/agreement",
     "/partnership-builder",
     "/partnership-agreement",
+    "/dashboard-preview",
   ];
 
   const isProtectedRoute = protectedRoutes.some((route) =>

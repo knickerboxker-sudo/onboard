@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { PartyPopper, ArrowRight } from "lucide-react";
 import CityProgress from "../../../components/CityProgress";
 import ReferralStats from "../../../components/ReferralStats";
 
@@ -21,6 +20,7 @@ export default function JoinSuccessPage() {
   const code = params.code as string;
   const [data, setData] = useState<SignupData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -29,9 +29,11 @@ export default function JoinSuccessPage() {
         if (res.ok) {
           const json = await res.json();
           setData(json);
+        } else {
+          setFetchError(true);
         }
       } catch {
-        // Silently fail
+        setFetchError(true);
       } finally {
         setLoading(false);
       }
@@ -52,82 +54,179 @@ export default function JoinSuccessPage() {
     );
   }
 
+  if (fetchError && !data) {
+    return (
+      <div style={{ paddingTop: "80px", paddingBottom: "64px", paddingLeft: "24px", paddingRight: "24px", maxWidth: "600px" }}>
+        <span className="section-label">You&apos;re In</span>
+        <h1
+          className="mt-5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2rem, 4vw, 3rem)",
+            lineHeight: "1.05",
+            letterSpacing: "-0.02em",
+            color: "var(--color-ink)",
+          }}
+        >
+          You&apos;re on the list!
+        </h1>
+        <p
+          className="mt-4"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "15px",
+            lineHeight: "1.6",
+            color: "var(--color-muted)",
+          }}
+        >
+          We couldn&apos;t load your signup details. Your spot is still saved!
+        </p>
+        <div className="mt-6">
+          <Link href="/coming-soon" className="btn-primary">
+            See launch progress
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   // Fallback if data couldn't be loaded
   const city = data?.city || "Ann Arbor Area";
   const referralCount = data?.referral_count || 0;
   const position = data?.position || 0;
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      {/* Success header */}
-      <div className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-          <PartyPopper className="h-8 w-8 text-emerald-600" />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+    <div>
+      {/* Accent top rule */}
+      <div style={{ height: "2px", backgroundColor: "var(--color-accent)" }} />
+
+      {/* Hero */}
+      <section style={{ paddingTop: "80px", paddingBottom: "64px", paddingLeft: "24px", paddingRight: "24px" }}>
+        <span className="section-label">You&apos;re In</span>
+        <h1
+          className="mt-5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2.5rem, 5vw, 4rem)",
+            lineHeight: "1.05",
+            letterSpacing: "-0.02em",
+            color: "var(--color-ink)",
+          }}
+        >
           You&apos;re on the list!
         </h1>
         {position > 0 && (
-          <p className="mt-2 text-lg text-neutral-500">
+          <p
+            className="mt-4"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "18px",
+              color: "var(--color-muted)",
+            }}
+          >
             You&apos;re #{position} in {city}
           </p>
         )}
-      </div>
+      </section>
 
-      {/* City progress */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6">
-        <h2 className="mb-3 text-sm font-semibold text-neutral-900">
-          {city} Launch Progress
-        </h2>
-        <CityProgress city={city} />
-      </div>
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
 
-      {/* Referral stats */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold text-neutral-900">
-          Earn rewards by referring businesses
-        </h2>
-        <ReferralStats
-          referralCode={code}
-          referralCount={referralCount}
-          city={city}
-        />
-      </div>
-
-      {/* What happens next */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6">
-        <h2 className="mb-3 text-sm font-semibold text-neutral-900">
-          What happens next?
-        </h2>
-        <ol className="space-y-3 text-sm text-neutral-600">
-          <li className="flex gap-3">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-700">
-              1
-            </span>
-            We&apos;ll email you with launch progress updates
-          </li>
-          <li className="flex gap-3">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-700">
-              2
-            </span>
-            Share your referral link to unlock rewards
-          </li>
-          <li className="flex gap-3">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-700">
-              3
-            </span>
-            When {city} hits its target, you&apos;ll get early access
-          </li>
-        </ol>
-      </div>
-
-      <Link
-        href="/coming-soon"
-        className="btn-secondary flex w-full items-center justify-center"
+      {/* Progress + referral grid */}
+      <section
+        className="grid gap-0 lg:grid-cols-2"
+        style={{ paddingLeft: "24px", paddingRight: "24px" }}
       >
-        See launch progress
-        <ArrowRight className="h-4 w-4" />
-      </Link>
+        {/* Left: City progress */}
+        <div
+          style={{
+            paddingTop: "48px",
+            paddingBottom: "48px",
+            paddingRight: "48px",
+            borderRight: "1px solid var(--color-rule)",
+          }}
+        >
+          <div className="sortir-card">
+            <span className="section-label">Launch progress</span>
+            <h2
+              className="mt-4 mb-6"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "20px",
+                color: "var(--color-ink)",
+              }}
+            >
+              {city}
+            </h2>
+            <CityProgress city={city} />
+          </div>
+
+          {/* What happens next */}
+          <div className="sortir-card mt-8">
+            <span className="section-label">What happens next</span>
+            <ol className="mt-4 space-y-4">
+              {[
+                "We'll email you with launch progress updates",
+                "Share your referral link to unlock rewards",
+                `When ${city} hits its target, you'll get early access`,
+              ].map((step, i) => (
+                <li key={i} className="flex gap-3">
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "11px",
+                      color: "var(--color-muted)",
+                      flexShrink: 0,
+                      paddingTop: "2px",
+                    }}
+                  >
+                    0{i + 1}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                      color: "var(--color-ink)",
+                    }}
+                  >
+                    {step}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        {/* Right: Referral stats */}
+        <div style={{ paddingTop: "48px", paddingBottom: "48px", paddingLeft: "48px" }}>
+          <div className="sortir-card">
+            <span className="section-label">Earn rewards</span>
+            <h2
+              className="mt-4 mb-6"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "20px",
+                color: "var(--color-ink)",
+              }}
+            >
+              Refer businesses to move up the list
+            </h2>
+            <ReferralStats
+              referralCode={code}
+              referralCount={referralCount}
+              city={city}
+            />
+          </div>
+        </div>
+      </section>
+
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
+
+      <section style={{ padding: "48px 24px" }}>
+        <Link href="/coming-soon" className="btn-primary">
+          See launch progress →
+        </Link>
+      </section>
     </div>
   );
 }

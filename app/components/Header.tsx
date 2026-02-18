@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Menu, X, Settings, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import NotificationBell from "./NotificationBell";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,11 +14,51 @@ export default function Header() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [userInitials, setUserInitials] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close mobile menu on navigation
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // Click-outside handler for user dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
     const supabase = createClient();
     
+    const fetchInitials = async (userId: string, email: string) => {
+      try {
+        const { data: biz } = await supabase
+          .from("businesses")
+          .select("name")
+          .eq("owner_id", userId)
+          .single();
+        if (biz?.name && mounted) {
+          const words = biz.name.trim().split(/\s+/);
+          const initials = words
+            .slice(0, 2)
+            .map((w: string) => w[0]?.toUpperCase() ?? "")
+            .join("");
+          setUserInitials(initials || email.substring(0, 2).toUpperCase());
+        } else if (mounted) {
+          setUserInitials(email.substring(0, 2).toUpperCase());
+        }
+      } catch {
+        if (mounted) setUserInitials(email.substring(0, 2).toUpperCase());
+      }
+    };
+
     const checkAuth = async () => {
       try {
         const {
@@ -25,9 +66,8 @@ export default function Header() {
         } = await supabase.auth.getSession();
         if (mounted) {
           setIsLoggedIn(!!session);
-          if (session?.user?.email) {
-            const initials = session.user.email.substring(0, 2).toUpperCase();
-            setUserInitials(initials);
+          if (session?.user) {
+            await fetchInitials(session.user.id, session.user.email ?? "");
           }
         }
       } catch {
@@ -42,9 +82,8 @@ export default function Header() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted) {
         setIsLoggedIn(!!session);
-        if (session?.user?.email) {
-          const initials = session.user.email.substring(0, 2).toUpperCase();
-          setUserInitials(initials);
+        if (session?.user) {
+          fetchInitials(session.user.id, session.user.email ?? "");
         } else {
           setUserInitials("");
         }
@@ -63,6 +102,14 @@ export default function Header() {
     setUserDropdownOpen(false);
     router.push("/");
   };
+
+  const navLinkStyle = (href: string) => ({
+    fontFamily: 'var(--font-body)',
+    fontSize: '13px',
+    letterSpacing: '0.02em',
+    color: pathname === href ? 'var(--color-ink)' : 'var(--color-muted)',
+    fontWeight: pathname === href ? 500 : undefined,
+  });
 
   return (
     <header
@@ -106,36 +153,21 @@ export default function Header() {
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/")}
             >
               Home
             </Link>
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/coming-soon"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/coming-soon")}
             >
               Launch Progress
             </Link>
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/success-stories"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/success-stories")}
             >
               Success Stories
             </Link>
@@ -151,54 +183,50 @@ export default function Header() {
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/discover"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/discover")}
             >
               Discover
             </Link>
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/connections"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/connections")}
             >
               Connections
             </Link>
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/messages"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/messages")}
             >
               Messages
             </Link>
             <Link
               className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
               href="/dashboard"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                letterSpacing: '0.02em',
-                color: 'var(--color-muted)',
-              }}
+              style={navLinkStyle("/dashboard")}
             >
               Dashboard
             </Link>
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/partnership-builder"
+              style={navLinkStyle("/partnership-builder")}
+            >
+              Builder
+            </Link>
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/refer"
+              style={navLinkStyle("/refer")}
+            >
+              Refer &amp; Earn
+            </Link>
             
+            <NotificationBell />
+
             {/* User dropdown */}
-            <div className="relative ml-2">
+            <div className="relative ml-2" ref={dropdownRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="flex items-center gap-2 px-3 py-2 transition-colors"
@@ -295,7 +323,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/" ? 500 : undefined }}
                   >
                     Home
                   </Link>
@@ -303,7 +331,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/coming-soon"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/coming-soon" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/coming-soon" ? 500 : undefined }}
                   >
                     Launch Progress
                   </Link>
@@ -311,7 +339,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/success-stories"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/success-stories" ? 500 : undefined }}
                   >
                     Success Stories
                   </Link>
@@ -329,7 +357,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/discover"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/discover" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/discover" ? 500 : undefined }}
                   >
                     Discover
                   </Link>
@@ -337,7 +365,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/connections"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/connections" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/connections" ? 500 : undefined }}
                   >
                     Connections
                   </Link>
@@ -345,7 +373,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/messages"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/messages" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/messages" ? 500 : undefined }}
                   >
                     Messages
                   </Link>
@@ -353,15 +381,31 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/dashboard" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/dashboard" ? 500 : undefined }}
                   >
                     Dashboard
                   </Link>
                   <Link
                     className="px-3 py-2.5 transition-colors"
+                    href="/partnership-builder"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/partnership-builder" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/partnership-builder" ? 500 : undefined }}
+                  >
+                    Partnership Builder
+                  </Link>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/refer"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/refer" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/refer" ? 500 : undefined }}
+                  >
+                    Refer &amp; Earn
+                  </Link>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
                     href="/settings"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-ink)' }}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/settings" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/settings" ? 500 : undefined }}
                   >
                     Settings
                   </Link>

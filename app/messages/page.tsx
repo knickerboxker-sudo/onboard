@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Send, MessageCircle } from "lucide-react";
 
@@ -227,7 +228,7 @@ function MessagesPageContent() {
             <MessageCircle className="h-8 w-8 text-neutral-300" />
             <p className="text-sm font-medium text-neutral-900">No conversations yet</p>
             <p className="text-xs text-neutral-500">Connect with businesses to start messaging.</p>
-            <a href="/matches" className="btn-primary mt-2 text-xs">Find Connections</a>
+            <Link href="/discover" className="btn-primary mt-2 text-xs">Find Partners →</Link>
           </div>
         ) : (
           <ul className="mt-4 space-y-2">

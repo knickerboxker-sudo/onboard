@@ -18,7 +18,7 @@ function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = useMemo(() => createClient(), []);
-  const [isSignup, setIsSignup] = useState(true);
+  const [isSignup, setIsSignup] = useState(!searchParams.get("redirect"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
