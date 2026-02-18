@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp, sanitizeString } from "@/lib/rate-limit";
+import crypto from "crypto";
+
+const emailSchema = z.string().email();
 
 function generateReferralCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charsLen = chars.length; // 62
+  const maxUnbiased = Math.floor(256 / charsLen) * charsLen; // 248 — reject bytes >= this
   let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  while (code.length < 8) {
+    const bytes = crypto.randomBytes(16);
+    for (const byte of bytes) {
+      if (code.length >= 8) break;
+      if (byte < maxUnbiased) {
+        code += chars[byte % charsLen];
+      }
+    }
   }
   return code;
 }
@@ -29,6 +41,15 @@ export async function POST(request: Request) {
     if (!business_name || !email || !business_type || !city || !state) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailValidation = emailSchema.safeParse(email);
+    if (!emailValidation.success) {
+      return NextResponse.json(
+        { error: "Invalid email address" },
         { status: 400 }
       );
     }
@@ -140,19 +161,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // If referred, increment referrer's count
+    // If referred, atomically increment referrer's count
     if (cleanReferredBy) {
-      const { data: referrer } = await supabase
-        .from("pre_launch_signups")
-        .select("id, referral_count")
-        .eq("referral_code", cleanReferredBy)
-        .single();
-
-      if (referrer) {
-        await supabase
-          .from("pre_launch_signups")
-          .update({ referral_count: referrer.referral_count + 1 })
-          .eq("id", referrer.id);
+      const { error: rpcError } = await supabase.rpc("increment_referral_count", { referral_code_input: cleanReferredBy });
+      if (rpcError) {
+        console.error("Failed to increment referral count:", rpcError);
       }
     }
 
