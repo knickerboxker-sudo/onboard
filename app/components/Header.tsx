@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Menu, X, Settings, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationBell from "./NotificationBell";
+import { successStories } from "@/lib/success-stories";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -145,13 +146,15 @@ export default function Header() {
             >
               Home
             </Link>
-            <Link
-              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
-              href="/success-stories"
-              style={navLinkStyle("/success-stories")}
-            >
-              Success Stories
-            </Link>
+            {successStories.length > 0 && (
+              <Link
+                className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+                href="/success-stories"
+                style={navLinkStyle("/success-stories")}
+              >
+                Success Stories
+              </Link>
+            )}
             <Link
               className="btn-primary ml-2"
               href="/auth"
@@ -308,14 +311,16 @@ export default function Header() {
                   >
                     Home
                   </Link>
-                  <Link
-                    className="px-3 py-2.5 transition-colors"
-                    href="/success-stories"
-                    onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/success-stories" ? 500 : undefined }}
-                  >
-                    Success Stories
-                  </Link>
+                  {successStories.length > 0 && (
+                    <Link
+                      className="px-3 py-2.5 transition-colors"
+                      href="/success-stories"
+                      onClick={() => setMenuOpen(false)}
+                      style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: pathname === "/success-stories" ? 500 : undefined }}
+                    >
+                      Success Stories
+                    </Link>
+                  )}
                   <Link
                     className="btn-primary mt-2 w-full"
                     href="/auth"

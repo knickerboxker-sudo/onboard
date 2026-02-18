@@ -395,7 +395,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <form className="glass rounded-3xl p-8" onSubmit={submitProfile}>
+      <form style={{ background: 'var(--color-paper)', border: '1px solid var(--color-rule)', padding: '32px' }} onSubmit={submitProfile}>
         <p className="text-sm font-medium uppercase tracking-[0.18em]" style={{ color: 'var(--color-accent)' }}>Step {step} of 4</p>
         <h1 className="mt-2 text-2xl font-semibold" style={{ color: 'var(--color-ink)' }}>Your free advertising starts here.</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--color-muted)', lineHeight: '1.6' }}>Sortir connects you with complementary businesses for cross-promotion, product placement, referrals, and more — all completely free, forever. Set up your profile to start finding your perfect partners.</p>

@@ -147,8 +147,8 @@ export default function SuccessStoriesPage() {
               Sortir when we launch.
             </p>
             <div>
-              <Link href="/join" className="btn-cta-outline">
-                Join the Waitlist
+              <Link href="/auth" className="btn-cta-outline">
+                Create your free account
               </Link>
             </div>
           </div>
