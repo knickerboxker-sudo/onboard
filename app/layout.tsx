@@ -5,11 +5,20 @@ import Footer from "./components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sortir — Connect. Collaborate. Promote.",
-  description: "Help small businesses and solo entrepreneurs form partnerships to sell, promote, and grow together.",
+  title: "Sortir — Your neighborhood businesses, stronger together.",
+  description: "Find your perfect local business partner. Cross-promote, share customers, and build partnerships that help every small business thrive. Free, always.",
   icons: {
     icon: "/sortir-logo-transparent.png",
     apple: "/sortir-logo-transparent.png",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Sortir",
+    title: "Sortir — Your neighborhood businesses, stronger together.",
+    description: "Find your perfect local business partner. Cross-promote, share customers, and build partnerships that help every small business thrive. Free, always.",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
