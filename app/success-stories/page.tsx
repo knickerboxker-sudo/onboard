@@ -5,6 +5,9 @@ export const metadata = {
   title: "Success Stories | Sortir",
   description:
     "Partnership success stories from small businesses using Sortir to grow together.",
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"}/success-stories`,
+  },
 };
 
 export default function SuccessStoriesPage() {

@@ -8,8 +8,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"),
-  title: "Sortir — Your neighborhood businesses, stronger together.",
-  description: "Find your perfect local business partner. Cross-promote, share customers, and build partnerships that help every small business thrive. Free, always.",
+  title: "Sortir — Connect with businesses that send you customers.",
+  description: "Sortir connects freelancers and local businesses who refer clients to each other. Grow through word-of-mouth that actually scales — no ad spend, always free.",
   icons: {
     icon: "/sortir-logo-transparent.png",
     apple: "/sortir-logo-transparent.png",
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Sortir",
-    title: "Sortir — Your neighborhood businesses, stronger together.",
-    description: "Find your perfect local business partner. Cross-promote, share customers, and build partnerships that help every small business thrive. Free, always.",
+    title: "Sortir — Connect with businesses that send you customers.",
+    description: "Sortir connects freelancers and local businesses who refer clients to each other. Grow through word-of-mouth that actually scales — no ad spend, always free.",
     images: [{ url: '/sortir-logo-512.png', width: 512, height: 512, alt: 'Sortir' }],
   },
   twitter: {
@@ -33,10 +33,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#c8622a" />
-        <link
-          rel="canonical"
-          href={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"}`}
-        />
       </head>
       <body className="overflow-x-hidden">
         <Providers>
