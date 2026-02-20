@@ -40,14 +40,14 @@ const steps = [
     number: "03",
     title: "Earn referrals & grow revenue",
     description:
-      "Every referral is free advertising. New customers walk through your door at zero ad spend, and your revenue grows.",
+      "Your partners are out there referring their clients to you. New customers show up — no ad budget needed. That's just kind of how it works.",
   },
 ];
 
 const trustSignals = [
   { stat: "100% Free",      label: "No credit card, no paywall, ever" },
-  { stat: "Real referrals", label: "Freelancers & local businesses send you customers" },
-  { stat: "More revenue",   label: "New customers at zero ad spend" },
+  { stat: "Real referrals", label: "From people who already know your next customer" },
+  { stat: "Zero ad spend",  label: "New customers through word of mouth that actually scales" },
 ];
 
 export default function Home() {
@@ -77,8 +77,8 @@ export default function Home() {
                 color: 'var(--color-ink)',
               }}
             >
-              Free advertising for your small business.{" "}
-              <em>No ad spend required.</em>
+              Your business deserves customers —{" "}
+              <em>not ad bills.</em>
             </h1>
             <p
               className="mt-8 max-w-2xl"
@@ -89,14 +89,14 @@ export default function Home() {
                 color: 'var(--color-muted)',
               }}
             >
-              Sortir connects you with freelancers and complementary local businesses who refer their clients straight to you — turning every connection into free advertising that brings in real customers.
+              Sortir brings together freelancers and local businesses who naturally refer clients to each other. Sign up, connect with the right people, and let the referrals do their thing.
             </p>
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
                 className="btn-primary btn-primary-hero"
                 href="/auth"
               >
-                Get free advertising now
+                Start connecting free
               </Link>
               <Link
                 className="transition-colors"
@@ -195,7 +195,7 @@ export default function Home() {
               color: 'var(--color-paper)',
             }}
           >
-            Three steps to free advertising
+            Three steps. That&apos;s really it.
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
@@ -252,7 +252,7 @@ export default function Home() {
       {/* Partnership Examples — scrolling marquee */}
       <section data-reveal>
         <div className="px-6 sm:px-12 mb-10">
-          <span className="section-label">Free advertising in action</span>
+          <span className="section-label">What this actually looks like</span>
           <h2
             className="mt-5"
             data-reveal
@@ -262,7 +262,7 @@ export default function Home() {
               color: 'var(--color-ink)',
             }}
           >
-            Every connection is a free ad
+            Businesses that send each other customers
           </h2>
           <p
             className="mt-3 max-w-2xl"
@@ -273,7 +273,7 @@ export default function Home() {
               color: 'var(--color-muted)',
             }}
           >
-            When a freelancer or local business refers their client to you, that&apos;s free advertising — no budget required.
+            When your Sortir connections send a client your way, that&apos;s a real customer — no campaign, no cost.
           </p>
         </div>
         <PartnershipMarquee examples={partnershipExamples} />
@@ -311,7 +311,7 @@ export default function Home() {
                 lineHeight: '1.1',
               }}
             >
-              Start getting free advertising for your business today
+              Ready to start getting customers from your network?
             </h2>
           </div>
           <div className="lg:col-span-5 flex flex-col gap-6">
@@ -323,14 +323,14 @@ export default function Home() {
                 color: 'rgba(245,242,235,0.8)',
               }}
             >
-              Join Sortir free and let freelancers and local businesses send new customers your way — no ad budget, no credit card, no paywall, ever.
+              Join free, connect with freelancers and local businesses nearby, and let referrals work the way they always should have — for free, always.
             </p>
             <div>
               <Link
                 className="btn-cta-outline"
                 href="/auth"
               >
-                Get free advertising now
+                Join free today
               </Link>
             </div>
             <p
@@ -340,7 +340,7 @@ export default function Home() {
                 color: 'rgba(245,242,235,0.6)',
               }}
             >
-              Free for all businesses · No credit card ever required
+              Always free · No credit card · No paywall
             </p>
           </div>
         </div>

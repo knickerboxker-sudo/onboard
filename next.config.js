@@ -8,11 +8,11 @@ const supabaseHostname = (() => {
 
 const cspDirectives = [
   `default-src 'self'`,
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.mapbox.com https://maps.googleapis.com`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.mapbox.com`,
   `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `font-src 'self' https://fonts.gstatic.com`,
-  `img-src 'self' data: blob: https://${supabaseHostname} https://res.cloudinary.com https://api.mapbox.com https://maps.googleapis.com https://maps.gstatic.com https://lh3.googleusercontent.com`,
-  `connect-src 'self' ${supabaseUrl} https://${supabaseHostname} https://api.mapbox.com https://events.mapbox.com https://maps.googleapis.com`,
+  `img-src 'self' data: blob: https://${supabaseHostname} https://res.cloudinary.com https://api.mapbox.com https://lh3.googleusercontent.com`,
+  `connect-src 'self' ${supabaseUrl} https://${supabaseHostname} https://api.mapbox.com https://events.mapbox.com https://*.upstash.io https://api.resend.com`,
   `worker-src 'self' blob:`,
   `frame-src 'none'`,
   `object-src 'none'`,

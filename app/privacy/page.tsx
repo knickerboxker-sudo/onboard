@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | Sortir",
+  description: "Read Sortir's privacy policy — how we handle your data.",
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"}/privacy`,
+  },
+};
 
 export default function PrivacyPage() {
   return (

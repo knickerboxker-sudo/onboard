@@ -5,8 +5,8 @@
 - Node.js >= 20.0.0
 - npm >= 10
 - Supabase account with project created
-- Stripe account (for payments)
 - Resend account (for transactional emails)
+- Upstash Redis account (for rate limiting)
 
 ## Environment Setup
 
@@ -20,9 +20,15 @@ cp .env.example .env
    - `NEXT_PUBLIC_SUPABASE_URL` — Your Supabase project URL
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous/public key
    - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only)
-   - `STRIPE_SECRET_KEY` — Stripe secret key
-   - `STRIPE_PUBLISHABLE_KEY` — Stripe publishable key
    - `RESEND_API_KEY` — Resend API key for emails
+   - `UPSTASH_REDIS_REST_URL` — Upstash Redis REST URL
+   - `UPSTASH_REDIS_REST_TOKEN` — Upstash Redis REST token
+
+3. Optional environment variables:
+   - `NEXT_PUBLIC_APP_URL` — Production URL (used for canonical links, OG metadata, email links)
+   - `GOOGLE_PLACES_API_KEY` — Google Places API key for location autocomplete
+
+> **Note:** Stripe integration coming soon — not required for current launch.
 
 ## Database Setup
 
@@ -58,13 +64,32 @@ Expected response: `{"status":"ok","timestamp":"...","version":"0.1.0"}`
 
 ## Pre-Launch Checklist
 
-- [ ] All environment variables configured
-- [ ] Database migrations applied
-- [ ] Health endpoint returning 200
-- [ ] Privacy policy content reviewed by attorney
-- [ ] Terms of service content reviewed by attorney
-- [ ] Success stories replaced with real testimonials
-- [ ] Supabase Storage configured for image uploads
-- [ ] Custom domain configured
-- [ ] SSL certificate active
-- [ ] Stripe webhook endpoints configured
+### Infrastructure
+- [ ] All environment variables configured (see .env.example)
+- [ ] Database migrations applied via `npx supabase db push`
+- [ ] Health endpoint returning 200: `curl https://your-domain.com/api/health`
+- [ ] Custom domain configured with SSL certificate active
+- [ ] Supabase Storage bucket created and configured for business logo uploads
+
+### Content
+- [ ] Real success story testimonials added (or successStories array left empty for launch)
+- [ ] Privacy Policy reviewed by attorney
+- [ ] Terms of Service reviewed by attorney
+- [ ] Contact email (hello@sortir.app) inbox monitored and responding
+
+### SEO & Social
+- [ ] NEXT_PUBLIC_APP_URL set to production domain
+- [ ] OG image (1200×630) verified by pasting URL into https://cards-dev.twitter.com/validator
+- [ ] Sitemap accessible at /sitemap.xml
+- [ ] robots.txt accessible at /robots.txt and not blocking crawlers in production
+
+### Security
+- [ ] Supabase Row Level Security (RLS) enabled on all tables
+- [ ] SUPABASE_SERVICE_ROLE_KEY NOT exposed in client-side code
+- [ ] Rate limiting tested on API routes
+- [ ] CSP headers verified with https://securityheaders.com
+
+### Monitoring
+- [ ] Error tracking configured (Sentry or similar)
+- [ ] Uptime monitoring configured
+- [ ] Email deliverability tested (send test email via Resend dashboard)

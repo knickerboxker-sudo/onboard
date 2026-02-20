@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | Sortir",
+  description: "Read Sortir's terms of service.",
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"}/terms`,
+  },
+};
 
 export default function TermsPage() {
   return (

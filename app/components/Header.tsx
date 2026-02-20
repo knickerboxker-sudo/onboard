@@ -147,6 +147,13 @@ export default function Header() {
             >
               Home
             </Link>
+            <Link
+              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
+              href="/about"
+              style={navLinkStyle("/about")}
+            >
+              About
+            </Link>
             {successStories.length > 0 && (
               <Link
                 className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
@@ -311,6 +318,14 @@ export default function Header() {
                     style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
                   >
                     Home
+                  </Link>
+                  <Link
+                    className="px-3 py-2.5 transition-colors"
+                    href="/about"
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/about" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/about" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                  >
+                    About
                   </Link>
                   {successStories.length > 0 && (
                     <Link

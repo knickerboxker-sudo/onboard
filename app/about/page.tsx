@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 const businessTypes = [
@@ -10,21 +11,30 @@ const businessTypes = [
 
 const values = [
   {
-    title: "Free Advertising",
+    title: "It doesn't cost you anything",
     description:
-      "Sortir is free advertising for every small business — no ad spend, no paywall, no pay-to-play. When your network refers clients to you, that's real advertising at zero cost.",
+      "Sortir is free — as in, genuinely free. No paywall, no pay-to-play tiers. When people in your network send clients your way, that's organic growth that doesn't come with an invoice.",
   },
   {
-    title: "Freelancers Are the Engine",
+    title: "Freelancers make it tick",
     description:
-      "Freelancers work with dozens of clients across industries. When they join Sortir, they naturally refer those clients to the businesses they're connected with — creating a constant stream of organic advertising.",
+      "Freelancers naturally float between clients and industries. On Sortir, that becomes a real advantage — for them and for the businesses they connect with.",
   },
   {
-    title: "Revenue Is the Outcome",
+    title: "The point is real customers",
     description:
-      "The goal isn't partnerships for their own sake — it's new customers and more revenue. Every referral through Sortir puts money in your pocket without touching your marketing budget.",
+      "Partnerships are nice. New customers showing up because someone vouched for you? That's the goal. That's what Sortir is built for.",
   },
 ];
+
+export const metadata: Metadata = {
+  title: "About Sortir — Free customer referrals for small businesses",
+  description:
+    "Sortir connects freelancers and local businesses who refer clients to each other. Learn how it works and why it's always free.",
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"}/about`,
+  },
+};
 
 export default function AboutPage() {
   return (
@@ -76,7 +86,7 @@ export default function AboutPage() {
               color: "var(--color-ink)",
             }}
           >
-            Free advertising is out of reach for most small businesses — and it doesn&rsquo;t have to be.
+            Most small businesses are invisible online — and they shouldn&rsquo;t have to pay to fix that.
           </h2>
           <p
             className="mt-4"
@@ -88,7 +98,7 @@ export default function AboutPage() {
             className="mt-4"
             style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
           >
-            Sortir is the infrastructure that makes free advertising real. Freelancers and complementary local businesses connect on Sortir and refer their clients to each other — creating a steady stream of organic advertising with zero ad spend. Real customers, real revenue, no budget required.
+            Sortir is built for a different approach. Freelancers and complementary local businesses connect and refer their clients to each other — creating a steady stream of new customers through relationships, not ad spend.
           </p>
         </div>
       </section>
@@ -153,19 +163,19 @@ export default function AboutPage() {
               color: "var(--color-ink)",
             }}
           >
-            Freelancers are the engine of free advertising.
+            Freelancers already know who needs what.
           </h2>
           <p
             className="mt-4"
             style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
           >
-            Freelancers — photographers, designers, consultants, coaches — work with many different clients across many industries. They already know who needs what. When a freelance web designer finishes a site for a restaurant owner, they can refer that owner to a local marketing agency. That referral is free advertising for the agency.
+            Freelancers — photographers, designers, consultants, coaches — work with many different clients across many industries. They already know who needs what. When a freelance web designer finishes a site for a restaurant owner, they can refer that owner to a local marketing agency. That&apos;s a real customer for the agency — no campaign required.
           </p>
           <p
             className="mt-4"
             style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
           >
-            Sortir organizes this natural behavior. Freelancers and complementary businesses connect, build trust, and refer clients to each other — creating an organic advertising network that works without any ad spend.
+            Sortir organizes this natural behavior. Freelancers and complementary businesses connect, build trust, and refer clients to each other — creating a referral network that works without any ad spend.
           </p>
         </div>
       </section>
@@ -233,7 +243,7 @@ export default function AboutPage() {
               color: "var(--color-ink)",
             }}
           >
-            Start getting free advertising for your business today.
+            Ready to meet businesses that send you customers?
           </h2>
           <p
             className="mt-4 mb-8"
@@ -242,7 +252,7 @@ export default function AboutPage() {
             Join Sortir free and connect with freelancers and local businesses who will refer their clients straight to you. No credit card. No subscription. Always free.
           </p>
           <Link href="/auth" className="btn-primary">
-            Get free advertising now
+            Get started free
           </Link>
         </div>
       </section>
