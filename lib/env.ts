@@ -12,9 +12,14 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
 });
 
-type Env = z.infer<typeof envSchema>;
+export type Env = z.infer<typeof envSchema>;
 
-function parseEnv(): Env {
+/**
+ * Validates and returns all required environment variables.
+ * Should only be called server-side (in API routes or server components).
+ * Throws a descriptive error at startup if any required variable is missing.
+ */
+export function getEnv(): Env {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
     const missing = result.error.issues
@@ -26,24 +31,3 @@ function parseEnv(): Env {
   }
   return result.data;
 }
-
-// Only validate at runtime (not during Next.js build-time static generation
-// which may not have all env vars available).
-let _env: Env | undefined;
-
-export function getEnv(): Env {
-  if (typeof window !== "undefined") {
-    // Client side — only public vars are available; skip full validation.
-    return process.env as unknown as Env;
-  }
-  if (!_env) {
-    _env = parseEnv();
-  }
-  return _env;
-}
-
-export const env = new Proxy({} as Env, {
-  get(_target, prop: string) {
-    return (process.env as Record<string, string | undefined>)[prop];
-  },
-});

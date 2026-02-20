@@ -143,13 +143,16 @@ function MessagesPageContent() {
 
   const sendMutation = useMutation({
     mutationFn: async (content: string) => {
-      if (!activeMatchId || !matchesData?.businessId) return;
-      const { error } = await supabase.from("messages").insert({
-        match_id: activeMatchId,
-        sender_business_id: matchesData.businessId,
-        content,
+      if (!activeMatchId) return;
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ match_id: activeMatchId, content }),
       });
-      if (error) throw new Error(error.message);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Failed to send message.");
+      }
     },
     onMutate: async (content: string) => {
       await queryClient.cancelQueries({ queryKey: ["messages", activeMatchId] });

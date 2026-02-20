@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { rateLimit, sanitizeString } from "@/lib/rate-limit";
-
-const bodySchema = z.object({
-  match_id: z.string().uuid(),
-  content: z.string().min(1).max(1000).transform((val) => sanitizeString(val, 1000)),
-});
+import { rateLimit } from "@/lib/rate-limit";
+import { MessageSchema } from "@/lib/schemas";
 
 export async function POST(request: Request) {
   // Authenticate user
@@ -33,7 +28,7 @@ export async function POST(request: Request) {
 
   // Parse and validate body
   const body = await request.json().catch(() => null);
-  const parsed = bodySchema.safeParse(body);
+  const parsed = MessageSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Validation failed", issues: parsed.error.issues },

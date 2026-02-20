@@ -15,22 +15,11 @@ export default function ShareButton({ url, businessName }: ShareButtonProps) {
     try {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement("textarea");
-        textArea.value = url;
-        textArea.style.position = "fixed";
-        textArea.style.top = "-9999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Silently fail
+      // Silently fail if clipboard API is unavailable
     }
   };
 

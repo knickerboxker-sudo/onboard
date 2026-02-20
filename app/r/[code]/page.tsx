@@ -25,9 +25,7 @@ export default async function ReferralPage({ params }: Props) {
       targetCity = signup.city;
 
       // Increment click count (fire-and-forget)
-      void supabase
-        .rpc("increment_referral_count", { referral_code_input: code })
-        .then(() => {});
+      void supabase.rpc("increment_referral_count", { referral_code_input: code });
 
       // Set attribution cookie (30 days)
       const cookieStore = await cookies();

@@ -49,10 +49,7 @@ export default async function BusinessProfilePage({ params }: Props) {
   const profileUrl = `${appUrl}/businesses/${id}`;
 
   // Track profile view via admin client (fire-and-forget, no auth required)
-  void supabase
-    .from("profile_views")
-    .insert({ business_id: id })
-    .then(() => {});
+  void supabase.from("profile_views").insert({ business_id: id });
 
   return (
     <div className="mx-auto max-w-2xl py-12 px-4">
