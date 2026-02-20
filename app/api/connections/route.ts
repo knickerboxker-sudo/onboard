@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     // Rate limit: 20 connection requests per hour per IP
     const clientIp = getClientIp(request);
-    const rateLimitResult = rateLimit(clientIp, 20, 60 * 60 * 1000); // 1 hour window
+    const rateLimitResult = await rateLimit(clientIp, 20, 60 * 60 * 1000); // 1 hour window
     
     if (!rateLimitResult.success) {
       return NextResponse.json(
