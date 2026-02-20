@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Providers from "./providers";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Toaster from "./components/Toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://sortir.app"),
   title: "Sortir — Your neighborhood businesses, stronger together.",
   description: "Find your perfect local business partner. Cross-promote, share customers, and build partnerships that help every small business thrive. Free, always.",
   icons: {
@@ -34,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="min-w-0 flex-1">{children}</main>
             <Footer />
           </div>
+          <Toaster />
         </Providers>
       </body>
     </html>

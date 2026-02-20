@@ -69,6 +69,35 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Onboarding completion gate: redirect to /onboarding if no business profile
+  if (
+    user &&
+    isProtectedRoute &&
+    !request.nextUrl.pathname.startsWith("/onboarding")
+  ) {
+    const onboardingCookie = request.cookies.get("onboarding_complete");
+    if (!onboardingCookie) {
+      const { data: business } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("owner_id", user.id)
+        .maybeSingle();
+
+      if (!business) {
+        const onboardingUrl = new URL("/onboarding", request.url);
+        return NextResponse.redirect(onboardingUrl);
+      }
+
+      // Cache result with a short-lived cookie
+      supabaseResponse.cookies.set("onboarding_complete", "1", {
+        maxAge: 3600,
+        path: "/",
+        sameSite: "lax",
+        httpOnly: true,
+      });
+    }
+  }
+
   return supabaseResponse;
 }
 
