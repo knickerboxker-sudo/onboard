@@ -19,6 +19,21 @@ function isPersonalEmail(email: string): boolean {
   return domain ? BLOCKED_DOMAINS.has(domain) : false;
 }
 
+type PasswordStrength = { score: 0 | 1 | 2; label: string; color: string; unmet: string[] };
+
+function checkPasswordStrength(password: string): PasswordStrength {
+  const unmet: string[] = [];
+  if (password.length < 8) unmet.push("At least 8 characters");
+  if (!/[A-Z]/.test(password)) unmet.push("At least one uppercase letter");
+  if (!/[a-z]/.test(password)) unmet.push("At least one lowercase letter");
+  if (!/[0-9]/.test(password)) unmet.push("At least one number");
+
+  const score = unmet.length === 0 ? 2 : unmet.length <= 2 ? 1 : 0;
+  const labels: Record<number, string> = { 0: "Weak", 1: "Fair", 2: "Strong" };
+  const colors: Record<number, string> = { 0: "#dc2626", 1: "#d97706", 2: "#16a34a" };
+  return { score: score as 0 | 1 | 2, label: labels[score], color: colors[score], unmet };
+}
+
 export default function AuthPage() {
   return (
     <Suspense fallback={<div className="mx-auto max-w-md" />}>
@@ -35,6 +50,7 @@ function AuthPageContent() {
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -55,11 +71,47 @@ function AuthPageContent() {
     }
   };
 
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (isSignup && value.length > 0) {
+      setPasswordStrength(checkPasswordStrength(value));
+    } else {
+      setPasswordStrength(null);
+    }
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setErrorMessage(null);
     setNotice(null);
+
+    // Server-side email validation for signups
+    if (isSignup) {
+      try {
+        const res = await fetch("/api/auth/validate-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (!data.valid) {
+          setErrorMessage(data.reason ?? "Invalid email address.");
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // Network error — proceed with client-side check as fallback
+      }
+
+      // Block weak passwords on signup
+      const strength = checkPasswordStrength(password);
+      if (strength.score < 1) {
+        setErrorMessage("Please choose a stronger password: " + strength.unmet.join(", ") + ".");
+        setLoading(false);
+        return;
+      }
+    }
 
     let nextPath = "/onboarding";
     if (isSignup && city) {
@@ -207,8 +259,40 @@ function AuthPageContent() {
                 <label className="label" htmlFor="password">
                   Password
                 </label>
-                <input className="input" id="password" minLength={8} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
-                <p className="mt-1 text-xs text-neutral-500">Use at least 8 characters for account security.</p>
+                <input className="input" id="password" minLength={8} onChange={(event) => handlePasswordChange(event.target.value)} required type="password" value={password} />
+                {isSignup && passwordStrength && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex gap-1 flex-1">
+                        {[0, 1, 2].map((i) => (
+                          <div
+                            key={i}
+                            className="h-1 flex-1 rounded-full transition-colors"
+                            style={{
+                              backgroundColor:
+                                i <= passwordStrength.score
+                                  ? passwordStrength.color
+                                  : "var(--color-rule)",
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs font-medium" style={{ color: passwordStrength.color }}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    {passwordStrength.unmet.length > 0 && (
+                      <ul className="mt-1 space-y-0.5">
+                        {passwordStrength.unmet.map((rule) => (
+                          <li key={rule} className="text-xs" style={{ color: "var(--color-muted)" }}>
+                            · {rule}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+                {!isSignup && <p className="mt-1 text-xs text-neutral-500">Use at least 8 characters for account security.</p>}
               </div>
 
               {errorMessage ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p> : null}

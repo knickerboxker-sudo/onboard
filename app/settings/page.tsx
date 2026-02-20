@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { PartnershipType, CollaborationIntent } from "@/lib/types";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
@@ -34,7 +35,13 @@ const collaborationIntentOptions: { value: CollaborationIntent; label: string }[
 export default function SettingsPage() {
   const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
+  const router = useRouter();
   const initialized = useRef(false);
+
+  // Danger Zone modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
@@ -165,6 +172,31 @@ export default function SettingsPage() {
       setSuccessMessage(null);
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/account", { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Failed to delete account.");
+      }
+    },
+    onSuccess: () => {
+      router.push("/?deleted=1");
+    },
+    onError: (err: Error) => {
+      setDeleteError(err.message);
+    },
+  });
+
+  const handleDeleteAccount = () => {
+    if (deleteConfirmName.trim() !== businessName.trim()) {
+      setDeleteError("Business name does not match. Please try again.");
+      return;
+    }
+    setDeleteError(null);
+    deleteMutation.mutate();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -362,6 +394,91 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Danger Zone */}
+      <div
+        className="mt-12 rounded p-6"
+        style={{ border: "1px solid #dc2626", borderRadius: "2px" }}
+      >
+        <h2
+          className="mb-2 text-base font-semibold"
+          style={{ color: "#dc2626", fontFamily: "var(--font-body)" }}
+        >
+          Danger Zone
+        </h2>
+        <p className="mb-4 text-sm" style={{ color: "var(--color-muted)" }}>
+          Permanently delete your account and all associated data. This action cannot be undone.
+        </p>
+        <button
+          type="button"
+          className="btn"
+          style={{ background: "#dc2626", color: "#fff", border: "none" }}
+          onClick={() => { setShowDeleteModal(true); setDeleteConfirmName(""); setDeleteError(null); }}
+        >
+          Delete My Account
+        </button>
+      </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+        >
+          <div
+            className="w-full max-w-md p-6"
+            style={{
+              backgroundColor: "var(--color-paper)",
+              border: "1px solid var(--color-rule)",
+              borderRadius: "2px",
+            }}
+          >
+            <h3
+              id="delete-modal-title"
+              className="mb-2 text-lg font-semibold"
+              style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}
+            >
+              Delete your account?
+            </h3>
+            <p className="mb-4 text-sm" style={{ color: "var(--color-muted)" }}>
+              This will permanently delete your business profile and account. Type your business name{" "}
+              <strong style={{ color: "var(--color-ink)" }}>{businessName}</strong> to confirm.
+            </p>
+            <input
+              className="input mb-3 w-full"
+              placeholder="Business name"
+              value={deleteConfirmName}
+              onChange={(e) => setDeleteConfirmName(e.target.value)}
+              autoFocus
+            />
+            {deleteError && (
+              <p className="mb-3 text-sm text-red-600">{deleteError}</p>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                className="btn"
+                style={{ background: "var(--color-paper-dark)", color: "var(--color-ink)" }}
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn"
+                style={{ background: "#dc2626", color: "#fff" }}
+                disabled={deleteMutation.isPending}
+                onClick={handleDeleteAccount}
+              >
+                {deleteMutation.isPending ? "Deleting…" : "Delete Account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { successStories } from "@/lib/success-stories";
+import CookiePreferencesLink from "./CookiePreferencesLink";
 
 const footerLinks = {
   Product: [
@@ -131,6 +132,7 @@ export default function Footer() {
           >
             &copy; {new Date().getFullYear()} Sortir. All rights reserved.
           </p>
+          <CookiePreferencesLink />
         </div>
       </div>
     </footer>

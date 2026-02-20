@@ -390,6 +390,9 @@ export default function OnboardingPage() {
     }
 
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+    // Mark onboarding complete in a client-side cookie so the middleware
+    // skips the DB check on subsequent requests.
+    document.cookie = "onboarding_complete=1; path=/; max-age=3600; samesite=lax";
     router.push("/discover");
   };
 
