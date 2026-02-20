@@ -67,8 +67,8 @@ function AuthPageContent() {
         .from("businesses")
         .select("id", { count: "exact", head: true })
         .ilike("city", city);
-      if ((count ?? 0) < 5) {
-        nextPath = `/prelaunch/city?city=${encodeURIComponent(city)}`;
+      if ((count ?? 0) < 50) {
+        nextPath = `/prelaunch/city/${encodeURIComponent(city)}`;
       }
     }
 

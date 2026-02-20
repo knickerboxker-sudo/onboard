@@ -7,23 +7,28 @@ export default function TermsPage() {
       <div>
         <Link
           href="/"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm"
+          style={{ color: "var(--color-muted)" }}
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to home
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+        <h1 className="text-3xl tracking-tight"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           Terms of Service
         </h1>
-        <p className="mt-2 text-neutral-500">Last updated: February 2026</p>
+        <p className="mt-2"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>Last updated: February 2026</p>
       </div>
 
       {/* Acceptance of Terms */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           1. Acceptance of Terms
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Welcome to Sortir. These Terms of Service (&quot;Terms&quot;) govern
           your access to and use of the Sortir platform, including our website,
           applications, and all related services (collectively, the
@@ -31,7 +36,7 @@ export default function TermsPage() {
           Platform, you agree to be bound by these Terms. If you do not agree to
           these Terms, you may not access or use the Platform.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           These Terms constitute a legally binding agreement between you and
           Sortir. Your continued use of the Platform following any modifications
           to these Terms constitutes acceptance of those changes.
@@ -39,14 +44,16 @@ export default function TermsPage() {
       </div>
 
       {/* Eligibility */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           2. Eligibility
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           To use Sortir, you must meet all of the following requirements:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>You must be at least 18 years of age.</li>
           <li>
             You must be duly authorized to represent the business entity you
@@ -63,7 +70,7 @@ export default function TermsPage() {
             Platform.
           </li>
         </ul>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           By registering, you represent and warrant that you satisfy all of
           these eligibility requirements. Sortir reserves the right to request
           proof of eligibility at any time and to suspend or terminate accounts
@@ -72,15 +79,17 @@ export default function TermsPage() {
       </div>
 
       {/* Account Registration */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           3. Account Registration
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           To access the Platform, you must create an account using a valid email
           address. You agree to:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>
             Provide accurate, current, and complete information during
             registration and keep your account information up to date.
@@ -99,23 +108,25 @@ export default function TermsPage() {
             discretion.
           </li>
         </ul>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           You must notify Sortir immediately at hello@sortir.app if you suspect
           any unauthorized access to or use of your account.
         </p>
       </div>
 
       {/* Platform Description */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           4. Platform Description
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir is a business partnership discovery platform designed to help
           small businesses find local partners for cross-promotion, customer
           sharing, and collaboration. The Platform provides tools including:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>
             Business profile creation with products, services, and partnership
             preferences.
@@ -132,7 +143,7 @@ export default function TermsPage() {
           </li>
           <li>ROI tracking for partnerships.</li>
         </ul>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir is a facilitator and technology provider only. Sortir is not a
           party to any partnership, agreement, or transaction between users.
           Sortir does not provide legal, financial, or tax advice. The
@@ -143,11 +154,13 @@ export default function TermsPage() {
       </div>
 
       {/* User Content & Conduct */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           5. User Content &amp; Conduct
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           You are solely responsible for all content you submit, post, or
           display on the Platform, including your business profile information,
           messages, images, and any other materials (&quot;User Content&quot;).
@@ -155,10 +168,10 @@ export default function TermsPage() {
           misleading, and does not violate any applicable law or the rights of
           any third party.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           When using the Platform, you agree not to:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>
             Post false, inaccurate, or misleading business information,
             including misrepresenting the nature, location, or capabilities of
@@ -190,7 +203,7 @@ export default function TermsPage() {
             goods or services.
           </li>
         </ul>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir reserves the right to remove any User Content that violates
           these Terms and to suspend or terminate accounts engaged in
           prohibited conduct, with or without notice.
@@ -198,18 +211,20 @@ export default function TermsPage() {
       </div>
 
       {/* Business Verification */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           6. Business Verification
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir offers optional verification features that allow businesses to
           submit documentation such as business licenses, storefront photos,
           tax identification numbers, social media accounts, and website URLs.
           Verification badges and statuses are displayed on business profiles
           to provide additional context to potential partners.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Verification is informational only. A verification badge does not
           constitute an endorsement, guarantee, or warranty by Sortir regarding
           the legitimacy, quality, financial standing, or trustworthiness of
@@ -221,21 +236,23 @@ export default function TermsPage() {
       </div>
 
       {/* Partnerships & Agreements */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           7. Partnerships &amp; Agreements
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir provides tools to facilitate the creation of partnership
           agreements between businesses, including templates for equity
           assessments, revenue sharing arrangements, and commission models.
           These tools are provided for convenience and informational purposes
           only.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           You acknowledge and agree that:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>
             Sortir is not a party to any partnership or agreement formed
             between users of the Platform. All obligations, liabilities, and
@@ -262,11 +279,13 @@ export default function TermsPage() {
       </div>
 
       {/* Intellectual Property */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           8. Intellectual Property
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           The Platform, including its design, features, functionality, code,
           graphics, logos, trademarks, and all other proprietary materials, is
           owned by Sortir and is protected by copyright, trademark, and other
@@ -274,7 +293,7 @@ export default function TermsPage() {
           sell, or lease any part of the Platform without Sortir&apos;s prior
           written consent.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           You retain ownership of all User Content you submit to the Platform.
           By submitting User Content, you grant Sortir a non-exclusive,
           worldwide, royalty-free, sublicensable license to use, display,
@@ -287,21 +306,23 @@ export default function TermsPage() {
       </div>
 
       {/* Disclaimers */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           9. Disclaimers
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           THE PLATFORM IS PROVIDED ON AN &quot;AS IS&quot; AND &quot;AS
           AVAILABLE&quot; BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS,
           IMPLIED, OR STATUTORY. SORTIR EXPRESSLY DISCLAIMS ALL WARRANTIES,
           INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY,
           FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Without limiting the foregoing, Sortir does not warrant or guarantee:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>
             The quality, reliability, or suitability of any business or partner
             discovered through the Platform.
@@ -327,11 +348,13 @@ export default function TermsPage() {
       </div>
 
       {/* Limitation of Liability */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           10. Limitation of Liability
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, SORTIR AND ITS
           OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AND AFFILIATES SHALL NOT BE
           LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
@@ -339,10 +362,10 @@ export default function TermsPage() {
           BUSINESS OPPORTUNITIES, OR GOODWILL, ARISING OUT OF OR IN CONNECTION
           WITH YOUR USE OF THE PLATFORM, REGARDLESS OF THE THEORY OF LIABILITY.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir shall have no liability for:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>
             The outcome, success, or failure of any partnership or agreement
             formed between users of the Platform.
@@ -360,7 +383,7 @@ export default function TermsPage() {
             due to your failure to safeguard your credentials.
           </li>
         </ul>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           IN NO EVENT SHALL SORTIR&apos;S TOTAL AGGREGATE LIABILITY TO YOU FOR
           ALL CLAIMS ARISING OUT OF OR RELATED TO THESE TERMS OR THE PLATFORM
           EXCEED THE GREATER OF (A) THE AMOUNTS YOU HAVE PAID TO SORTIR IN THE
@@ -370,18 +393,20 @@ export default function TermsPage() {
       </div>
 
       {/* Indemnification */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           11. Indemnification
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           You agree to indemnify, defend, and hold harmless Sortir and its
           officers, directors, employees, agents, and affiliates from and
           against any and all claims, liabilities, damages, losses, costs, and
           expenses (including reasonable attorneys&apos; fees) arising out of or
           in any way connected with:
         </p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
+        <ul className="list-disc pl-5 space-y-1 text-sm">
           <li>Your access to or use of the Platform.</li>
           <li>Your violation of these Terms.</li>
           <li>
@@ -399,11 +424,13 @@ export default function TermsPage() {
       </div>
 
       {/* Termination */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           12. Termination
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir may suspend or terminate your account and access to the
           Platform at any time, with or without cause, and with or without
           notice. Grounds for termination include, but are not limited to,
@@ -411,13 +438,13 @@ export default function TermsPage() {
           periods of inactivity, or conduct that Sortir determines to be
           harmful to other users or the Platform.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           You may delete your account at any time through your account
           settings. Upon deletion, your business profile and associated data
           will be removed from the Platform in accordance with our{" "}
           <Link
             href="/privacy"
-            className="text-lavender-600 hover:text-lavender-700 underline"
+            style={{ color: "var(--color-accent)", textDecoration: "underline" }}
           >
             Privacy Policy
           </Link>
@@ -428,17 +455,19 @@ export default function TermsPage() {
       </div>
 
       {/* Dispute Resolution */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           13. Dispute Resolution
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           These Terms and any disputes arising out of or related to these Terms
           or the Platform shall be governed by and construed in accordance with
           the laws of the State of Michigan, without regard to its conflict of
           law principles.
         </p>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Before initiating any formal legal proceedings, you agree to first
           attempt to resolve any dispute informally by contacting Sortir at
           hello@sortir.app. Sortir will make reasonable efforts to resolve the
@@ -452,11 +481,13 @@ export default function TermsPage() {
       </div>
 
       {/* Modifications */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           14. Modifications to These Terms
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           Sortir reserves the right to modify these Terms at any time. When we
           make material changes, we will update the &quot;Last updated&quot;
           date at the top of this page and may notify you through the Platform
@@ -469,16 +500,18 @@ export default function TermsPage() {
       </div>
 
       {/* Contact Information */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
+      <div className="sortir-card-elevated space-y-4"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-body)" }}>
+        <h2 className="text-lg"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}>
           15. Contact Information
         </h2>
-        <p className="text-sm leading-relaxed text-neutral-600">
+        <p className="text-sm leading-relaxed">
           If you have any questions, concerns, or feedback regarding these
           Terms of Service, please contact us at{" "}
           <a
             href="mailto:hello@sortir.app"
-            className="text-lavender-600 hover:text-lavender-700"
+            style={{ color: "var(--color-accent)", textDecoration: "underline" }}
           >
             hello@sortir.app
           </a>
