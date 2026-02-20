@@ -31,9 +31,9 @@ const VERIFICATION_TYPES: {
 ];
 
 const statusBadge: Record<VerificationStatus, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
+  pending: "badge-neutral",
+  approved: "badge-success",
+  rejected: "badge-accent",
 };
 
 export default function VerifyPage() {
@@ -141,7 +141,7 @@ export default function VerifyPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-neutral-900">{config.label}</h2>
               {existing && (
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge[existing.status]}`}>
+                <span className={statusBadge[existing.status]}>
                   {existing.status}
                 </span>
               )}

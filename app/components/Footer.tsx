@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { successStories } from "@/lib/success-stories";
 
 const footerLinks = {
   Product: [
     { label: "How it works", href: "/#how-it-works" },
-    { label: "Success Stories", href: "/success-stories" },
+    ...(successStories.length > 0 ? [{ label: "Success Stories", href: "/success-stories" }] : []),
     { label: "Partnership Ideas", href: "/partnership-ideas" },
     { label: "Get Started", href: "/auth" },
   ],
