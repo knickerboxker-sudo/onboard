@@ -12,7 +12,7 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
  */
 export async function POST(request: Request) {
   const clientIp = getClientIp(request);
-  const rl = rateLimit(clientIp, 10, 60 * 60 * 1000); // 10 requests per hour
+  const rl = await rateLimit(clientIp, 10, 60 * 60 * 1000); // 10 requests per hour
   if (!rl.success) {
     return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 });
   }
