@@ -32,22 +32,22 @@ const steps = [
   },
   {
     number: "02",
-    title: "Discover & connect",
+    title: "Connect with freelancers & local businesses",
     description:
-      "Browse nearby complementary businesses and send connection requests to potential partners you'd like to work with.",
+      "Freelancers and complementary local businesses connect with you on Sortir — and start referring their clients directly to you.",
   },
   {
     number: "03",
-    title: "Collaborate & grow",
+    title: "Earn referrals & grow revenue",
     description:
-      "Once connected, chat, build agreements, and start growing together through smart partnerships.",
+      "Every referral is free advertising. New customers walk through your door at zero ad spend, and your revenue grows.",
   },
 ];
 
 const trustSignals = [
-  { stat: "Free · Always",        label: "No paywall, no credit card" },
-  { stat: "Every business type",  label: "Brick-and-mortar, online & freelancers" },
-  { stat: "Launching city by city", label: "Growing neighborhood by neighborhood" },
+  { stat: "100% Free",      label: "No credit card, no paywall, ever" },
+  { stat: "Real referrals", label: "Freelancers & local businesses send you customers" },
+  { stat: "More revenue",   label: "New customers at zero ad spend" },
 ];
 
 export default function Home() {
@@ -77,8 +77,8 @@ export default function Home() {
                 color: 'var(--color-ink)',
               }}
             >
-              Your neighborhood businesses,{" "}
-              <em>stronger together.</em>
+              Free advertising for your small business.{" "}
+              <em>No ad spend required.</em>
             </h1>
             <p
               className="mt-8 max-w-2xl"
@@ -89,16 +89,14 @@ export default function Home() {
                 color: 'var(--color-muted)',
               }}
             >
-              Sortir helps you find your perfect local partner — cross-promote,
-              share customers, and build cooperative networks that help every
-              small business on the block thrive.
+              Sortir connects you with freelancers and complementary local businesses who refer their clients straight to you — turning every connection into free advertising that brings in real customers.
             </p>
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
                 className="btn-primary btn-primary-hero"
                 href="/auth"
               >
-                Create your free account
+                Get free advertising now
               </Link>
               <Link
                 className="transition-colors"
@@ -197,7 +195,7 @@ export default function Home() {
               color: 'var(--color-paper)',
             }}
           >
-            Three steps to your first partnership
+            Three steps to free advertising
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
@@ -254,7 +252,7 @@ export default function Home() {
       {/* Partnership Examples — scrolling marquee */}
       <section data-reveal>
         <div className="px-6 sm:px-12 mb-10">
-          <span className="section-label">Partnership ideas</span>
+          <span className="section-label">Free advertising in action</span>
           <h2
             className="mt-5"
             data-reveal
@@ -264,7 +262,7 @@ export default function Home() {
               color: 'var(--color-ink)',
             }}
           >
-            Every business can partner
+            Every connection is a free ad
           </h2>
           <p
             className="mt-3 max-w-2xl"
@@ -275,8 +273,7 @@ export default function Home() {
               color: 'var(--color-muted)',
             }}
           >
-            From coffee shops to accountants — there&apos;s a partnership waiting
-            for every type of business.
+            When a freelancer or local business refers their client to you, that&apos;s free advertising — no budget required.
           </p>
         </div>
         <PartnershipMarquee examples={partnershipExamples} />
@@ -314,7 +311,7 @@ export default function Home() {
                 lineHeight: '1.1',
               }}
             >
-              Ready to find your perfect business partner?
+              Start getting free advertising for your business today
             </h2>
           </div>
           <div className="lg:col-span-5 flex flex-col gap-6">
@@ -326,14 +323,14 @@ export default function Home() {
                 color: 'rgba(245,242,235,0.8)',
               }}
             >
-              Create your free account and start building local partnerships today. No credit card, no subscription, no paywall — ever.
+              Join Sortir free and let freelancers and local businesses send new customers your way — no ad budget, no credit card, no paywall, ever.
             </p>
             <div>
               <Link
                 className="btn-cta-outline"
                 href="/auth"
               >
-                Create your free account
+                Get free advertising now
               </Link>
             </div>
             <p

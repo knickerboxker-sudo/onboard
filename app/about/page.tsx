@@ -10,19 +10,19 @@ const businessTypes = [
 
 const values = [
   {
-    title: "Local First",
+    title: "Free Advertising",
     description:
-      "Every partnership keeps money circulating in your community. When a local gym partners with a local nutritionist, their customers win — and so does the neighborhood.",
+      "Sortir is free advertising for every small business — no ad spend, no paywall, no pay-to-play. When your network refers clients to you, that's real advertising at zero cost.",
   },
   {
-    title: "Radically Free",
+    title: "Freelancers Are the Engine",
     description:
-      "No ads. No paywalls. No pay-to-play. Sortir is free for every business, forever. Growth shouldn't require a marketing budget.",
+      "Freelancers work with dozens of clients across industries. When they join Sortir, they naturally refer those clients to the businesses they're connected with — creating a constant stream of organic advertising.",
   },
   {
-    title: "Stronger Together",
+    title: "Revenue Is the Outcome",
     description:
-      "Success on Sortir isn't zero-sum. When one business thrives through a partnership, so does their partner. Cooperation beats competition.",
+      "The goal isn't partnerships for their own sake — it's new customers and more revenue. Every referral through Sortir puts money in your pocket without touching your marketing budget.",
   },
 ];
 
@@ -76,19 +76,19 @@ export default function AboutPage() {
               color: "var(--color-ink)",
             }}
           >
-            Small businesses are invisible — and it doesn&rsquo;t have to be that way.
+            Free advertising is out of reach for most small businesses — and it doesn&rsquo;t have to be.
           </h2>
           <p
             className="mt-4"
             style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
           >
-            Most small businesses — especially those not running Google ads or TV campaigns — struggle to get discovered. Word of mouth only goes so far. Traditional advertising is expensive and imprecise. Social media is pay-to-play.
+            Traditional advertising is expensive and imprecise. Google ads, TV spots, and social media are all pay-to-play — meaning small businesses without big marketing budgets are invisible while larger competitors dominate. Word of mouth only goes so far on its own.
           </p>
           <p
             className="mt-4"
             style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
           >
-            Sortir is the infrastructure for the next wave of small business growth: neighbor-to-neighbor alliances. A yoga studio partners with a juice bar. A freelance photographer teams up with a wedding venue. A hair brand gets shelf space in a local salon. Free advertising, real customers, zero ad spend.
+            Sortir is the infrastructure that makes free advertising real. Freelancers and complementary local businesses connect on Sortir and refer their clients to each other — creating a steady stream of organic advertising with zero ad spend. Real customers, real revenue, no budget required.
           </p>
         </div>
       </section>
@@ -135,6 +135,38 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
+
+      {/* Freelancers as the Engine */}
+      <section className="px-6 sm:px-12" style={{ padding: "64px 24px" }}>
+        <div className="max-w-2xl">
+          <span className="section-label">How it works</span>
+          <h2
+            className="mt-5"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
+              lineHeight: "1.1",
+              color: "var(--color-ink)",
+            }}
+          >
+            Freelancers are the engine of free advertising.
+          </h2>
+          <p
+            className="mt-4"
+            style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
+          >
+            Freelancers — photographers, designers, consultants, coaches — work with many different clients across many industries. They already know who needs what. When a freelance web designer finishes a site for a restaurant owner, they can refer that owner to a local marketing agency. That referral is free advertising for the agency.
+          </p>
+          <p
+            className="mt-4"
+            style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
+          >
+            Sortir organizes this natural behavior. Freelancers and complementary businesses connect, build trust, and refer clients to each other — creating an organic advertising network that works without any ad spend.
+          </p>
         </div>
       </section>
 
@@ -201,16 +233,16 @@ export default function AboutPage() {
               color: "var(--color-ink)",
             }}
           >
-            Your next partner is already out there.
+            Start getting free advertising for your business today.
           </h2>
           <p
             className="mt-4 mb-8"
             style={{ fontFamily: "var(--font-body)", fontSize: "15px", lineHeight: "1.7", color: "var(--color-muted)" }}
           >
-            Create your free business profile and start connecting with complementary businesses in your city. No credit card. No subscription. Always free.
+            Join Sortir free and connect with freelancers and local businesses who will refer their clients straight to you. No credit card. No subscription. Always free.
           </p>
           <Link href="/auth" className="btn-primary">
-            Create your free account
+            Get free advertising now
           </Link>
         </div>
       </section>
