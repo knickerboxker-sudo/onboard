@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Menu, X, Settings, LogOut, User } from "lucide-react";
+import { Menu, X, Settings, LogOut, User, TrendingUp, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationBell from "./NotificationBell";
 import { successStories } from "@/lib/success-stories";
@@ -208,20 +208,6 @@ export default function Header() {
             >
               Dashboard
             </Link>
-            <Link
-              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
-              href="/partnership-builder"
-              style={navLinkStyle("/partnership-builder")}
-            >
-              Builder
-            </Link>
-            <Link
-              className="px-3.5 py-2 transition-colors hover:text-[var(--color-ink)]"
-              href="/refer"
-              style={navLinkStyle("/refer")}
-            >
-              Refer &amp; Earn
-            </Link>
             
             <NotificationBell />
 
@@ -263,6 +249,25 @@ export default function Header() {
                     }}
                   >
                     <div className="p-2">
+                      <Link
+                        href="/partnership-builder"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm transition-colors"
+                        style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)' }}
+                      >
+                        <TrendingUp className="h-4 w-4" />
+                        Builder
+                      </Link>
+                      <Link
+                        href="/refer"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm transition-colors"
+                        style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)' }}
+                      >
+                        <Share2 className="h-4 w-4" />
+                        Refer &amp; Earn
+                      </Link>
+                      <div style={{ height: '1px', background: 'var(--color-rule)', margin: '4px 0' }} />
                       <Link
                         href="/settings"
                         onClick={() => setUserDropdownOpen(false)}
@@ -359,7 +364,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/discover"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/discover" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/discover" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/discover")}
                   >
                     Discover
                   </Link>
@@ -367,7 +372,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/connections"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/connections" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/connections" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/connections")}
                   >
                     Connections
                   </Link>
@@ -375,7 +380,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/messages"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/messages" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/messages" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/messages")}
                   >
                     Messages
                   </Link>
@@ -383,7 +388,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/dashboard" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/dashboard" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/dashboard")}
                   >
                     Dashboard
                   </Link>
@@ -391,7 +396,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/partnership-builder"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/partnership-builder" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/partnership-builder" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/partnership-builder")}
                   >
                     Builder
                   </Link>
@@ -399,7 +404,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/refer"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/refer" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/refer" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/refer")}
                   >
                     Refer &amp; Earn
                   </Link>

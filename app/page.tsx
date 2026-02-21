@@ -110,6 +110,17 @@ export default function Home() {
                 See how it works
               </Link>
             </div>
+            <p
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                letterSpacing: '0.06em',
+                color: 'var(--color-muted)',
+                marginTop: '12px',
+              }}
+            >
+              Currently available in select cities — more launching soon.
+            </p>
           </div>
 
           {/* Trust signals — columns 9-12 */}
@@ -247,6 +258,28 @@ export default function Home() {
             </div>
           ))}
         </div>
+        <div
+          className="mt-10 pt-8"
+          style={{ borderTop: '1px solid rgba(245,242,235,0.15)' }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              letterSpacing: '0.06em',
+              color: 'rgba(245,242,235,0.5)',
+            }}
+          >
+            Currently available in select cities. Visit your{' '}
+            <Link
+              href="/discover"
+              style={{ color: 'rgba(245,242,235,0.75)', textDecoration: 'underline' }}
+            >
+              city&apos;s page
+            </Link>{' '}
+            to see when Sortir launches near you.
+          </p>
+        </div>
       </section>
 
       {/* Partnership Examples — scrolling marquee */}
@@ -332,6 +365,17 @@ export default function Home() {
               >
                 Join free today
               </Link>
+              <p
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  letterSpacing: '0.06em',
+                  color: 'rgba(245,242,235,0.5)',
+                  marginTop: '10px',
+                }}
+              >
+                Currently available in select cities — more launching soon.
+              </p>
             </div>
             <p
               style={{
