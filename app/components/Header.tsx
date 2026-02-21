@@ -114,6 +114,14 @@ export default function Header() {
     paddingBottom: '2px',
   });
 
+  const mobileNavLinkStyle = (href: string) => ({
+    fontFamily: 'var(--font-body)',
+    fontSize: '13px',
+    color: pathname === href ? 'var(--color-ink)' : 'var(--color-muted)',
+    borderBottom: pathname === href ? '2px solid var(--color-accent)' : '2px solid transparent',
+    paddingBottom: '2px',
+  });
+
   return (
     <header
       className="sticky top-0 z-50 flex items-center justify-between px-5 py-3"
@@ -315,7 +323,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/")}
                   >
                     Home
                   </Link>
@@ -323,7 +331,7 @@ export default function Header() {
                     className="px-3 py-2.5 transition-colors"
                     href="/about"
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/about" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/about" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                    style={mobileNavLinkStyle("/about")}
                   >
                     About
                   </Link>
@@ -332,7 +340,7 @@ export default function Header() {
                       className="px-3 py-2.5 transition-colors"
                       href="/success-stories"
                       onClick={() => setMenuOpen(false)}
-                      style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: pathname === "/success-stories" ? 'var(--color-ink)' : 'var(--color-muted)', borderBottom: pathname === "/success-stories" ? '2px solid var(--color-accent)' : '2px solid transparent', paddingBottom: '2px' }}
+                      style={mobileNavLinkStyle("/success-stories")}
                     >
                       Success Stories
                     </Link>
