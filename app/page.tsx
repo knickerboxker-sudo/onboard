@@ -151,15 +151,18 @@ export default function Home() {
                   paddingLeft: '12px',
                 }}
               >
-                <div
+                <span
                   style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: '28px',
-                    color: 'var(--color-ink)',
+                    fontSize: 'clamp(1.4rem, 2.5vw, 1.875rem)',
+                    fontStyle: 'italic',
+                    color: 'var(--color-accent)',
+                    display: 'block',
+                    lineHeight: '1.1',
                   }}
                 >
                   {signal.stat}
-                </div>
+                </span>
                 <div
                   style={{
                     fontFamily: 'var(--font-body)',

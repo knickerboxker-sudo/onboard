@@ -450,7 +450,7 @@ export default function DiscoverPage() {
   const { data: businesses = [], isLoading } = useQuery({
     queryKey: ["discover-businesses"],
     queryFn: async () => {
-      const { data } = await supabase.from("businesses").select("*").limit(200);
+      const { data } = await supabase.from("businesses").select("*").is("deleted_at", null).limit(200);
       return (data as BusinessRecord[]) ?? [];
     },
   });

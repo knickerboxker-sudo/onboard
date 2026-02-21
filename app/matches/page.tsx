@@ -463,6 +463,7 @@ export default function MatchesPage() {
       const { data: partners } = await supabase
         .from("businesses")
         .select("id, name, business_type, verified, years_in_operation, successful_partnerships_count, avg_response_time_minutes")
+        .is("deleted_at", null)
         .in("id", partnerIds);
 
       const partnerMap = new Map(
