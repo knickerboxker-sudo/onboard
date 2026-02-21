@@ -13,15 +13,15 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at timestamptz DEFAULT now()
 );
 
--- Payment transactions
-CREATE TABLE IF NOT EXISTS payment_transactions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id uuid REFERENCES businesses(id),
-  amount decimal NOT NULL,
-  currency text DEFAULT 'USD',
-  status text CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
-  created_at timestamptz DEFAULT now()
-);
+-- Payment transactions table (not yet in scope — commented out until payments are implemented)
+-- CREATE TABLE IF NOT EXISTS payment_transactions (
+--   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+--   business_id uuid REFERENCES businesses(id),
+--   amount decimal NOT NULL,
+--   currency text DEFAULT 'USD',
+--   status text CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
+--   created_at timestamptz DEFAULT now()
+-- );
 
 -- Email logs
 CREATE TABLE IF NOT EXISTS email_logs (
@@ -38,23 +38,22 @@ CREATE TABLE IF NOT EXISTS email_logs (
 -- Missing indexes
 CREATE INDEX IF NOT EXISTS idx_businesses_verified ON businesses(verified) WHERE verified = true;
 CREATE INDEX IF NOT EXISTS idx_partnerships_dates ON partnerships(start_date, end_date);
-CREATE INDEX IF NOT EXISTS idx_messages_sent_at ON messages(sent_at DESC);
-CREATE INDEX IF NOT EXISTS idx_connection_requests_direction ON connection_requests(direction) WHERE direction = 'right';
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_businesses_search ON businesses USING gin(to_tsvector('english', name || ' ' || business_type || ' ' || COALESCE(description, '')));
 
 -- RLS policies for new tables
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payment_transactions ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE payment_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_logs ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view own audit logs"
   ON audit_logs FOR SELECT
   USING (user_id = auth.uid());
 
-CREATE POLICY "Users can view own payment transactions"
-  ON payment_transactions FOR SELECT
-  USING (business_id IN (SELECT id FROM businesses WHERE owner_id = auth.uid()));
+-- CREATE POLICY "Users can view own payment transactions"
+--   ON payment_transactions FOR SELECT
+--   USING (business_id IN (SELECT id FROM businesses WHERE owner_id = auth.uid()));
 
 CREATE POLICY "Users can view own email logs"
   ON email_logs FOR SELECT

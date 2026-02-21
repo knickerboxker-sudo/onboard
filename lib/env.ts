@@ -7,6 +7,9 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().min(1),
   UPSTASH_REDIS_REST_URL: z.string().url(),
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+  ADMIN_EMAILS: z.string().min(1, {
+    message: "ADMIN_EMAILS must be set to a comma-separated list of admin email addresses",
+  }),
   // Optional but recommended:
   GOOGLE_PLACES_API_KEY: z.string().optional(),
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),

@@ -63,6 +63,9 @@ export default function Header() {
 
     const checkAuth = async () => {
       try {
+        // Note: getSession() reads from local storage and does not verify the JWT server-side.
+        // This is intentional here — we only use it to toggle nav link visibility.
+        // All actual access control uses getUser() server-side (middleware + API routes).
         const {
           data: { session },
         } = await supabase.auth.getSession();

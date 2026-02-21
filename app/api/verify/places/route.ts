@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/verify/places
@@ -11,17 +11,17 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
  * Body: { businessName: string; address: string }
  */
 export async function POST(request: Request) {
-  const clientIp = getClientIp(request);
-  const rl = await rateLimit(clientIp, 10, 60 * 60 * 1000); // 10 requests per hour
-  if (!rl.success) {
-    return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 });
-  }
-
   // Require authentication
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  // Rate-limit by authenticated user ID to prevent shared-IP users from burning each other's quota
+  const rl = await rateLimit(`places:${user.id}`, 10, 60 * 60 * 1000); // 10 requests per hour
+  if (!rl.success) {
+    return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 });
   }
 
   const body = await request.json().catch(() => null);

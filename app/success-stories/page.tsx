@@ -48,7 +48,7 @@ export default function SuccessStoriesPage() {
       <hr style={{ border: "none", height: "1px", backgroundColor: "var(--color-rule)" }} />
 
       {/* Stories Grid — shown only when real stories exist */}
-      {successStories.length > 0 && (
+      {successStories.length > 0 ? (
         <section style={{ padding: "48px 24px" }}>
           <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
             {successStories.map((story, i) => (
@@ -113,6 +113,32 @@ export default function SuccessStoriesPage() {
               </article>
             ))}
           </div>
+        </section>
+      ) : (
+        <section style={{ padding: "48px 24px" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "16px",
+              lineHeight: "1.6",
+              color: "var(--color-muted)",
+            }}
+          >
+            No success stories yet — check back soon.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-block"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "11px",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--color-accent)",
+            }}
+          >
+            ← Back to home
+          </Link>
         </section>
       )}
 

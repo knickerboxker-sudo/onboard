@@ -184,6 +184,31 @@
   }
   .sortir-card-elevated:hover {
     background: var(--color-paper-dark);
+    border-left-color: var(--color-accent);
+    box-shadow: 0 4px 16px rgba(13,13,13,0.07);
+    transform: translateY(-1px);
+  }
+
+  /* Featured card — for highlighted matches, top results, or recommended content */
+  .sortir-card-featured {
+    border: 1px solid var(--color-rule);
+    border-left: 3px solid var(--color-accent);
+    background: var(--color-paper-dark);
+    padding: 20px 24px;
+    transition: all 0.2s;
+  }
+
+  .sortir-card-featured:hover {
+    box-shadow: 0 4px 16px rgba(13,13,13,0.07);
+    transform: translateY(-1px);
+  }
+
+  /* Muted/empty card — for empty states or secondary content */
+  .sortir-card-muted {
+    border: 1px dashed var(--color-rule);
+    background: transparent;
+    padding: 20px 24px;
+    opacity: 0.7;
   }
 
   /* ─── Badges ───────────────────────────────────────────── */
@@ -329,6 +354,13 @@
   .btn-cta-outline:hover {
     background: var(--color-paper);
     color: var(--color-accent);
+  }
+
+  .btn-primary:active,
+  .btn-accent:active,
+  .btn-primary-hero:active {
+    transform: translateY(1px);
+    box-shadow: none;
   }
 }
 

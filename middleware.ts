@@ -42,6 +42,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const protectedRoutes = [
+    "/admin",
     "/dashboard",
     "/discover",
     "/messages",
@@ -88,9 +89,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(onboardingUrl);
       }
 
-      // Cache result with a short-lived cookie
+      // Cache result with a 7-day cookie to avoid re-querying Supabase on every request
       supabaseResponse.cookies.set("onboarding_complete", "1", {
-        maxAge: 3600,
+        maxAge: 604800,
         path: "/",
         sameSite: "lax",
         httpOnly: true,
